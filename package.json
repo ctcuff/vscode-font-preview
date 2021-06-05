@@ -1,0 +1,66 @@
+{
+  "name": "font-preview",
+  "displayName": "Font Preview",
+  "description": "Preview fonts in VS Code",
+  "license": "MIT",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.56.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:font-preview.open"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "font-preview.open",
+        "title": "Open font preview"
+      }
+    ]
+  },
+  "scripts": {
+    "build": "npm-run-all -p build:*",
+    "build:extension": "webpack",
+    "build:web": "cd ./web && yarn build",
+    "format": "prettier --write './src/**/*{.js,.ts}' './web/**/*{.js,.jsx,.ts,.tsx,.scss}'",
+    "lint": "yarn lint:web && yarn lint:extension",
+    "lint:web": "cd ./web && yarn lint",
+    "lint:extension": "eslint './src/**/*{.js,.ts}'",
+    "package": "webpack --mode production --devtool hidden-source-map",
+    "precommit": "lint-staged",
+    "prepare": "husky install",
+    "pretest": "yarn run test-compile && yarn run lint",
+    "test": "node ./out/test/runTest.js",
+    "test-compile": "tsc -p ./",
+    "test-watch": "tsc -watch -p ./",
+    "vscode:prepublish": "yarn run package",
+    "watch": "npm-run-all -p watch:*",
+    "watch:extension": "cd ./web && yarn watch",
+    "watch:web": "cd ./web && yarn watch"
+  },
+  "devDependencies": {
+    "@types/glob": "^7.1.3",
+    "@types/mocha": "^8.0.4",
+    "@types/node": "^12.11.7",
+    "@types/vscode": "^1.56.0",
+    "@typescript-eslint/eslint-plugin": "^4.14.1",
+    "@typescript-eslint/parser": "^4.14.1",
+    "eslint": "^7.19.0",
+    "glob": "^7.1.6",
+    "html-loader": "^2.1.2",
+    "lint-staged": "^11.0.0",
+    "mocha": "^8.2.1",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^2.3.0",
+    "ts-loader": "^8.0.14",
+    "typescript": "^4.1.3",
+    "vscode-test": "^1.5.0",
+    "webpack": "^5.19.0",
+    "webpack-cli": "^4.7.0",
+    "husky": "^6.0.0"
+  }
+}
