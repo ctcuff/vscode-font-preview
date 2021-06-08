@@ -69,6 +69,7 @@ module.exports = {
     ]
   },
   overrides: [
+    ...baseConfig.overrides,
     {
       files: ['*.d.ts'],
       globals: {
