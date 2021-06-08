@@ -1,3 +1,4 @@
+// Shared eslint config used in the extension and the webview
 module.exports = {
   ignorePatterns: ['.eslintrc.js', 'webpack.config.js'],
   rules: {
@@ -22,8 +23,15 @@ module.exports = {
     // Disabled to allow types to be defined at the end of a file
     'no-use-before-define': 'off',
     '@typescript-eslint/no-use-before-define': ['error'],
-    '@typescript-eslint/explicit-module-boundary-types': 'error',
     '@typescript-eslint/no-empty-function': 'off',
     '@typescript-eslint/no-unused-vars': ['error', { args: 'after-used' }]
-  }
+  },
+  overrides: [
+    {
+      files: ['*.ts', '*.tsx'],
+      rules: {
+        '@typescript-eslint/explicit-module-boundary-types': ['error']
+      }
+    }
+  ]
 }

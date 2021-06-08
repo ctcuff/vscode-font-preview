@@ -11,14 +11,20 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:font-preview.open"
+    "onCustomEditor:font.detail.preview"
   ],
   "main": "./dist/extension.js",
   "contributes": {
-    "commands": [
+    "customEditors": [
       {
-        "command": "font-preview.open",
-        "title": "Open font preview"
+        "viewType": "font.detail.preview",
+        "displayName": "Font Preview",
+        "priority": "default",
+        "selector": [
+          {
+            "filenamePattern": "*.{ttf, otf, woff}"
+          }
+        ]
       }
     ]
   },
@@ -39,7 +45,7 @@
     "test-watch": "tsc -watch -p ./",
     "vscode:prepublish": "yarn run package",
     "watch": "npm-run-all -p watch:*",
-    "watch:extension": "cd ./web && yarn watch",
+    "watch:extension": "webpack --watch --mode development",
     "watch:web": "cd ./web && yarn watch"
   },
   "devDependencies": {
