@@ -1,2 +1,19 @@
 .app {
+  width: 80%;
+  margin: 0 auto;
+
+  .font-preview {
+    font-family: 'Font-Preview';
+  }
+
+  h1.font-preview {
+    margin-top: 24px;
+    font-size: 42px;
+  }
+
+  .extended-text-preview {
+    font-size: 14px;
+    line-height: 1.7;
+    font-family: 'Font-Preview';
+  }
 }

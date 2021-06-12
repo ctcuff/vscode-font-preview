@@ -40,11 +40,21 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
 
     const content = await document.getContent()
 
+    if (!content) {
+      // TODO: Handle errors
+      return
+    }
+
     this.postMessage(panel, {
-      type: 'INIT',
+      type: 'LOAD',
       payload: {
         filePath: document.uri.fsPath,
-        fileContent: content
+        // postMessage can't handle a Uint8Array so we have to send an
+        // array of numbers instead.
+        fileContent: Array.from(content),
+        fileName: path.parse(document.uri.fsPath).name,
+        extension: path.extname(document.uri.fsPath).replace('.', ''),
+        base64Content: Buffer.from(content).toString('base64')
       }
     })
 

@@ -1,4 +1,4 @@
 export interface WebviewMessage {
-  type: Uppercase<string>
-  payload: any
+  type: string
+  payload?: any
 }

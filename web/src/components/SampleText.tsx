@@ -1,0 +1,87 @@
+import React from 'react'
+
+// https://www.gutenberg.org/files/32706/32706-h/32706-h.htm
+const SampleText = (): JSX.Element => (
+  <div className="extended-text-preview">
+    <p>
+      {`Apparently motionless to her passengers and crew, the Interplanetary
+      liner Hyperion bored serenely onward through space at normal
+      acceleration. In the railed-off sanctum in one corner of the control
+      room a bell tinkled, a smothered whirr was heard, and Captain Bradley
+      frowned as he studied the brief message upon the tape of the recorder--a
+      message flashed to his desk from the operator's panel. He beckoned, and
+      the second officer, whose watch it now was, read aloud: "Reports of
+      scout patrols still negative." "Still negative." The officer scowled in
+      thought. "They've already searched beyond the widest possible location
+      of the wreckage, too. Two unexplained disappearances inside a
+      month--first the Dione, then the Rhea--and not a plate nor a lifeboat
+      recovered. Looks bad, sir. One might be an accident; two might possibly
+      be a coincidence...." His voice died away. What might that coincidence
+      mean?`}
+    </p>
+    <p>
+      {`"But at three it would get to be a habit," the captain finished the
+      thought. "And whatever happened, happened quick. Neither of them had
+      time to say a word--their location recorders simply went dead. But of
+      course they didn't have our detector screens nor our armament. According
+      to the observatories we're in clear ether, but I wouldn't trust them
+      from Tellus to Luna. You have given the new orders, of course?" "Yes,
+      sir. Detectors full out, all three courses of defensive screen on the
+      trips, projectors manned, suits on the hooks. Every object detected in
+      the outer space to be investigated immediately--if vessels, they are to
+      be warned to stay beyond extreme range. Anything entering the fourth
+      zone is to be rayed." "Right--we are going through!"`}
+    </p>
+    <p>
+      {`"But no known type of vessel could have made away with them without
+      detection," the second officer argued. "I wonder if there isn't
+      something in those wild rumors we've been hearing lately?" Now,
+      systematically and precisely, the great Cone of Battle was coming into
+      being; a formation developed during the Jovian Wars while the forces of
+      the Three Planets were fighting in space. "Bah! Of course not!" snorted
+      the captain. "Pirates in ships faster than light--fifth order
+      rays--nullification of gravity--mass without inertia--ridiculous! Proved
+      impossible, over and over again. No, sir, if pirates are operating in
+      space--and it looks very much like it--they won't get far against a good
+      big battery full of kilowatt-hours behind three courses of heavy screen,
+      and a good solid set of multiplex rays. Properly used, they're good
+      enough for anybody. Pirates, Neptunians, angels, or devils--in ships or
+      on sunbeams--if they tackle the Hyperion we'll burn them out of the
+      ether!"`}
+    </p>
+    <p>
+      {`Leaving the captain's desk, the watch officer resumed his tour of duty.
+      The six great lookout plates into which the alert observers peered were
+      blank, their far-flung ultra-sensitive detector screens encountering no
+      obstacle--the ether was empty for thousands upon thousands of
+      kilometers. The signal lamps upon the pilot's panel were dark, its
+      warning bells were silent. A brilliant point of white in the center of
+      the pilot's closely ruled micrometer grating, exactly upon the
+      cross-hairs of his directors, showed that the immense vessel was
+      precisely upon the calculated course, as laid down by the automatic
+      integrating course-plotters. Everything was quiet and in order.`}
+    </p>
+    <p>
+      {`"All's well, sir," he reported briefly to Captain Bradley—but all was not well.
+      Danger—more serious by far in that it was not external—was even then, all
+      unsuspected, gnawing at the great ship's vitals. In a locked and shielded
+      compartment, deep down in the interior of the liner, was the great air purifier. Now
+      a man leaned against the primary duct—the aorta through which flowed the stream of
+      pure air supplying the entire vessel. This man, grotesque in full panoply of space
+      armor, leaned against the duct, and as he leaned a drill bit deeper and deeper into
+      the steel wall of the pipe. Soon it broke through, and the slight rush of air was
+      stopped by the insertion of a tightly fitting rubber tube. The tube terminated in a
+      heavy rubber balloon, which surrounded a frail glass bulb. The man stood tense, one
+      hand holding before his silica-and-steel-helmeted head a large pocket chronometer,
+      the other lightly grasping the balloon. A sneering grin was upon his face as he
+      waited the exact second of action—the carefully predetermined instant when his right
+      hand, closing, would shatter the fragile flask and force its contents into the
+      primary air stream of the Hyperion!`}
+    </p>
+    <p className="extended-text--author font-default">
+      Text borrowed from Triplanetary by Edward Elmer Smith.
+    </p>
+  </div>
+)
+
+export default SampleText

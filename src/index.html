@@ -10,6 +10,7 @@
         img-src https:; 
         script-src 'unsafe-eval' 'unsafe-inline' vscode-resource:;
         style-src vscode-resource: 'unsafe-inline';
+        font-src 'self' data:;
       "
     />
     <script>
@@ -18,7 +19,10 @@
   </head>
   <body>
     <div id="root"></div>
-    <!-- reactAppUri will be replaced by the bundled React code from the `web` directory -->
+    <!--
+      reactAppUri will be replaced by the bundled index.js file
+      generated from the 'web' directory
+    -->
     <script src="{{ reactAppUri }}"></script>
   </body>
 </html>

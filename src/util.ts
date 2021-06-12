@@ -6,17 +6,14 @@
  * @param data Key value pairs. These must match the names of the variables in the HTML file
  * @returns The HTML file with all variables replaced
  */
-function template(
-  content: string,
-  data: Readonly<{ [key: string]: string | number }>
-): string {
-  let template = content
+function template(content: string, data: Readonly<{ [key: string]: string }>): string {
+  let html = content
 
   Object.entries(data).forEach(([key, value]) => {
-    template = template.replace(`{{ ${key} }}`, `${value}`)
+    html = html.replace(`{{ ${key} }}`, `${value}`)
   })
 
-  return template
+  return html
 }
 
 export { template }
