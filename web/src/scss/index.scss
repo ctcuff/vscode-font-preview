@@ -1,0 +1,10 @@
+@import './variables';
+
+:root {
+  // Exposing this here so that the value can be accessed in JS
+  --font-family-name: #{$fontFamilyName};
+}
+
+p {
+  font-size: 15px;
+}

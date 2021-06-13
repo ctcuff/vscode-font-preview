@@ -1,17 +1,15 @@
-/* eslint-disable */
+/* eslint-disable no-console */
 import '../scss/app.scss'
-import React, { useEffect, useState } from 'react'
-import opentype from 'opentype.js'
+import React, { useContext, useEffect, useState } from 'react'
+import opentype, { Font } from 'opentype.js'
+import TabView, { Tab } from './TabView'
+import FontPreview from './FontPreview'
+import Glyphs from './Glyphs'
+import { FontProvider } from '../contexts/FontContext'
 import { WebviewMessage } from '../../../shared/webview-message'
-import SampleText from './SampleText'
-
-type FontExtension = 'ttf' | 'otf' | 'woff' | ''
-
-type SavedState = {
-  base64Content: string
-  fileContent: number[]
-  fontExtension: FontExtension
-}
+import VscodeContext from '../contexts/VscodeContext'
+import { FontExtension } from '../types'
+import LoadingOverlay from './LoadingOverlay'
 
 const getFontMimeType = (fontName: FontExtension): string => {
   switch (fontName) {
@@ -26,44 +24,61 @@ const getFontMimeType = (fontName: FontExtension): string => {
   }
 }
 
-const vscode = window.acquireVsCodeApi<SavedState>()
+/**
+ * Creates and inserts a <style> element with the loaded font. This allows
+ * the font to be accessed anywhere in a stylesheet.
+ */
+const createStyle = (base64Font: string, fontExtension: FontExtension): void => {
+  const style = document.createElement('style')
+  const mimeType = getFontMimeType(fontExtension)
+  const fontFamilyName = getComputedStyle(document.documentElement).getPropertyValue(
+    '--font-family-name'
+  )
 
-const App = (): JSX.Element => {
-  const [font, setFont] = useState<opentype.Font | null>(null)
+  style.id = 'font-preview'
+  style.innerHTML = /* css */ `
+    @font-face {
+      font-family: ${fontFamilyName};
+      src:
+        url("data:font/${mimeType};base64,${base64Font}")
+        format("${mimeType}");
+    }`
+
+  document.head.insertAdjacentElement('beforeend', style)
+}
+
+const App = (): JSX.Element | null => {
+  const [font, setFont] = useState<Font | null>(null)
   const [fileName, setFileName] = useState('')
+  const [isLoading, setLoading] = useState(true)
+  const vscode = useContext(VscodeContext)
   const savedState = vscode.getState()
 
-  const createStyle = (base64Font: string, fontExtension: FontExtension): void => {
-    const style = document.createElement('style')
-    const mimeType = getFontMimeType(fontExtension)
-
-    style.id = 'font-preview'
-    style.innerHTML = /* css */ `
-      @font-face {
-        font-family: "Font-Preview";
-        src:
-          url("data:font/${mimeType};base64,${base64Font}")
-          format("${mimeType}");
-      }`
-
-    document.head.insertAdjacentElement('beforeend', style)
-  }
-
   const loadFont = (fileData: number[]): void => {
+    const errorMessage: WebviewMessage = {
+      type: 'FONT_LOAD_ERROR'
+    }
+
     try {
-      const data = new Uint8Array(fileData)
-      const fontData = opentype.parse(data.buffer)
+      const fontData = opentype.parse(new Uint8Array(fileData).buffer)
 
       if (!fontData.supported) {
-        console.warn('Font is not supported or cannot be displayed')
+        console.log('NOT SUPPORTED')
+        errorMessage.payload = 'This font is not supported or cannot be displayed.'
+        vscode.postMessage(errorMessage)
         return
       }
+
       console.log(fontData.tables)
 
       setFont(fontData)
     } catch (err) {
-      console.warn(err)
+      console.log(err)
+      errorMessage.payload = err.message
+      vscode.postMessage(errorMessage)
     }
+
+    setLoading(false)
   }
 
   const onMessage = (message: MessageEvent<WebviewMessage>): void => {
@@ -100,15 +115,25 @@ const App = (): JSX.Element => {
     }
   }, [])
 
+  if (isLoading) {
+    return <LoadingOverlay />
+  }
+
+  if (!font) {
+    return null
+  }
+
   return (
-    <div className="app">
-      {font && (
-        <>
-          <h1 className="font-preview">{font.tables?.name?.fullName?.en || fileName}</h1>
-          <SampleText />
-        </>
-      )}
-    </div>
+    <FontProvider value={font}>
+      <TabView>
+        <Tab title="Preview">
+          <FontPreview fileName={fileName} />
+        </Tab>
+        <Tab title="Glyphs">
+          <Glyphs />
+        </Tab>
+      </TabView>
+    </FontProvider>
   )
 }
 

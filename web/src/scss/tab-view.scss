@@ -1,0 +1,51 @@
+.tab-view {
+  width: 100%;
+
+  .tab-list {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    z-index: 1;
+    position: sticky;
+    top: 0;
+    left: 0;
+    right: 0;
+    background-color: var(--vscode-editor-background);
+  }
+
+  .tab {
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    line-height: 35px;
+    padding: 0 16px;
+    user-select: none;
+    color: var(--vscode-tab-inactiveForeground);
+    background-color: var(--vscode-tab-inactiveBackground);
+    outline-offset: -5px;
+
+    &:focus {
+      outline: none;
+    }
+
+    &:hover {
+      outline: 1px dashed var(--vscode-contrastActiveBorder, transparent);
+    }
+  }
+
+  .tab--selected {
+    color: var(--vscode-tab-activeForeground);
+    background-color: var(--vscode-tab-activeBackground);
+    // Not all themes have these variable so we need transparent as a fallback
+    box-shadow: 0 1px 0 0px var(--vscode-tab-activeBorder, transparent);
+
+    // For high contrast themes
+    outline: 1px solid var(--vscode-contrastActiveBorder, transparent);
+
+    &:hover {
+      outline-style: solid;
+    }
+  }
+}

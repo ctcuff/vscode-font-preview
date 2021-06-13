@@ -1,8 +1,12 @@
 import React from 'react'
 
+type SampleTextProps = {
+  className?: string
+}
+
 // https://www.gutenberg.org/files/32706/32706-h/32706-h.htm
-const SampleText = (): JSX.Element => (
-  <div className="extended-text-preview">
+const SampleText = ({ className = '' }: SampleTextProps): JSX.Element => (
+  <div className={className}>
     <p>
       {`Apparently motionless to her passengers and crew, the Interplanetary
       liner Hyperion bored serenely onward through space at normal

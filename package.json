@@ -22,7 +22,7 @@
         "priority": "default",
         "selector": [
           {
-            "filenamePattern": "*.{ttf, otf, woff}"
+            "filenamePattern": "*.{ttf,otf,woff}"
           }
         ]
       }

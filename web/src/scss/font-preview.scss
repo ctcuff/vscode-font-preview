@@ -1,0 +1,17 @@
+@import './variables';
+
+.font-preview {
+  width: 80%;
+  margin: 0 auto;
+
+  .font-name {
+    font-family: $fontFamilyName;
+    margin-top: 24px;
+    font-size: 42px;
+  }
+
+  .text-preview {
+    line-height: 1.7;
+    font-family: $fontFamilyName;
+  }
+}

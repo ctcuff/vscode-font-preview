@@ -1,0 +1,59 @@
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  circle {
+    animation: ball 2.5s cubic-bezier(0, 1, 1, 0) infinite;
+    fill: var(--vscode-menu-foreground);
+  }
+
+  #balls {
+    animation: balls 2.5s linear infinite;
+  }
+
+  #circle2 {
+    animation-delay: 0s;
+  }
+
+  #circle3 {
+    animation-delay: 0.1s;
+  }
+
+  #circle4 {
+    animation-delay: 0.2s;
+  }
+
+  #circle5 {
+    animation-delay: 0.3s;
+  }
+
+  @keyframes ball {
+    from {
+      transform: none;
+    }
+    20% {
+      transform: none;
+    }
+    80% {
+      transform: translateX(864px);
+    }
+    to {
+      transform: translateX(864px);
+    }
+  }
+
+  @keyframes balls {
+    from {
+      transform: translateX(-40px);
+    }
+    to {
+      transform: translateX(30px);
+    }
+  }
+}
