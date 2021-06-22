@@ -14,7 +14,7 @@ type TabViewProps = {
 }
 
 /**
- * A wrapper that makes working with tha tab view feel a little
+ * A wrapper component that makes working with the tab view feel a little
  * cleaner. This allows the TabView to also access the props of each
  * of its tabs
  */
@@ -24,7 +24,7 @@ const TabView = ({ children }: TabViewProps): JSX.Element => {
   const tabs = children as React.ReactElement<TabProps>[]
 
   return (
-    <Tabs className="tab-view" selectedTabClassName="tab--selected" defaultIndex={0}>
+    <Tabs className="tab-view" selectedTabClassName="tab--selected" defaultIndex={2}>
       <TabList className="tab-list">
         {tabs.map((tab, index) => (
           <ReactTab className="tab" selectedClassName="tab--selected" key={index}>

@@ -16,11 +16,7 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
   public static register(context: vscode.ExtensionContext): vscode.Disposable {
     console.log('Font Provider has been registered')
     const provider = new FontProvider(context)
-    const registration = vscode.window.registerCustomEditorProvider(
-      FontProvider.viewType,
-      provider
-    )
-    return registration
+    return vscode.window.registerCustomEditorProvider(FontProvider.viewType, provider)
   }
 
   public async openCustomDocument(uri: vscode.Uri): Promise<FontDocument> {
@@ -39,6 +35,7 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
     }
 
     const content = await document.getContent()
+    const parsedPath = path.parse(document.uri.fsPath)
 
     if (!content) {
       // TODO: Handle errors
@@ -48,12 +45,11 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
     this.postMessage(panel, {
       type: 'LOAD',
       payload: {
-        filePath: document.uri.fsPath,
         // postMessage can't handle a Uint8Array so we have to send an
         // array of numbers instead.
         fileContent: Array.from(content),
-        fileName: path.parse(document.uri.fsPath).name,
-        extension: path.extname(document.uri.fsPath).replace('.', ''),
+        fileName: parsedPath.name,
+        extension: parsedPath.ext.replace('.', ''),
         base64Content: Buffer.from(content).toString('base64')
       }
     })
@@ -68,7 +64,9 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
   }
 
   private onDidReceiveMessage(message: WebviewMessage): void {
-    console.log({ message })
+    if (message.type === 'ERROR') {
+      vscode.window.showErrorMessage(message.payload)
+    }
   }
 
   private getWebviewContent(): string {

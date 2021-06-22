@@ -34,7 +34,7 @@ module.exports = {
       }
     }
   },
-  ignorePatterns: baseConfig.ignorePatterns,
+  ignorePatterns: [...baseConfig.ignorePatterns, 'src/lib/**/*'],
   rules: {
     ...baseConfig.rules,
     'no-alert': 'error',

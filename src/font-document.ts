@@ -1,10 +1,15 @@
 import * as vscode from 'vscode'
+import * as path from 'path'
 
 class FontDocument implements vscode.CustomDocument {
   public readonly uri: vscode.Uri
+  public readonly fileName: string
+  public readonly extension: string
 
   constructor(uri: vscode.Uri) {
     this.uri = uri
+    this.fileName = path.parse(uri.fsPath).name
+    this.extension = path.extname(uri.fsPath).replace('.', '')
   }
 
   dispose(): void {}

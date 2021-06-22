@@ -4196,6 +4196,11 @@ validate-npm-package-license@^3.0.1:
     spdx-correct "^3.0.0"
     spdx-expression-parse "^3.0.0"
 
+variablefont.js@^0.0.0:
+  version "0.0.0"
+  resolved "https://registry.yarnpkg.com/variablefont.js/-/variablefont.js-0.0.0.tgz#37f921bb239ac5ab7fa532acff0898aea30885dd"
+  integrity sha512-caI0l+9ZOd2BPDx7mfj9BEX3r34jpFn219eY+i5Fo8QgzTgSE0E+AsP5ZFCnyyltidhzRwclASbUZhPsVB0JPQ==
+
 verror@1.10.0:
   version "1.10.0"
   resolved "https://registry.yarnpkg.com/verror/-/verror-1.10.0.tgz#3a105ca17053af55d6e270c1f8288682e18da400"

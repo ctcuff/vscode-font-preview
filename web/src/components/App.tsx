@@ -10,6 +10,7 @@ import { WebviewMessage } from '../../../shared/webview-message'
 import VscodeContext from '../contexts/VscodeContext'
 import { FontExtension } from '../types'
 import LoadingOverlay from './LoadingOverlay'
+import Features from './Features'
 
 const getFontMimeType = (fontName: FontExtension): string => {
   switch (fontName) {
@@ -31,6 +32,9 @@ const getFontMimeType = (fontName: FontExtension): string => {
 const createStyle = (base64Font: string, fontExtension: FontExtension): void => {
   const style = document.createElement('style')
   const mimeType = getFontMimeType(fontExtension)
+
+  // Using var() in the template string doesn't load the font family
+  // so it has to be grabbed from the root element
   const fontFamilyName = getComputedStyle(document.documentElement).getPropertyValue(
     '--font-family-name'
   )
@@ -56,25 +60,24 @@ const App = (): JSX.Element | null => {
 
   const loadFont = (fileData: number[]): void => {
     const errorMessage: WebviewMessage = {
-      type: 'FONT_LOAD_ERROR'
+      type: 'ERROR',
+      payload: ''
     }
 
     try {
       const fontData = opentype.parse(new Uint8Array(fileData).buffer)
 
       if (!fontData.supported) {
-        console.log('NOT SUPPORTED')
-        errorMessage.payload = 'This font is not supported or cannot be displayed.'
+        errorMessage.payload =
+          'Error loading font: This font is not supported or cannot be displayed.'
         vscode.postMessage(errorMessage)
+        setLoading(false)
         return
       }
 
-      console.log(fontData.tables)
-
       setFont(fontData)
     } catch (err) {
-      console.log(err)
-      errorMessage.payload = err.message
+      errorMessage.payload = `Error loading font: ${err.message}`
       vscode.postMessage(errorMessage)
     }
 
@@ -82,10 +85,10 @@ const App = (): JSX.Element | null => {
   }
 
   const onMessage = (message: MessageEvent<WebviewMessage>): void => {
-    // CMD/CTRL + Shift + T reopens the most recently closed tab. This
+    // Reopening the the most recently closed tab (CMD/CTRL + Shift + T )
     // causes vscode to read in the saved state but also fire the init
     // message. Returning here prevents the font from being loaded twice.
-    if (savedState || message.data.type !== 'LOAD') {
+    if (savedState && message.data.type === 'LOAD') {
       return
     }
 
@@ -127,10 +130,13 @@ const App = (): JSX.Element | null => {
     <FontProvider value={font}>
       <TabView>
         <Tab title="Preview">
-          <FontPreview fileName={fileName} />
+          <FontPreview fontName={font?.tables?.name?.fullName?.en || fileName} />
+        </Tab>
+        <Tab title="Features">
+          <Features />
         </Tab>
         <Tab title="Glyphs">
-          <Glyphs />
+          <Glyphs glyphs={font.glyphs} />
         </Tab>
       </TabView>
     </FontProvider>

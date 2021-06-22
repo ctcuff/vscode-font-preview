@@ -1,3 +1,4 @@
 dist/*
 web/node_modules/*
+web/src/lib/*
 web-dist/*

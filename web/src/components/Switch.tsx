@@ -1,0 +1,35 @@
+import '../scss/switch.scss'
+import React, { useState } from 'react'
+
+type SwitchProps = {
+  className?: string
+  title?: string
+  onChange?: (checked: boolean) => void
+}
+
+const rand = () => Math.floor(Math.random() * 1_000_000)
+const generateId = () => `input-${rand()}-${rand()}-${rand()}`
+
+const Switch = ({
+  className = '',
+  title = '',
+  onChange = () => {}
+}: SwitchProps): JSX.Element => {
+  const [id] = useState(generateId())
+
+  return (
+    <div className={`${className} switch`}>
+      {title && <p className="title">{title}</p>}
+      <label className="wrapper" htmlFor={id}>
+        <input
+          type="checkbox"
+          id={id}
+          onChange={event => onChange(event.target.checked)}
+        />
+        <div className="background" />
+      </label>
+    </div>
+  )
+}
+
+export default Switch

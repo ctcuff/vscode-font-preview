@@ -16,6 +16,7 @@ module.exports = {
     'func-names': 'off',
     'no-param-reassign': ['error', { props: false }],
     'lines-between-class-members': 'off',
+    'prefer-destructuring': 'off',
     // Disabled to let TypeScript handle unused variable checking.
     //  ESLint would report unused variables in a type's
     // function callback declaration
