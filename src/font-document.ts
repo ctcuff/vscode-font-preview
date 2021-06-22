@@ -7,9 +7,11 @@ class FontDocument implements vscode.CustomDocument {
   public readonly extension: string
 
   constructor(uri: vscode.Uri) {
+    const { name, ext } = path.parse(uri.fsPath)
+
     this.uri = uri
-    this.fileName = path.parse(uri.fsPath).name
-    this.extension = path.extname(uri.fsPath).replace('.', '')
+    this.fileName = name
+    this.extension = ext.replace('.', '')
   }
 
   dispose(): void {}

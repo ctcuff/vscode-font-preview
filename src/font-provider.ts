@@ -35,7 +35,6 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
     }
 
     const content = await document.getContent()
-    const parsedPath = path.parse(document.uri.fsPath)
 
     if (!content) {
       // TODO: Handle errors
@@ -45,11 +44,11 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
     this.postMessage(panel, {
       type: 'LOAD',
       payload: {
-        // postMessage can't handle a Uint8Array so we have to send an
-        // array of numbers instead.
+        // postMessage can't handle a Uint8Array so we have to
+        // send an array of numbers instead.
         fileContent: Array.from(content),
-        fileName: parsedPath.name,
-        extension: parsedPath.ext.replace('.', ''),
+        fileName: document.fileName,
+        extension: document.extension,
         base64Content: Buffer.from(content).toString('base64')
       }
     })
@@ -64,8 +63,10 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
   }
 
   private onDidReceiveMessage(message: WebviewMessage): void {
-    if (message.type === 'ERROR') {
-      vscode.window.showErrorMessage(message.payload)
+    switch (message.type.toUpperCase()) {
+      case 'ERROR':
+        vscode.window.showErrorMessage(message.payload)
+        break
     }
   }
 
