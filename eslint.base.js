@@ -6,6 +6,7 @@ module.exports = {
     'arrow-body-style': 'off',
     semi: ['error', 'never'],
     'semi-style': 'off',
+    'no-continue': 'off',
     'no-console': 'error',
     'comma-dangle': ['error', 'never'],
     'operator-linebreak': 'off',
