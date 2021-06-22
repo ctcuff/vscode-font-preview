@@ -1,11 +1,10 @@
-/* eslint-disable no-console */
 import '../scss/app.scss'
 import React, { useContext, useEffect, useState } from 'react'
 import opentype, { Font } from 'opentype.js'
 import TabView, { Tab } from './TabView'
 import FontPreview from './FontPreview'
 import Glyphs from './Glyphs'
-import { FontProvider } from '../contexts/FontContext'
+import FontContext from '../contexts/FontContext'
 import { WebviewMessage } from '../../../shared/webview-message'
 import VscodeContext from '../contexts/VscodeContext'
 import { FontExtension } from '../types'
@@ -92,17 +91,23 @@ const App = (): JSX.Element | null => {
       return
     }
 
-    const { payload } = message.data
+    // eslint-disable-next-line default-case
+    switch (message.data.type) {
+      case 'LOAD': {
+        const { payload } = message.data
 
-    loadFont(payload.fileContent)
-    createStyle(payload.base64Content, payload.extension)
-    setFileName(payload.fileName)
+        loadFont(payload.fileContent)
+        createStyle(payload.base64Content, payload.extension)
+        setFileName(payload.fileName)
 
-    vscode.setState({
-      base64Content: payload.base64Content,
-      fileContent: payload.fileContent,
-      fontExtension: payload.extension
-    })
+        vscode.setState({
+          base64Content: payload.base64Content,
+          fileContent: payload.fileContent,
+          fontExtension: payload.extension
+        })
+        break
+      }
+    }
   }
 
   useEffect(() => {
@@ -127,19 +132,23 @@ const App = (): JSX.Element | null => {
   }
 
   return (
-    <FontProvider value={font}>
-      <TabView>
+    <FontContext.Provider value={{ font, fileName }}>
+      <TabView panelClassName="app">
         <Tab title="Preview">
-          <FontPreview fontName={font?.tables?.name?.fullName?.en || fileName} />
+          <FontPreview />
         </Tab>
-        <Tab title="Features">
-          <Features />
-        </Tab>
+        {(font.tables.gpos || font.tables.gsub) && (
+          // Hide this tab if the current font doesn't have
+          // any variable font features or feature tags
+          <Tab title="Features">
+            <Features />
+          </Tab>
+        )}
         <Tab title="Glyphs">
-          <Glyphs glyphs={font.glyphs} />
+          <Glyphs />
         </Tab>
       </TabView>
-    </FontProvider>
+    </FontContext.Provider>
   )
 }
 

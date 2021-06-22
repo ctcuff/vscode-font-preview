@@ -1,30 +1,85 @@
 @import './variables';
+@import './mixins';
 
 .glyphs {
-  margin-top: 8px;
-  // display: flex;
-  // justify-content: center;
-  // align-items: center;
+  margin-bottom: 32px;
+
+  .font-name,
+  .glyph {
+    font-family: $fontFamilyName;
+  }
+
+  .font-name {
+    margin-top: 24px;
+    margin-bottom: 32px;
+    font-size: 42px;
+  }
 
   .glyph {
-    // font-size: 100px;
-    font-family: $fontFamilyName;
-    // display: block;
-
-    border: 1px solid white;
+    position: relative;
+    border: 1px solid;
     display: inline-flex;
     justify-content: center;
     align-items: center;
     margin: -1px 0 0 -1px;
-    width: 2em;
-    height: 2em;
-    font-size: 3em;
+    width: 2.2em;
+    height: 2.2em;
+    font-size: 3.2em;
     user-select: none;
     cursor: default;
+    overflow: hidden;
+
+    .glyph-detail {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      font-family: var(--vscode-font-family, var(--theme-font-family));
+      font-size: 12px;
+      padding: 8px 6px;
+      border-top: 1px solid;
+      transform: translateY(calc(100% + 1px));
+      text-align: center;
+      background-color: var(--vscode-editor-background);
+      z-index: 2;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    &:hover .glyph-detail {
+      transform: translateY(0%);
+    }
+
+    &::before {
+      content: attr(data-index);
+      font-family: var(--vscode-font-family, var(--theme-font-family));
+      position: absolute;
+      bottom: 4px;
+      left: 4px;
+      font-size: 12px;
+    }
+  }
+}
+
+@include vscode-light('.glyphs') {
+  .glyph,
+  .glyph-detail {
+    border-color: #cccccc !important;
   }
 
-  canvas {
-    margin-top: 8px;
-    background-color: white;
+  .glyph::before {
+    color: #7a7a7a;
+  }
+}
+
+@include vscode-dark('.glyphs') {
+  .glyph,
+  .glyph-detail {
+    border-color: #555555 !important;
+  }
+
+  .glyph::before {
+    color: #bababa;
   }
 }

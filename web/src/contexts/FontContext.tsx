@@ -1,18 +1,21 @@
-import React, { createContext } from 'react'
+import { createContext } from 'react'
 import { Font } from 'opentype.js'
 
-// A dummy object is provided here because the App component makes sure
-// that the context is never initialized with a null value. Because of
-// that, we need a fake Font object so TS doesn't complain
-const FontContext = createContext<Font>({} as Font)
-
-type FontProviderProps = {
-  value: Font
-  children: React.ReactNode
+type FontContextProps = {
+  font: Font
+  /**
+   * Holds a reference to the filename of the font (without the extension)
+   * in case the name of the font can be accessed through opentype
+   */
+  fileName: string
 }
 
-const FontProvider = ({ value, children }: FontProviderProps): JSX.Element => (
-  <FontContext.Provider value={value}>{children}</FontContext.Provider>
-)
+const FontContext = createContext<FontContextProps>({
+  // A dummy object is provided here because the App component makes sure
+  // that the context is never initialized with a null value. Because of
+  // that, we need a fake Font object so TS doesn't complain
+  font: {} as Font,
+  fileName: ''
+})
 
-export { FontProvider, FontContext }
+export default FontContext

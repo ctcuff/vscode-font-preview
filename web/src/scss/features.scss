@@ -1,7 +1,7 @@
 @import './variables';
+@import './mixins';
 
 .features {
-  width: 80%;
   margin: 0 auto;
   margin-bottom: 32px;
 
@@ -27,7 +27,7 @@
   .feature-toggle {
     text-align: center;
     margin-right: 16px;
-    margin-bottom: 24px;
+    margin-bottom: 32px;
     display: inline-flex;
     flex-wrap: wrap;
   }
@@ -37,24 +37,29 @@
   }
 
   .variable-slider {
-    margin-bottom: 24px;
+    margin-bottom: 32px;
   }
 
-  .settings-title {
-    font-weight: bold;
+  .font-instances {
+    margin-bottom: 32px;
+
+    p {
+      font-weight: bold;
+    }
   }
 
   .chip {
     height: 32px;
     margin: 6px 4px;
-    padding: 0 16px;
+    padding: 0 21px;
     border-radius: 100px;
     border: none;
     cursor: pointer;
     background-color: transparent;
     border: 1px solid;
     color: var(--vscode-editor-foreground, var(--theme-foreground));
-    font-size: 15px;
+    font-size: 12px;
+    font-family: var(--vscode-font-family, var(--theme-font-family));
 
     &:hover {
       background-color: var(--vscode-editor-hoverHighlightBackground);
@@ -77,7 +82,7 @@
 
     th {
       text-align: left;
-      padding: 16px 0;
+      padding: 16px 8px;
     }
 
     td {
@@ -85,7 +90,7 @@
     }
 
     tr {
-      border-bottom: 1px solid var(--vscode-editor-foreground, var(--theme-foreground));
+      border-bottom: 1px solid;
     }
 
     tbody {
@@ -99,5 +104,19 @@
         }
       }
     }
+  }
+}
+
+@include vscode-light('.features') {
+  table tr,
+  .chip {
+    border-color: #cccccc !important;
+  }
+}
+
+@include vscode-dark('.features') {
+  table tr,
+  .chip {
+    border-color: #555555 !important;
   }
 }

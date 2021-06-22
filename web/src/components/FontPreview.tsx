@@ -1,14 +1,11 @@
 import '../scss/font-preview.scss'
 import React from 'react'
 import SampleText from './SampleText'
+import FontNameHeader from './FontNameHeader'
 
-type FontPreviewProps = {
-  fontName: string
-}
-
-const FontPreview = ({ fontName }: FontPreviewProps): JSX.Element => (
+const FontPreview = (): JSX.Element => (
   <div className="font-preview">
-    <h1 className="font-name">{fontName}</h1>
+    <FontNameHeader />
     <SampleText className="text-preview" />
   </div>
 )

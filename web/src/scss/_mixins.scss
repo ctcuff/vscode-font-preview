@@ -1,0 +1,29 @@
+// When the theme for vscode changes, the vscode-light or vscode-dark
+// class gets added to the class list of the body of the webview.
+// This can be used to style elements accordingly
+
+// Takes an optional parent selector so that the style
+// can stay scoped if it needs to
+@mixin vscode-light($root: null) {
+  .vscode-light {
+    @if $root == null {
+      @content;
+    } @else {
+      #{$root} {
+        @content;
+      }
+    }
+  }
+}
+
+@mixin vscode-dark($root: null) {
+  .vscode-dark {
+    @if $root == null {
+      @content;
+    } @else {
+      #{$root} {
+        @content;
+      }
+    }
+  }
+}

@@ -1,9 +1,10 @@
 /* eslint-disable */
 import '../scss/features.scss'
 import React, { useContext, useEffect, useState } from 'react'
-import { FontContext } from '../contexts/FontContext'
+import FontContext from '../contexts/FontContext'
 import Switch from './Switch'
 import Slider from './Slider'
+import FontNameHeader from './FontNameHeader'
 import featureTable from '../assets/feature-tags.json'
 
 type FontVariableAxis = {
@@ -38,7 +39,7 @@ const Features = (): JSX.Element => {
   const [fontFeatureSettings, setFontFeatureSettings] = useState('normal')
   const [fontVariationSettings, setFontVariationSettings] = useState<FontVariation>({})
   const [variationCSS, setVariationCSS] = useState('')
-  const font = useContext(FontContext)
+  const { font } = useContext(FontContext)
 
   // Keep track of whether we've seen "cv01" to "cv99" or
   // "ss01" to "ss20" so that it's only included once in the table
@@ -171,26 +172,26 @@ const Features = (): JSX.Element => {
     const instances: FontVariableAxisInstance[] = fvar.instances
 
     return (
-      <>
-        <p className="settings-title">Predefined Settings</p>
-        {instances.map(instance => {
+      <div className="font-instances">
+        <p>Predefined Settings</p>
+        {instances.map((instance, index) => {
           const { coordinates } = instance
 
           return (
             <button
               type="button"
               className="chip"
-              key={instance.name.en}
+              key={index}
               onClick={() => {
                 setFontVariationSettings(coordinates)
                 createVariationCSS(coordinates)
               }}
             >
-              {instance.name.en}
+              {instance.name.en || 'Unknown'}
             </button>
           )
         })}
-      </>
+      </div>
     )
   }
 
@@ -225,15 +226,12 @@ const Features = (): JSX.Element => {
 
   return (
     <div className="features">
-      <h1
-        className="font-name"
+      <FontNameHeader
         style={{
           fontFeatureSettings,
           fontVariationSettings: variationCSS
         }}
-      >
-        {font.names.fullName.en}
-      </h1>
+      />
       <div className="feature-toggles">
         {fontFeatures.map(feature => (
           <Switch
@@ -244,8 +242,8 @@ const Features = (): JSX.Element => {
           />
         ))}
       </div>
-      {renderVariableSliders()}
       {renderFontInstances()}
+      {renderVariableSliders()}
       <p
         className="text"
         style={{
@@ -281,6 +279,11 @@ const Features = (): JSX.Element => {
       </p>
       <h1 className="feature-table-heading">Feature Table</h1>
       <table>
+        <colgroup>
+          <col style={{ width: '10%' }} />
+          <col style={{ width: '25%' }} />
+          <col style={{ width: '65%' }} />
+        </colgroup>
         <thead>
           <tr>
             <th>Tag</th>

@@ -11,6 +11,8 @@ type TabProps = {
 
 type TabViewProps = {
   children: typeof Tab[] | React.ReactNode
+  className?: string
+  panelClassName?: string
 }
 
 /**
@@ -20,11 +22,15 @@ type TabViewProps = {
  */
 const Tab = ({ children }: TabProps): JSX.Element => <>{children}</>
 
-const TabView = ({ children }: TabViewProps): JSX.Element => {
-  const tabs = children as React.ReactElement<TabProps>[]
+const TabView = ({
+  children,
+  className = '',
+  panelClassName = ''
+}: TabViewProps): JSX.Element => {
+  const tabs = (children as React.ReactElement<TabProps>[]).filter(child => !!child)
 
   return (
-    <Tabs className="tab-view" selectedTabClassName="tab--selected" defaultIndex={2}>
+    <Tabs className={`tab-view ${className}`} selectedTabClassName="tab--selected">
       <TabList className="tab-list">
         {tabs.map((tab, index) => (
           <ReactTab className="tab" selectedClassName="tab--selected" key={index}>
@@ -35,7 +41,7 @@ const TabView = ({ children }: TabViewProps): JSX.Element => {
 
       {tabs.map((tab, index) => (
         <TabPanel
-          className="tab-panel"
+          className={`tab-panel ${panelClassName}`}
           selectedClassName="tab-panel--selected"
           key={index}
         >
