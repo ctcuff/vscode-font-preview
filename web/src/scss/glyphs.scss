@@ -24,7 +24,7 @@
     height: 2.2em;
     font-size: 3.2em;
     user-select: none;
-    cursor: default;
+    cursor: pointer;
     overflow: hidden;
 
     .glyph-detail {
@@ -56,6 +56,50 @@
       bottom: 4px;
       left: 4px;
       font-size: 12px;
+    }
+  }
+
+  .react-toast {
+    font-family: var(--vscode-font-family, var(--theme-font-family));
+    border-radius: 0;
+    color: var(--vscode-notifications-foreground, var(--theme-foreground));
+    background-color: var(--vscode-notifications-background);
+    box-shadow: 0px 0px 8px 2px var(--vscode-widget-shadow);
+    min-height: unset;
+    padding: 10px;
+
+    svg {
+      fill: var(--vscode-notifications-foreground, var(--theme-foreground));
+    }
+  }
+
+  .react-toast__enter {
+    animation: slide-up 0.3s ease-in-out both;
+  }
+
+  .react-toast__exit {
+    animation: slide-down 0.3s ease-in-out both;
+  }
+
+  @keyframes slide-up {
+    from {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0%);
+      opacity: 1;
+    }
+  }
+
+  @keyframes slide-down {
+    from {
+      transform: translateY(0%);
+      opacity: 1;
+    }
+    to {
+      transform: translateY(100%);
+      opacity: 0;
     }
   }
 }
