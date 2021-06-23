@@ -3,9 +3,11 @@ import React from 'react'
 import { Tabs, TabList, TabPanel, Tab as ReactTab } from 'react-tabs'
 
 type TabProps = {
-  // This prop is accessed in the TabView component
+  // These props is accessed in the TabView component
   // eslint-disable-next-line react/no-unused-prop-types
   title: string
+  // eslint-disable-next-line react/no-unused-prop-types
+  visible?: boolean
   children: React.ReactNode
 }
 
@@ -27,7 +29,9 @@ const TabView = ({
   className = '',
   panelClassName = ''
 }: TabViewProps): JSX.Element => {
-  const tabs = (children as React.ReactElement<TabProps>[]).filter(child => !!child)
+  const tabs = (children as React.ReactElement<TabProps>[]).filter(
+    child => !!child && (child.props.visible ?? true)
+  )
 
   return (
     <Tabs className={`tab-view ${className}`} selectedTabClassName="tab--selected">

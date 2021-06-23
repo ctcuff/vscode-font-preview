@@ -138,13 +138,16 @@ const App = (): JSX.Element | null => {
         <Tab title="Preview">
           <FontPreview />
         </Tab>
-        {(font.tables.gpos || font.tables.gsub) && (
-          // Hide this tab if the current font doesn't have
-          // any variable font features or feature tags
-          <Tab title="Features">
-            <Features />
-          </Tab>
-        )}
+        <Tab
+          title="Features"
+          visible={
+            // Hide this tab if the current font doesn't have
+            // any variable font features or feature tags
+            !!(font.tables.gpos || font.tables.gsub)
+          }
+        >
+          <Features />
+        </Tab>
         <Tab title="Glyphs">
           <Glyphs />
         </Tab>

@@ -57,12 +57,12 @@
   }
 }
 
-@include vscode-light('.font-sizes') {
+@include vscode-light('.font-sizing') {
   .font-size {
     color: #bababa;
   }
 }
-@include vscode-dark('.font-sizes') {
+@include vscode-dark('.font-sizing') {
   .font-size {
     color: #7a7a7a;
   }
