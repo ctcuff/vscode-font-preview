@@ -1,10 +1,10 @@
-/* eslint-disable */
 import '../scss/features.scss'
 import React, { useContext, useEffect, useState } from 'react'
 import FontContext from '../contexts/FontContext'
 import Switch from './Switch'
 import Slider from './Slider'
 import FontNameHeader from './FontNameHeader'
+import Chip from './Chip'
 import featureTable from '../assets/feature-tags.json'
 
 type FontVariableAxis = {
@@ -39,6 +39,7 @@ const Features = (): JSX.Element => {
   const [fontFeatureSettings, setFontFeatureSettings] = useState('normal')
   const [fontVariationSettings, setFontVariationSettings] = useState<FontVariation>({})
   const [variationCSS, setVariationCSS] = useState('')
+  const [selectedSetting, setSelectedSetting] = useState('')
   const { font } = useContext(FontContext)
 
   // Keep track of whether we've seen "cv01" to "cv99" or
@@ -65,8 +66,8 @@ const Features = (): JSX.Element => {
   }
 
   const renderTableBody = (feature: string): JSX.Element | null => {
-    const characterVariant = /^[cv]{2}\d{2}/
-    const stylisticVariant = /^[s]{2}\d{2}/
+    const characterVariantRegex = /^[cv]{2}\d{2}/
+    const stylisticVariantRegex = /^[s]{2}\d{2}/
     let key = feature as keyof typeof featureTable
     let tag = feature
     let isActive = false
@@ -74,7 +75,7 @@ const Features = (): JSX.Element => {
     // The features "cv01" to "cv99" (Character Variant) and
     // "ss01" to "ss20" (Stylistic Set) need to be checked since
     // these all have the same friendly name and description
-    if (characterVariant.test(feature)) {
+    if (characterVariantRegex.test(feature)) {
       if (hasCharacterVariant) {
         return null
       }
@@ -83,7 +84,7 @@ const Features = (): JSX.Element => {
       hasCharacterVariant = true
     }
 
-    if (stylisticVariant.test(feature)) {
+    if (stylisticVariantRegex.test(feature)) {
       if (hasStylisticSet) {
         return null
       }
@@ -102,8 +103,9 @@ const Features = (): JSX.Element => {
       // switch components, we need to check for any occurrence of those features
       if (
         activeFeature === feature ||
-        (stylisticVariant.test(activeFeature) && stylisticVariant.test(feature)) ||
-        (characterVariant.test(activeFeature) && characterVariant.test(feature))
+        (stylisticVariantRegex.test(activeFeature) &&
+          stylisticVariantRegex.test(feature)) ||
+        (characterVariantRegex.test(activeFeature) && characterVariantRegex.test(feature))
       ) {
         isActive = true
         break
@@ -119,6 +121,13 @@ const Features = (): JSX.Element => {
     )
   }
 
+  /**
+   * Takes an object of font variations and creates the `font-variation-settings`
+   * CSS string. For example:
+   * ```
+   * createVariationCSS({ wght: 400, slnt: 0 }) === '"wght" 400, "slnt" 0'
+   * ```
+   */
   const createVariationCSS = (variations: FontVariation): void => {
     const css = Object.entries(variations)
       .map(([variation, value]) => `"${variation}" ${value}`)
@@ -176,19 +185,19 @@ const Features = (): JSX.Element => {
         <p>Predefined Settings</p>
         {instances.map((instance, index) => {
           const { coordinates } = instance
+          const settingName = instance.name.en?.trim() || 'Unknown'
 
           return (
-            <button
-              type="button"
-              className="chip"
+            <Chip
               key={index}
+              title={settingName}
+              selected={settingName === selectedSetting}
               onClick={() => {
+                setSelectedSetting(settingName)
                 setFontVariationSettings(coordinates)
                 createVariationCSS(coordinates)
               }}
-            >
-              {instance.name.en || 'Unknown'}
-            </button>
+            />
           )
         })}
       </div>
@@ -196,6 +205,9 @@ const Features = (): JSX.Element => {
   }
 
   useEffect(() => {
+    // gpos and gsub contain information about the different features available
+    // for the font (kern, tnum, sups, etc). fvar (which is only present on variable
+    // fonts) contains info about the fonts axes, like weight and slant
     const { gpos, gsub, fvar } = font.tables
 
     const axes: FontVariableAxis[] | null = fvar?.axes
@@ -213,6 +225,8 @@ const Features = (): JSX.Element => {
     setFontFeatures(Array.from(features))
 
     if (axes) {
+      // If the font is a variable font, loop through the axes and
+      // apply the default variation setting for each axis
       const fontVariations: FontVariation = {}
 
       axes.forEach(axis => {

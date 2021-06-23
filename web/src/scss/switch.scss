@@ -44,6 +44,7 @@
       right: 0;
       border-radius: inherit;
 
+      // Represents the switch thumb
       &::before {
         content: '';
         transition: transform 0.2s ease-in-out;
@@ -54,6 +55,7 @@
         left: 2px;
         background-color: white;
         border-radius: inherit;
+        box-shadow: 0 2px 4px #00230b33;
       }
     }
   }

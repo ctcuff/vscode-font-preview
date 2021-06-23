@@ -48,28 +48,6 @@
     }
   }
 
-  .chip {
-    height: 32px;
-    margin: 6px 4px;
-    padding: 0 21px;
-    border-radius: 100px;
-    border: none;
-    cursor: pointer;
-    background-color: transparent;
-    border: 1px solid;
-    color: var(--vscode-editor-foreground, var(--theme-foreground));
-    font-size: 12px;
-    font-family: var(--vscode-font-family, var(--theme-font-family));
-
-    &:hover {
-      background-color: var(--vscode-editor-hoverHighlightBackground);
-    }
-
-    &:focus {
-      outline: none;
-    }
-  }
-
   table {
     padding: 0;
     margin: 0;
@@ -108,15 +86,13 @@
 }
 
 @include vscode-light('.features') {
-  table tr,
-  .chip {
+  table tr {
     border-color: #cccccc !important;
   }
 }
 
 @include vscode-dark('.features') {
-  table tr,
-  .chip {
+  table tr {
     border-color: #555555 !important;
   }
 }
