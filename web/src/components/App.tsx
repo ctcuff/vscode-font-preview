@@ -10,7 +10,7 @@ import VscodeContext from '../contexts/VscodeContext'
 import { FontExtension } from '../types'
 import LoadingOverlay from './LoadingOverlay'
 import Features from './Features'
-import FontSizing from './FontSizing'
+import Waterfall from './Waterfall'
 
 /**
  * Extensions that can be parsed by opentype
@@ -170,7 +170,7 @@ const App = (): JSX.Element | null => {
           <Glyphs />
         </Tab>
         <Tab title="Waterfall">
-          <FontSizing />
+          <Waterfall />
         </Tab>
       </TabView>
     </FontContext.Provider>

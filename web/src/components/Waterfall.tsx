@@ -1,4 +1,4 @@
-import '../scss/font-sizing.scss'
+import '../scss/waterfall.scss'
 import React, { useState } from 'react'
 import FontNameHeader from './FontNameHeader'
 import Chip from './Chip'
@@ -16,7 +16,7 @@ for (let i = startingSize; i >= endSize; i -= decrementAmount) {
   sizes.push(i)
 }
 
-const FontSizing = (): JSX.Element => {
+const Waterfall = (): JSX.Element => {
   const [displayText, setDisplayText] = useState(defaultDisplayText)
 
   const onInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -28,7 +28,7 @@ const FontSizing = (): JSX.Element => {
   }
 
   return (
-    <div className="font-sizing">
+    <div className="waterfall">
       <div className="header">
         <FontNameHeader className="font-name" />
         {displayText !== defaultDisplayText && (
@@ -52,4 +52,4 @@ const FontSizing = (): JSX.Element => {
   )
 }
 
-export default FontSizing
+export default Waterfall
