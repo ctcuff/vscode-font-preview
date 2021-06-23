@@ -12,13 +12,20 @@ import LoadingOverlay from './LoadingOverlay'
 import Features from './Features'
 import FontSizing from './FontSizing'
 
+/**
+ * Extensions that can be parsed by opentype
+ */
+const opentypeExtensions = new Set<FontExtension>(['otf', 'ttf', 'woff'])
+
 const getFontMimeType = (fontName: FontExtension): string => {
   switch (fontName) {
     case 'otf':
       return 'opentype'
     case 'ttf':
+    case 'ttc':
       return 'truetype'
     case 'woff':
+    case 'woff2':
       return 'woff'
     default:
       return ''
@@ -55,10 +62,18 @@ const App = (): JSX.Element | null => {
   const [font, setFont] = useState<Font | null>(null)
   const [fileName, setFileName] = useState('')
   const [isLoading, setLoading] = useState(true)
+  const [isFontSupported, setIsFontSupported] = useState(false)
   const vscode = useContext(VscodeContext)
   const savedState = vscode.getState()
 
-  const loadFont = (fileData: number[]): void => {
+  const loadFont = (fileExtension: FontExtension, fileData: number[]): void => {
+    if (!opentypeExtensions.has(fileExtension)) {
+      setIsFontSupported(false)
+      setFont({} as Font)
+      setLoading(false)
+      return
+    }
+
     const errorMessage: WebviewMessage = {
       type: 'ERROR',
       payload: ''
@@ -81,6 +96,7 @@ const App = (): JSX.Element | null => {
       vscode.postMessage(errorMessage)
     }
 
+    setIsFontSupported(true)
     setLoading(false)
   }
 
@@ -97,14 +113,15 @@ const App = (): JSX.Element | null => {
       case 'LOAD': {
         const { payload } = message.data
 
-        loadFont(payload.fileContent)
+        loadFont(payload.extension, payload.fileContent)
         createStyle(payload.base64Content, payload.extension)
         setFileName(payload.fileName)
 
         vscode.setState({
           base64Content: payload.base64Content,
           fileContent: payload.fileContent,
-          fontExtension: payload.extension
+          fontExtension: payload.extension,
+          fileName: payload.fileName
         })
         break
       }
@@ -114,7 +131,8 @@ const App = (): JSX.Element | null => {
   useEffect(() => {
     if (savedState) {
       createStyle(savedState.base64Content, savedState.fontExtension)
-      loadFont(savedState.fileContent)
+      loadFont(savedState.fontExtension, savedState.fileContent)
+      setFileName(savedState.fileName)
     }
 
     window.addEventListener('message', onMessage)
@@ -143,15 +161,15 @@ const App = (): JSX.Element | null => {
           visible={
             // Hide this tab if the current font doesn't have
             // any variable font features or feature tags
-            !!(font.tables.gpos || font.tables.gsub)
+            isFontSupported && !!(font.tables.gpos || font.tables.gsub)
           }
         >
           <Features />
         </Tab>
-        <Tab title="Glyphs">
+        <Tab title="Glyphs" visible={isFontSupported}>
           <Glyphs />
         </Tab>
-        <Tab title="Sizing">
+        <Tab title="Waterfall">
           <FontSizing />
         </Tab>
       </TabView>

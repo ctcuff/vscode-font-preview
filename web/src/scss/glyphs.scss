@@ -2,8 +2,6 @@
 @import './mixins';
 
 .glyphs {
-  margin-bottom: 32px;
-
   .font-name,
   .glyph {
     font-family: $fontFamilyName;
