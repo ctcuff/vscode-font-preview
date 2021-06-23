@@ -9,10 +9,10 @@ const defaultDisplayText =
   'The ship was coasting evenly, in the hands of its invisible pilot.'
 const startingSize = 96
 const endSize = 8
-const amount = 8
+const decrementAmount = 8
 const sizes: number[] = []
 
-for (let i = startingSize; i >= endSize; i -= amount) {
+for (let i = startingSize; i >= endSize; i -= decrementAmount) {
   sizes.push(i)
 }
 
