@@ -34,6 +34,14 @@
     }
   }
 
+  .tab-panel {
+    display: none;
+  }
+
+  .tab-panel--selected {
+    display: block;
+  }
+
   .tab--selected {
     color: var(--vscode-tab-activeForeground);
     background-color: var(--vscode-tab-activeBackground);

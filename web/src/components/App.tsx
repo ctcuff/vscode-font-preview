@@ -10,6 +10,7 @@ import VscodeContext from '../contexts/VscodeContext'
 import { FontExtension } from '../types'
 import LoadingOverlay from './LoadingOverlay'
 import Features from './Features'
+import FontSizing from './FontSizing'
 
 const getFontMimeType = (fontName: FontExtension): string => {
   switch (fontName) {
@@ -146,6 +147,9 @@ const App = (): JSX.Element | null => {
         )}
         <Tab title="Glyphs">
           <Glyphs />
+        </Tab>
+        <Tab title="Sizing">
+          <FontSizing />
         </Tab>
       </TabView>
     </FontContext.Provider>

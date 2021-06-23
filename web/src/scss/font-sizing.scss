@@ -1,0 +1,69 @@
+@import './mixins';
+@import './variables';
+
+.font-sizing {
+  .header {
+    display: flex;
+    align-items: center;
+    font-size: 42px;
+  }
+
+  .font-name {
+    margin-bottom: 16px;
+  }
+
+  .default-text-chip {
+    margin: 0;
+    margin-left: 16px;
+    font-size: 14px;
+  }
+
+  .sentence-block {
+    margin: 24px 0;
+    position: relative;
+  }
+
+  .sentence-input {
+    margin: 0;
+    margin-top: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    position: relative;
+    background-color: transparent;
+    appearance: none;
+    border: none;
+    width: 100%;
+    color: var(--vscode-editor-foreground, var(--theme-foreground));
+    font-family: $fontFamilyName;
+    padding: 0;
+
+    &:focus {
+      outline: none;
+    }
+  }
+
+  .overflow-gradient {
+    position: absolute;
+    pointer-events: none;
+    right: 0;
+    height: 100%;
+    width: 112px;
+    z-index: 2;
+    background: linear-gradient(to left, var(--vscode-editor-background), transparent);
+  }
+
+  .font-size {
+    font-size: 14px;
+  }
+}
+
+@include vscode-light('.font-sizes') {
+  .font-size {
+    color: #bababa;
+  }
+}
+@include vscode-dark('.font-sizes') {
+  .font-size {
+    color: #7a7a7a;
+  }
+}
