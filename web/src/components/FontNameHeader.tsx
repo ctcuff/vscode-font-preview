@@ -9,7 +9,7 @@ type FontNameHeaderProps = {
 
 const FontNameHeader = ({ style, className = '' }: FontNameHeaderProps): JSX.Element => {
   const { font, fileName } = useContext(FontContext)
-  const name = font?.names?.fullName?.en || fileName
+  const name = font?.names?.fontFamily?.en || font?.names?.fullName?.en || fileName
 
   return (
     <h1 className={`font-name-header ${className}`} style={style} title={name}>

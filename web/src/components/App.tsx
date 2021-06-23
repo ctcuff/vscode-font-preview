@@ -11,6 +11,7 @@ import { FontExtension } from '../types'
 import LoadingOverlay from './LoadingOverlay'
 import Features from './Features'
 import Waterfall from './Waterfall'
+import Licence from './Licence'
 
 /**
  * Extensions that can be parsed by opentype
@@ -171,6 +172,9 @@ const App = (): JSX.Element | null => {
         </Tab>
         <Tab title="Waterfall">
           <Waterfall />
+        </Tab>
+        <Tab title="Licence" visible={isFontSupported}>
+          <Licence />
         </Tab>
       </TabView>
     </FontContext.Provider>

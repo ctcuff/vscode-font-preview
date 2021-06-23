@@ -1,0 +1,22 @@
+.licence {
+  font-size: 15px;
+  font-family: var(--vscode-editor-font-family);
+
+  table {
+    width: 100%;
+    line-height: 1.7;
+
+    td {
+      padding: 8px;
+      vertical-align: top;
+    }
+
+    td[data-key='true'] {
+      font-weight: bolder;
+    }
+  }
+
+  a:focus {
+    outline: none;
+  }
+}
