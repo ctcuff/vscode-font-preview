@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import * as vscode from 'vscode'
 import * as path from 'path'
 import html from './index.html'
@@ -9,12 +8,9 @@ import { WebviewMessage } from '../shared/webview-message'
 class FontProvider implements vscode.CustomReadonlyEditorProvider {
   public static readonly viewType = 'font.detail.preview'
 
-  constructor(private readonly context: vscode.ExtensionContext) {
-    console.log('Initialized instance of FontProvider')
-  }
+  constructor(private readonly context: vscode.ExtensionContext) {}
 
   public static register(context: vscode.ExtensionContext): vscode.Disposable {
-    console.log('Font Provider has been registered')
     const provider = new FontProvider(context)
     return vscode.window.registerCustomEditorProvider(FontProvider.viewType, provider)
   }
@@ -37,7 +33,6 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
     const content = await document.getContent()
 
     if (!content) {
-      // TODO: Handle errors
       return
     }
 
@@ -67,6 +62,8 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
       case 'ERROR':
         vscode.window.showErrorMessage(message.payload)
         break
+      case 'WARNING':
+        vscode.window.showWarningMessage(message.payload)
     }
   }
 

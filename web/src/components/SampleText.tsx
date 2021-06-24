@@ -82,7 +82,7 @@ const SampleText = ({ className = '' }: SampleTextProps): JSX.Element => (
       hand, closing, would shatter the fragile flask and force its contents into the
       primary air stream of the Hyperion!`}
     </p>
-    <p className="extended-text--author font-default">
+    <p className="extended-text--author">
       Text borrowed from Triplanetary by Edward Elmer Smith.
     </p>
   </div>

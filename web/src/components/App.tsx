@@ -67,6 +67,10 @@ const App = (): JSX.Element | null => {
   const vscode = useContext(VscodeContext)
   const savedState = vscode.getState()
 
+  const postMessage = (message: WebviewMessage): void => {
+    vscode.postMessage(message)
+  }
+
   const loadFont = (fileExtension: FontExtension, fileData: number[]): void => {
     if (!opentypeExtensions.has(fileExtension)) {
       setIsFontSupported(false)
@@ -75,26 +79,20 @@ const App = (): JSX.Element | null => {
       return
     }
 
-    const errorMessage: WebviewMessage = {
-      type: 'ERROR',
-      payload: ''
-    }
-
     try {
       const fontData = opentype.parse(new Uint8Array(fileData).buffer)
 
       if (!fontData.supported) {
-        errorMessage.payload =
-          'Error loading font: This font is not supported or cannot be displayed.'
-        vscode.postMessage(errorMessage)
         setLoading(false)
         return
       }
 
       setFont(fontData)
     } catch (err) {
-      errorMessage.payload = `Error loading font: ${err.message}`
-      vscode.postMessage(errorMessage)
+      postMessage({
+        type: 'ERROR',
+        payload: `Error loading font: ${err.message}`
+      })
     }
 
     setIsFontSupported(true)
