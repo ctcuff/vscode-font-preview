@@ -171,6 +171,15 @@ const Features = (): JSX.Element => {
     )
   }
 
+  const onInstanceClick = (instance: FontVariableAxisInstance): void => {
+    const { coordinates } = instance
+    const settingName = instance.name.en?.trim() || 'Unknown'
+
+    setSelectedSetting(settingName)
+    setFontVariationSettings(coordinates)
+    createVariationCSS(coordinates)
+  }
+
   const renderFontInstances = (): JSX.Element | null => {
     const fvar = font.tables.fvar
 
@@ -184,7 +193,6 @@ const Features = (): JSX.Element => {
       <div className="font-instances">
         <p>Predefined Settings</p>
         {instances.map((instance, index) => {
-          const { coordinates } = instance
           const settingName = instance.name.en?.trim() || 'Unknown'
 
           return (
@@ -192,11 +200,7 @@ const Features = (): JSX.Element => {
               key={index}
               title={settingName}
               selected={settingName === selectedSetting}
-              onClick={() => {
-                setSelectedSetting(settingName)
-                setFontVariationSettings(coordinates)
-                createVariationCSS(coordinates)
-              }}
+              onClick={() => onInstanceClick(instance)}
             />
           )
         })}
