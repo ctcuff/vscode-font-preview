@@ -41,6 +41,7 @@ const Licence = (): JSX.Element => {
 
   useEffect(() => {
     const table: NameTable = {}
+    const headTable = font.tables.head
 
     nameTableNames.forEach(name => {
       const tableValue = font.tables.name[name]?.en
@@ -49,6 +50,14 @@ const Licence = (): JSX.Element => {
         table[name] = tableValue
       }
     })
+
+    if (headTable?.created) {
+      table.created = new Date(headTable.created * 1_000).toString()
+    }
+
+    if (headTable?.modified) {
+      table.modified = new Date(headTable.modified * 1_000).toString()
+    }
 
     setNamingTable(table)
   }, [])
