@@ -1,5 +1,5 @@
 # Change Log
 
-## [Unreleased]
+## 1.0.0 - 2021/6/25
 
-- TBD
+- Initial release 🎉

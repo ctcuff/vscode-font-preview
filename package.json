@@ -3,7 +3,7 @@
   "displayName": "Font Preview",
   "description": "Preview fonts in VS Code",
   "license": "MIT",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "publisher": "ctcuff",
   "icon": "icon.png",
   "repository": {
@@ -12,7 +12,9 @@
   },
   "keywords": [
     "font",
-    "viewer"
+    "viewer",
+    "font preview",
+    "font viewer"
   ],
   "engines": {
     "vscode": "^1.56.0"

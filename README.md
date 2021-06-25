@@ -28,3 +28,7 @@ This extension currently supports the following font types: `otf`, `ttf`, `ttc`,
     <img width="1648" alt="inter licence" src="https://user-images.githubusercontent.com/7400747/123202264-41d13a00-d482-11eb-92b5-21386d7b1d86.png">
     <sub>View licencing and creator information</sub>
 </p>
+
+# Change Log
+
+See [CHANGELOG.md](https://github.com/ctcuff/vscode-font-preview/blob/dev/CHANGELOG.md)
