@@ -45,9 +45,9 @@ const stylisticVariantRegex = /^[s]{2}\d{2}/
 const Features = (): JSX.Element => {
   const [fontFeatures, setFontFeatures] = useState<string[]>([])
   const [activeFeatures, setActiveFeatures] = useState<string[]>([])
-  const [fontFeatureSettings, setFontFeatureSettings] = useState('normal')
   const [fontVariationSettings, setFontVariationSettings] = useState<FontVariation>({})
   const [variationCSS, setVariationCSS] = useState('')
+  const [fontFeatureSettingsCSS, setFontFeatureSettingsCSS] = useState('normal')
   const [selectedSetting, setSelectedSetting] = useState('')
   const { font } = useContext(FontContext)
 
@@ -69,7 +69,7 @@ const Features = (): JSX.Element => {
     }
 
     setActiveFeatures(features)
-    setFontFeatureSettings(
+    setFontFeatureSettingsCSS(
       features.length === 0 ? 'normal' : `"${features.join('", "')}"`
     )
   }
@@ -154,7 +154,7 @@ const Features = (): JSX.Element => {
   const onVariationChange = (variant: string, value: number) => {
     const modifiedVariation = {
       ...fontVariationSettings,
-      [variant]: value
+      [variant]: Math.trunc(value)
     }
     setFontVariationSettings(modifiedVariation)
     createVariationCSS(modifiedVariation)
@@ -176,8 +176,8 @@ const Features = (): JSX.Element => {
             className="variable-slider"
             onChange={value => onVariationChange(axis.tag, value)}
             key={axis.tag}
-            min={axis.minValue}
-            max={axis.maxValue}
+            min={Math.trunc(axis.minValue)}
+            max={Math.trunc(axis.maxValue)}
             value={fontVariationSettings[axis.tag]}
             title={axis.name.en}
           />
@@ -189,6 +189,10 @@ const Features = (): JSX.Element => {
   const onInstanceClick = (instance: FontVariableAxisInstance): void => {
     const { coordinates } = instance
     const settingName = instance.name.en?.trim() || 'Unknown'
+
+    Object.entries(coordinates).forEach(([key, value]) => {
+      coordinates[key] = Math.trunc(value)
+    })
 
     setSelectedSetting(settingName)
     setFontVariationSettings(coordinates)
@@ -267,7 +271,7 @@ const Features = (): JSX.Element => {
       const fontVariations: FontVariation = {}
 
       axes.forEach(axis => {
-        fontVariations[axis.tag] = axis.defaultValue
+        fontVariations[axis.tag] = Math.trunc(axis.defaultValue)
       })
 
       createVariationCSS(fontVariations)
@@ -279,7 +283,7 @@ const Features = (): JSX.Element => {
     <div className="features">
       <FontNameHeader
         style={{
-          fontFeatureSettings,
+          fontFeatureSettings: fontFeatureSettingsCSS,
           fontVariationSettings: variationCSS
         }}
       />
@@ -298,7 +302,7 @@ const Features = (): JSX.Element => {
       <p
         className="text"
         style={{
-          fontFeatureSettings,
+          fontFeatureSettings: fontFeatureSettingsCSS,
           fontVariationSettings: variationCSS
         }}
       >
@@ -309,7 +313,7 @@ const Features = (): JSX.Element => {
       <p
         className="text"
         style={{
-          fontFeatureSettings,
+          fontFeatureSettings: fontFeatureSettingsCSS,
           fontVariationSettings: variationCSS
         }}
       >
