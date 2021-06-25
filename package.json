@@ -4,11 +4,21 @@
   "description": "Preview fonts in VS Code",
   "license": "MIT",
   "version": "0.0.1",
+  "publisher": "ctcuff",
+  "icon": "icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ctcuff/vscode-font-preview/"
+  },
+  "keywords": [
+    "font",
+    "viewer"
+  ],
   "engines": {
     "vscode": "^1.56.0"
   },
   "categories": [
-    "Other"
+    "Programming Languages"
   ],
   "activationEvents": [
     "onCustomEditor:font.detail.preview"
@@ -30,20 +40,20 @@
   },
   "scripts": {
     "build": "npm-run-all -p build:*",
-    "build:extension": "webpack",
+    "build:extension": "webpack --mode production --devtool eval",
     "build:web": "cd ./web && yarn build",
     "format": "prettier --write './src/**/*{.js,.ts}' './web/**/*{.js,.jsx,.ts,.tsx,.scss}'",
     "lint": "yarn lint:web && yarn lint:extension",
     "lint:web": "cd ./web && yarn lint",
     "lint:extension": "eslint './src/**/*{.js,.ts}'",
-    "package": "webpack --mode production --devtool hidden-source-map",
     "precommit": "lint-staged",
     "prepare": "husky install",
     "pretest": "yarn run test-compile && yarn run lint",
     "test": "node ./out/test/runTest.js",
-    "test-compile": "tsc -p ./",
-    "test-watch": "tsc -watch -p ./",
-    "vscode:prepublish": "yarn run package",
+    "test:compile": "tsc -p ./",
+    "test:watch": "tsc -watch -p ./",
+    "test:publish": "vsce package",
+    "vscode:prepublish": "yarn run build",
     "watch": "npm-run-all -p watch:*",
     "watch:extension": "webpack --watch --mode development",
     "watch:web": "cd ./web && yarn watch"

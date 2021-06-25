@@ -25,9 +25,7 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
   ): Promise<void> {
     panel.webview.options = {
       enableScripts: true,
-      localResourceRoots: [
-        vscode.Uri.file(path.join(this.context.extensionPath, 'web-dist'))
-      ]
+      localResourceRoots: [vscode.Uri.file(path.join(this.context.extensionPath, 'dist'))]
     }
 
     const content = await document.getContent()
@@ -69,7 +67,7 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
 
   private getWebviewContent(): string {
     const webDistPath = vscode.Uri.file(
-      path.join(this.context.extensionPath, 'web-dist', 'index.js')
+      path.join(this.context.extensionPath, 'dist', 'web-view.js')
     )
 
     const reactAppUri = webDistPath.with({ scheme: 'vscode-resource' }).toString()

@@ -9,6 +9,9 @@ module.exports = {
   entry: path.resolve(__dirname, 'src', 'extension.ts'),
   output: {
     path: path.resolve(__dirname, 'dist'),
+    // Note that the the web directory builds to the same directory as
+    // the extension so we need to make sure tha the entry points for
+    // both don't conflict with each other
     filename: 'extension.js',
     libraryTarget: 'commonjs2'
   },

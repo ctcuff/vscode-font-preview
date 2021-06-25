@@ -1,13 +1,16 @@
 const path = require('path')
 
 /**@type {import('webpack').Configuration}*/
-const config = {
+module.exports = {
   entry: {
     index: './src/index.tsx'
   },
   output: {
-    path: path.resolve(__dirname, '../web-dist'),
-    filename: '[name].js'
+    path: path.resolve(__dirname, '../dist'),
+    // Note that the the web directory builds to the same directory as
+    // the extension so we need to make sure tha the entry points for
+    // both don't conflict with each other
+    filename: 'web-view.js'
   },
   watchOptions: {
     ignored: './web/**'
@@ -31,5 +34,3 @@ const config = {
     ]
   }
 }
-
-module.exports = config

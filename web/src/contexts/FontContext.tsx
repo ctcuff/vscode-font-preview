@@ -1,5 +1,5 @@
 import { createContext } from 'react'
-import { Font } from 'opentype.js'
+import type { Font } from 'opentype.js'
 
 type FontContextProps = {
   font: Font

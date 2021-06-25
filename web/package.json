@@ -3,7 +3,7 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "build": "webpack --mode development",
+    "build": "webpack --mode production --devtool eval",
     "watch": "webpack --watch --mode development",
     "lint": "eslint './src/**/*{.js,.jsx,.ts,.tsx}'"
   },
