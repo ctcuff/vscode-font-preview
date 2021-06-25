@@ -55,6 +55,7 @@ module.exports = {
         }
       }
     ],
+    'react/jsx-wrap-multilines': ['error', { prop: 'ignore' }],
     'jsx-a11y/media-has-caption': 'off',
     'jsx-a11y/click-events-have-key-events': 'off',
     'jsx-a11y/no-noninteractive-element-interactions': 'off',

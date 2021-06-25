@@ -33,6 +33,15 @@ const characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
   .split('')
   .join(', ')
 
+/**
+ * Matches cv00 - cv99
+ */
+const characterVariantRegex = /^[cv]{2}\d{2}/
+/**
+ * Matches sv00 - sv99
+ */
+const stylisticVariantRegex = /^[s]{2}\d{2}/
+
 const Features = (): JSX.Element => {
   const [fontFeatures, setFontFeatures] = useState<string[]>([])
   const [activeFeatures, setActiveFeatures] = useState<string[]>([])
@@ -66,8 +75,6 @@ const Features = (): JSX.Element => {
   }
 
   const renderTableBody = (feature: string): JSX.Element | null => {
-    const characterVariantRegex = /^[cv]{2}\d{2}/
-    const stylisticVariantRegex = /^[s]{2}\d{2}/
     let key = feature as keyof typeof featureTable
     let tag = feature
     let isActive = false
@@ -80,7 +87,7 @@ const Features = (): JSX.Element => {
         return null
       }
 
-      key = 'cv01 – cv99'
+      key = 'cv01 - cv99'
       hasCharacterVariant = true
     }
 
@@ -92,8 +99,14 @@ const Features = (): JSX.Element => {
       hasStylisticSet = true
     }
 
-    if (key === 'ss01 - ss20' || key === 'cv01 – cv99') {
+    if (key === 'ss01 - ss20' || key === 'cv01 - cv99') {
       tag = key
+    }
+
+    if (!featureTable[key]) {
+      // eslint-disable-next-line no-console
+      console.warn(`Feature: ${key} not found in table`)
+      return null
     }
 
     for (let i = 0; i < activeFeatures.length; i++) {
@@ -113,10 +126,12 @@ const Features = (): JSX.Element => {
     }
 
     return (
-      <tr key={feature} data-active={isActive}>
-        <td>{tag}</td>
-        <td>{featureTable[key]?.friendlyName}</td>
-        <td>{featureTable[key]?.description}</td>
+      <tr key={feature} data-active={isActive} id={key.replaceAll(' ', '')}>
+        <td>
+          <a href={featureTable[key].href}>{tag}</a>
+        </td>
+        <td>{featureTable[key].friendlyName}</td>
+        <td>{featureTable[key].description}</td>
       </tr>
     )
   }
@@ -208,6 +223,24 @@ const Features = (): JSX.Element => {
     )
   }
 
+  const renderSwitchTitle = (feature: string): JSX.Element => {
+    let id = `#${feature}`
+
+    if (characterVariantRegex.test(feature)) {
+      id = '#cv01-cv99'
+    }
+
+    if (stylisticVariantRegex.test(feature)) {
+      id = '#ss01-ss20'
+    }
+
+    return (
+      <a className="switch-title" href={id} title="Jump to definition">
+        {feature}
+      </a>
+    )
+  }
+
   useEffect(() => {
     // gpos and gsub contain information about the different features available
     // for the font (kern, tnum, sups, etc). fvar (which is only present on variable
@@ -254,7 +287,7 @@ const Features = (): JSX.Element => {
         {fontFeatures.map(feature => (
           <Switch
             className="feature-toggle"
-            title={feature}
+            title={renderSwitchTitle(feature)}
             key={feature}
             onChange={checked => toggleFeature(feature, checked)}
           />

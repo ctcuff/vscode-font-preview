@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 
 type SwitchProps = {
   className?: string
-  title?: string
+  title?: string | JSX.Element
   onChange?: (checked: boolean) => void
 }
 
@@ -17,9 +17,21 @@ const Switch = ({
 }: SwitchProps): JSX.Element => {
   const [id] = useState(generateId())
 
+  const renderTitle = (): JSX.Element | null => {
+    if (!title) {
+      return null
+    }
+
+    if (typeof title === 'string') {
+      return <p className="title">{title}</p>
+    }
+
+    return title
+  }
+
   return (
     <div className={`${className} switch`}>
-      {title && <p className="title">{title}</p>}
+      {renderTitle()}
       <label className="wrapper" htmlFor={id}>
         <input
           type="checkbox"
