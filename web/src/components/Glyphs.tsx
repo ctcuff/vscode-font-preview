@@ -64,7 +64,7 @@ const Glyphs = (): JSX.Element => {
         glyphList.push({
           htmlEntity: `&#${glyph.unicode};`,
           glyphIndex: i,
-          name: glyph.name
+          name: glyph.name || `${glyph.unicode}`
         })
       }
 
