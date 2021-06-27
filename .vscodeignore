@@ -13,3 +13,11 @@ vsc-extension-quickstart.md
 web/**
 web-dist/**
 fonts/**
+.husky/**
+.idea/**
+.prettierrc.json
+.prettierignore
+.env
+eslint.base.js
+lint-staged.config.js
+yarn-error.log
