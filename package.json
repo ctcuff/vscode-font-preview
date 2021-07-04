@@ -10,6 +10,10 @@
     "type": "git",
     "url": "https://github.com/ctcuff/vscode-font-preview/"
   },
+  "galleryBanner": {
+    "color": "#041A2F",
+    "theme": "dark"
+  },
   "keywords": [
     "font",
     "viewer",
