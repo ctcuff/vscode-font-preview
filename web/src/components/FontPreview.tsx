@@ -4,32 +4,30 @@ import FontNameHeader from './FontNameHeader'
 import Chip from './Chip'
 import sampleEN from '../assets/sample-text/en.sample.yml'
 import sampleZH from '../assets/sample-text/zh.sample.yml'
+import sampleJA from '../assets/sample-text/ja.sample.yml'
 
-const languages = [
-  {
-    displayName: 'English',
-    iso: 'en',
-    preview: sampleEN
-  },
-  {
-    displayName: 'Chinese',
-    iso: 'zh',
-    preview: sampleZH
-  }
-]
+type Preview = {
+  paragraphs: string[]
+  source: string
+}
+
+const languages = [sampleEN, sampleZH, sampleJA]
 
 const FontPreview = (): JSX.Element => {
-  const [preview, setPreview] = useState(sampleEN)
+  const [preview, setPreview] = useState<Preview>({
+    paragraphs: sampleEN.paragraphs,
+    source: sampleEN.source
+  })
 
   return (
     <div className="font-preview">
       <FontNameHeader />
       <div className="languages">
-        {languages.map(lang => (
+        {languages.map(({ language, paragraphs, source }) => (
           <Chip
-            title={lang.displayName}
-            key={lang.iso}
-            onClick={() => setPreview(lang.preview)}
+            title={language}
+            key={language}
+            onClick={() => setPreview({ paragraphs, source })}
           />
         ))}
       </div>
