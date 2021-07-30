@@ -1,5 +1,9 @@
 # Change Log
 
+### 1.1.2 - 2021/7/29
+
+- Added Arabic, Chinese, and Japanese translations for preview text.
+
 ### 1.0.2 - 2021/6/27
 
 - Decreased extension size by removing unnecessary files from build.
