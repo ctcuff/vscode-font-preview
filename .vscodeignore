@@ -21,3 +21,4 @@ fonts/**
 eslint.base.js
 lint-staged.config.js
 yarn-error.log
+*.vsix
