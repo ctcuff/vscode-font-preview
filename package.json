@@ -3,7 +3,7 @@
   "displayName": "Font Preview",
   "description": "Preview fonts in VS Code",
   "license": "MIT",
-  "version": "1.1.2",
+  "version": "1.2.2",
   "publisher": "ctcuff",
   "icon": "icon.png",
   "repository": {
@@ -54,7 +54,7 @@
           "enumDescriptions": [
             "The preview will always start on the \"Preview\" tab.",
             "The preview will always start on the \"Features\" tab (if present).",
-            "The preview will always start on the \"Glyphs\" tab.",
+            "The preview will always start on the \"Glyphs\" tab (if present).",
             "The preview will always start on the \"Waterfall\" tab.",
             "The preview will always start on the \"Licence\" tab (if present)."
           ]
