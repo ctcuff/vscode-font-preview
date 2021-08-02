@@ -5,7 +5,7 @@ import TabView, { Tab } from './TabView'
 import FontPreview from './FontPreview'
 import Glyphs from './Glyphs'
 import FontContext from '../contexts/FontContext'
-import { WebviewMessage } from '../../../shared/webview-message'
+import { Config, WebviewMessage } from '../../../shared/types'
 import VscodeContext from '../contexts/VscodeContext'
 import { FontExtension } from '../types'
 import LoadingOverlay from './LoadingOverlay'
@@ -64,6 +64,9 @@ const App = (): JSX.Element | null => {
   const [fileName, setFileName] = useState('')
   const [isLoading, setLoading] = useState(true)
   const [isFontSupported, setIsFontSupported] = useState(false)
+  // When set to null, the tab view won't render. This is so that we can
+  // wait for the postMessage event to determine the default tab
+  const [defaultTabId, setDefaultTabId] = useState<Config['defaultTab'] | null>(null)
   const vscode = useContext(VscodeContext)
   const savedState = vscode.getState()
 
@@ -107,11 +110,11 @@ const App = (): JSX.Element | null => {
       return
     }
 
+    const { payload } = message.data
+
     // eslint-disable-next-line default-case
     switch (message.data.type) {
-      case 'LOAD': {
-        const { payload } = message.data
-
+      case 'LOAD':
         loadFont(payload.extension, payload.fileContent)
         createStyle(payload.base64Content, payload.extension)
         setFileName(payload.fileName)
@@ -123,11 +126,17 @@ const App = (): JSX.Element | null => {
           fileName: payload.fileName
         })
         break
+
+      case 'LOAD_CONFIG': {
+        setDefaultTabId(payload.defaultTab)
+        break
       }
     }
   }
 
   useEffect(() => {
+    postMessage({ type: 'GET_CONFIG' })
+
     if (savedState) {
       createStyle(savedState.base64Content, savedState.fontExtension)
       loadFont(savedState.fontExtension, savedState.fileContent)
@@ -151,12 +160,13 @@ const App = (): JSX.Element | null => {
 
   return (
     <FontContext.Provider value={{ font, fileName }}>
-      <TabView panelClassName="app">
-        <Tab title="Preview">
+      <TabView panelClassName="app" defaultTabId={defaultTabId}>
+        <Tab title="Preview" id="preview">
           <FontPreview />
         </Tab>
         <Tab
           title="Features"
+          id="features"
           visible={
             // Hide this tab if the current font doesn't have
             // any variable font features or feature tags
@@ -165,13 +175,13 @@ const App = (): JSX.Element | null => {
         >
           <Features />
         </Tab>
-        <Tab title="Glyphs" visible={isFontSupported}>
+        <Tab title="Glyphs" id="glyphs" visible={isFontSupported}>
           <Glyphs />
         </Tab>
-        <Tab title="Waterfall">
+        <Tab title="Waterfall" id="waterfall">
           <Waterfall />
         </Tab>
-        <Tab title="Licence" visible={isFontSupported}>
+        <Tab title="Licence" id="licence" visible={isFontSupported}>
           <Licence />
         </Tab>
       </TabView>

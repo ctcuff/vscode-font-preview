@@ -3,7 +3,7 @@ import * as path from 'path'
 import html from './index.html'
 import { template } from './util'
 import FontDocument from './font-document'
-import { WebviewMessage } from '../shared/webview-message'
+import { WebviewMessage } from '../shared/types'
 
 class FontProvider implements vscode.CustomReadonlyEditorProvider {
   public static readonly viewType = 'font.detail.preview'
@@ -46,7 +46,9 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
       }
     })
 
-    panel.webview.onDidReceiveMessage(this.onDidReceiveMessage)
+    panel.webview.onDidReceiveMessage((message: WebviewMessage) =>
+      this.onDidReceiveMessage(panel, message)
+    )
 
     panel.webview.html = this.getWebviewContent()
   }
@@ -55,13 +57,25 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
     panel.webview.postMessage(message)
   }
 
-  private onDidReceiveMessage(message: WebviewMessage): void {
+  private onDidReceiveMessage(panel: vscode.WebviewPanel, message: WebviewMessage): void {
     switch (message.type.toUpperCase()) {
       case 'ERROR':
         vscode.window.showErrorMessage(message.payload)
         break
       case 'WARNING':
         vscode.window.showWarningMessage(message.payload)
+        break
+      case 'GET_CONFIG': {
+        const config = vscode.workspace.getConfiguration('font-preview')
+
+        this.postMessage(panel, {
+          type: 'LOAD_CONFIG',
+          payload: {
+            defaultTab: config.get('defaultTab')
+          }
+        })
+        break
+      }
     }
   }
 

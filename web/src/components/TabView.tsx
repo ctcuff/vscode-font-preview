@@ -3,11 +3,10 @@ import React from 'react'
 import { Tabs, TabList, TabPanel, Tab as ReactTab } from 'react-tabs'
 
 type TabProps = {
-  // These props is accessed in the TabView component
-  // eslint-disable-next-line react/no-unused-prop-types
-  title: string
-  // eslint-disable-next-line react/no-unused-prop-types
-  visible?: boolean
+  // These props are accessed in the TabView component
+  title: string // eslint-disable-line react/no-unused-prop-types
+  visible?: boolean // eslint-disable-line react/no-unused-prop-types
+  id: string // eslint-disable-line react/no-unused-prop-types
   children: React.ReactNode
 }
 
@@ -15,6 +14,7 @@ type TabViewProps = {
   children: typeof Tab[] | React.ReactNode
   className?: string
   panelClassName?: string
+  defaultTabId: string | null
 }
 
 /**
@@ -27,14 +27,24 @@ const Tab = ({ children }: TabProps): JSX.Element => <>{children}</>
 const TabView = ({
   children,
   className = '',
+  defaultTabId = null,
   panelClassName = ''
-}: TabViewProps): JSX.Element => {
+}: TabViewProps): JSX.Element | null => {
+  if (defaultTabId === null) {
+    return null
+  }
+
   const tabs = (children as React.ReactElement<TabProps>[]).filter(
-    child => !!child && (child.props.visible ?? true)
+    tab => !!tab && (tab.props.visible ?? true)
   )
+  const tabIndex = tabs.findIndex(tab => tab.props.id === defaultTabId)
 
   return (
-    <Tabs className={`tab-view ${className}`} selectedTabClassName="tab--selected">
+    <Tabs
+      className={`tab-view ${className}`}
+      selectedTabClassName="tab--selected"
+      defaultIndex={Math.max(tabIndex, 0)}
+    >
       <TabList className="tab-list">
         {tabs.map((tab, index) => (
           <ReactTab className="tab" selectedClassName="tab--selected" key={index}>

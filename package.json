@@ -42,7 +42,25 @@
           }
         ]
       }
-    ]
+    ],
+    "configuration": {
+      "title": "Font Preview",
+      "properties": {
+        "font-preview.defaultTab": {
+          "description": "Controls the starting tab of the preview.",
+          "type": "string",
+          "enum": ["preview", "features", "glyphs", "waterfall", "licence"],
+          "default": "preview",
+          "enumDescriptions": [
+            "The preview will always start on the \"Preview\" tab.",
+            "The preview will always start on the \"Features\" tab (if present).",
+            "The preview will always start on the \"Glyphs\" tab.",
+            "The preview will always start on the \"Waterfall\" tab.",
+            "The preview will always start on the \"Licence\" tab (if present)."
+          ]
+        }
+      }
+    }
   },
   "scripts": {
     "build": "npm-run-all -p build:*",
