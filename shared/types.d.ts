@@ -4,5 +4,5 @@ export interface WebviewMessage {
 }
 
 export interface Config {
-  defaultTab: 'features' | 'glyphs' | 'waterfall' | 'licence'
+  defaultTab: 'preview' | 'features' | 'glyphs' | 'waterfall' | 'licence'
 }

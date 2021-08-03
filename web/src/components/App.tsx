@@ -16,7 +16,11 @@ import Licence from './Licence'
 /**
  * Extensions that can be parsed by opentype
  */
-const opentypeExtensions = new Set<FontExtension>(['otf', 'ttf', 'woff'])
+const opentypeExtensions: ReadonlySet<FontExtension> = new Set<FontExtension>([
+  'otf',
+  'ttf',
+  'woff'
+])
 
 const getFontMimeType = (fontName: FontExtension): string => {
   switch (fontName) {
