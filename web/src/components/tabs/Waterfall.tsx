@@ -1,7 +1,7 @@
-import '../scss/waterfall.scss'
+import '../../scss/waterfall.scss'
 import React, { useState } from 'react'
-import FontNameHeader from './FontNameHeader'
-import Chip from './Chip'
+import FontNameHeader from '../FontNameHeader'
+import Chip from '../Chip'
 
 // Text borrowed from Mr. Spaceship, by Philip K. Dick
 // https://www.gutenberg.org/files/32522/32522-h/32522-h.htm

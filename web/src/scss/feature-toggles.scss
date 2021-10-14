@@ -1,0 +1,35 @@
+.feature-toggles {
+  .title {
+    font-weight: bold;
+  }
+
+  .feature-toggle {
+    text-align: center;
+    margin-right: 16px;
+    margin-bottom: 32px;
+    display: inline-flex;
+    flex-wrap: wrap;
+
+    &:hover .switch-title {
+      text-decoration: underline;
+    }
+  }
+
+  .switch-title {
+    font-size: 13px;
+    width: 100%;
+    margin: 0;
+    margin-bottom: 6px;
+    text-align: center;
+    color: var(--vscode-editor-foreground, var(--theme-foreground));
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+
+    &:focus {
+      outline: none;
+    }
+  }
+}

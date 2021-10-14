@@ -2,16 +2,16 @@ import '../scss/app.scss'
 import React, { useContext, useEffect, useState } from 'react'
 import opentype, { Font } from 'opentype.js'
 import TabView, { Tab } from './TabView'
-import FontPreview from './FontPreview'
-import Glyphs from './Glyphs'
+import FontPreview from './tabs/FontPreview'
+import Glyphs from './tabs/Glyphs'
 import FontContext from '../contexts/FontContext'
 import { Config, WebviewMessage } from '../../../shared/types'
 import VscodeContext from '../contexts/VscodeContext'
 import { FontExtension } from '../types'
 import LoadingOverlay from './LoadingOverlay'
-import Features from './Features'
-import Waterfall from './Waterfall'
-import Licence from './Licence'
+import Features from './tabs/Features'
+import Waterfall from './tabs/Waterfall'
+import Licence from './tabs/Licence'
 
 /**
  * Extensions that can be parsed by opentype
@@ -68,6 +68,7 @@ const App = (): JSX.Element | null => {
   const [fileName, setFileName] = useState('')
   const [isLoading, setLoading] = useState(true)
   const [isFontSupported, setIsFontSupported] = useState(false)
+  const [fontFeatures, setFontFeatures] = useState<string[]>([])
   // When set to null, the tab view won't render. This is so that we can
   // wait for the postMessage event to determine the default tab
   const [defaultTabId, setDefaultTabId] = useState<Config['defaultTab'] | null>(null)
@@ -94,6 +95,23 @@ const App = (): JSX.Element | null => {
         return
       }
 
+      // gpos and gsub contain information about the different features available
+      // for the font (kern, tnum, sups, etc). fvar (which is only present on variable
+      // fonts) contains info about the fonts axes, like weight and slant
+      const { gpos, gsub } = fontData.tables
+
+      const gposFeatures: string[] =
+        gpos?.features?.map((feature: any) => feature.tag) || []
+      const gsubFeatures: string[] =
+        gsub?.features?.map((feature: any) => feature.tag) || []
+
+      const features = new Set<string>(
+        [...gposFeatures, ...gsubFeatures]
+          .sort((a, b) => a.localeCompare(b))
+          .filter(str => !!str.trim())
+      )
+
+      setFontFeatures(Array.from(features))
       setFont(fontData)
     } catch (err) {
       postMessage({
@@ -163,7 +181,7 @@ const App = (): JSX.Element | null => {
   }
 
   return (
-    <FontContext.Provider value={{ font, fileName }}>
+    <FontContext.Provider value={{ font, fileName, fontFeatures }}>
       <TabView panelClassName="app" defaultTabId={defaultTabId}>
         <Tab title="Preview" id="preview">
           <FontPreview />

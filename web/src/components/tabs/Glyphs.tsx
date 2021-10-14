@@ -1,9 +1,9 @@
-import '../scss/glyphs.scss'
+import '../../scss/glyphs.scss'
 import 'react-toastify/dist/ReactToastify.css'
 import React, { useContext, useEffect, useState } from 'react'
 import { ToastContainer, toast, cssTransition } from 'react-toastify'
-import FontContext from '../contexts/FontContext'
-import FontNameHeader from './FontNameHeader'
+import FontContext from '../../contexts/FontContext'
+import FontNameHeader from '../FontNameHeader'
 
 type GlyphData = {
   htmlEntity: string

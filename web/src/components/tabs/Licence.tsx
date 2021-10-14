@@ -1,8 +1,8 @@
-import '../scss/licence.scss'
+import '../../scss/licence.scss'
 import React, { useContext, useEffect, useState } from 'react'
 import Linkify from 'react-linkify'
-import FontContext from '../contexts/FontContext'
-import FontNameHeader from './FontNameHeader'
+import FontContext from '../../contexts/FontContext'
+import FontNameHeader from '../FontNameHeader'
 
 type NameTable = {
   [key: string]: string

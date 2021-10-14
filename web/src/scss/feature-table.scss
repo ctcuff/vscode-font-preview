@@ -1,0 +1,51 @@
+@import './variables';
+@import './mixins';
+
+.feature-table {
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  display: block;
+  overflow: auto;
+  font-size: 15px;
+  border-collapse: collapse;
+  line-height: 1.5;
+  font-family: var(--vscode-editor-font-family);
+
+  th {
+    text-align: left;
+    padding: 16px 8px;
+  }
+
+  td {
+    padding: 16px 8px;
+  }
+
+  tr {
+    border-bottom: 1px solid;
+  }
+
+  tbody {
+    tr {
+      &[data-active='true'] {
+        background-color: var(--vscode-editor-hoverHighlightBackground);
+      }
+
+      &:last-child {
+        border-bottom: none;
+      }
+    }
+  }
+}
+
+@include vscode-light {
+  .feature-table tr {
+    border-color: #cccccc !important;
+  }
+}
+
+@include vscode-dark {
+  .feature-table tr {
+    border-color: #555555 !important;
+  }
+}

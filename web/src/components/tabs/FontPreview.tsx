@@ -1,11 +1,11 @@
-import '../scss/font-preview.scss'
+import '../../scss/font-preview.scss'
 import React, { useState } from 'react'
-import FontNameHeader from './FontNameHeader'
-import Chip from './Chip'
-import sampleLA from '../assets/sample-text/la.sample.yml'
-import sampleZH from '../assets/sample-text/zh.sample.yml'
-import sampleJA from '../assets/sample-text/ja.sample.yml'
-import sampleAR from '../assets/sample-text/ar.sample.yml'
+import FontNameHeader from '../FontNameHeader'
+import Chip from '../Chip'
+import sampleLA from '../../assets/sample-text/la.sample.yml'
+import sampleZH from '../../assets/sample-text/zh.sample.yml'
+import sampleJA from '../../assets/sample-text/ja.sample.yml'
+import sampleAR from '../../assets/sample-text/ar.sample.yml'
 
 const languages = [sampleLA, sampleZH, sampleJA, sampleAR].sort((first, second) => {
   return first.id.localeCompare(second.id)

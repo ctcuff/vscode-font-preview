@@ -9,6 +9,7 @@ type SliderProps = {
   value?: number
   className?: string
   onChange?: (value: number) => void
+  onFinishChange?: (value: number) => void
 }
 
 const Slider = ({
@@ -18,7 +19,8 @@ const Slider = ({
   step = 1,
   value = 0,
   className = '',
-  onChange = () => {}
+  onChange = () => {},
+  onFinishChange = () => {}
 }: SliderProps): JSX.Element => {
   const [sliderValue, setSliderValue] = useState(value)
 
@@ -48,6 +50,7 @@ const Slider = ({
           step={step}
           value={sliderValue}
           onChange={onInputChange}
+          onMouseUp={() => onFinishChange(sliderValue)}
         />
         <span className="label-max">{max}</span>
       </div>

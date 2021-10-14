@@ -8,6 +8,7 @@ type FontContextProps = {
    * in case the name of the font can be accessed through opentype
    */
   fileName: string
+  fontFeatures: string[]
 }
 
 const FontContext = createContext<FontContextProps>({
@@ -15,7 +16,8 @@ const FontContext = createContext<FontContextProps>({
   // that the context is never initialized with a null value. Because of
   // that, we need a fake Font object so TS doesn't complain
   font: {} as Font,
-  fileName: ''
+  fileName: '',
+  fontFeatures: []
 })
 
 export default FontContext

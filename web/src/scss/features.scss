@@ -4,6 +4,10 @@
 .features {
   margin: 0 auto;
 
+  .subtitle {
+    font-weight: bold;
+  }
+
   .font-name,
   .text {
     font-family: $fontFamilyName;
@@ -17,40 +21,7 @@
 
   .text {
     line-height: 1.7;
-  }
-
-  .feature-toggle {
-    text-align: center;
-    margin-right: 16px;
     margin-bottom: 32px;
-    display: inline-flex;
-    flex-wrap: wrap;
-
-    &:hover .switch-title {
-      text-decoration: underline;
-    }
-  }
-
-  .switch-title {
-    font-size: 13px;
-    width: 100%;
-    margin: 0;
-    margin-bottom: 6px;
-    text-align: center;
-    color: var(--vscode-editor-foreground, var(--theme-foreground));
-    text-decoration: none;
-
-    &:hover {
-      text-decoration: underline;
-    }
-
-    &:focus {
-      outline: none;
-    }
-  }
-
-  .feature-toggles {
-    margin-bottom: 24px;
   }
 
   .feature-table-heading {
@@ -59,64 +30,11 @@
     font-family: var(--vscode-editor-font-family);
   }
 
-  .variable-slider {
+  .variable-slider:not(:last-child) {
     margin-bottom: 32px;
   }
 
-  .font-instances {
-    margin-bottom: 32px;
-
-    p {
-      font-weight: bold;
-    }
-  }
-
-  table {
-    padding: 0;
-    margin: 0;
-    width: 100%;
-    display: block;
-    overflow: auto;
-    font-size: 15px;
-    border-collapse: collapse;
-    line-height: 1.5;
-    font-family: var(--vscode-editor-font-family);
-
-    th {
-      text-align: left;
-      padding: 16px 8px;
-    }
-
-    td {
-      padding: 16px 8px;
-    }
-
-    tr {
-      border-bottom: 1px solid;
-    }
-
-    tbody {
-      tr {
-        &[data-active='true'] {
-          background-color: var(--vscode-editor-hoverHighlightBackground);
-        }
-
-        &:last-child {
-          border-bottom: none;
-        }
-      }
-    }
-  }
-}
-
-@include vscode-light('.features') {
-  table tr {
-    border-color: #cccccc !important;
-  }
-}
-
-@include vscode-dark('.features') {
-  table tr {
-    border-color: #555555 !important;
+  section {
+    margin-bottom: 3em;
   }
 }
