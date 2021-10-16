@@ -13,6 +13,7 @@ import Features from './tabs/Features'
 import Waterfall from './tabs/Waterfall'
 import Licence from './tabs/Licence'
 import TypingPreview from './tabs/TypingPreview'
+import { isTableEmpty } from '../util'
 
 /**
  * Extensions that can be parsed by opentype
@@ -36,16 +37,6 @@ const getFontMimeType = (fontName: FontExtension): string => {
     default:
       return ''
   }
-}
-
-const isTableEmpty = (table: opentype.Table): boolean => {
-  if (!table) {
-    return true
-  }
-
-  return Object.values(table)
-    .filter(value => Array.isArray(value))
-    .every(value => value.length === 0)
 }
 
 /**
@@ -237,7 +228,7 @@ const App = (): JSX.Element | null => {
         <Tab title="Waterfall" id="waterfall">
           <Waterfall />
         </Tab>
-        <Tab title="Type Something" id="typing-preview">
+        <Tab title="Type Yourself" id="typing-preview">
           <TypingPreview />
         </Tab>
         <Tab title="Licence" id="licence" visible={isFontSupported}>

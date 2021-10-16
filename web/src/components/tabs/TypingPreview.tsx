@@ -1,8 +1,14 @@
 import '../../scss/typing-preview.scss'
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useContext, useRef } from 'react'
 import FontNameHeader from '../FontNameHeader'
 import FeatureToggles from '../FeatureToggles'
 import Slider from '../Slider'
+import VariableAxes from '../VariableAxes'
+import FontContext from '../../contexts/FontContext'
+import { isTableEmpty } from '../../util'
+import Chip from '../Chip'
+
+type PinnedSection = 'features' | 'axes' | 'properties'
 
 /**
  * Allows plain text to be pasted into a contentEditable element
@@ -38,6 +44,16 @@ const TypingPreview = (): JSX.Element => {
   const [fontSize, setFontSize] = useState(16)
   const [lineHeight, setLineHeight] = useState(1.2)
   const [fontFeatureSettingsCSS, setFontFeatureSettingsCSS] = useState('normal')
+  const [pageMarginTop, setPageMarginTop] = useState(0)
+  const [variationCSS, setVariationCSS] = useState('')
+  const { fontFeatures, font } = useContext(FontContext)
+  const [pinnedSection, setPinnedSection] = useState<PinnedSection | null>(null)
+
+  const refs: { [key in PinnedSection]: React.RefObject<HTMLElement> } = {
+    features: useRef<HTMLElement>(null),
+    axes: useRef<HTMLElement>(null),
+    properties: useRef<HTMLElement>(null)
+  }
 
   // When the paragraph element gets mounted, focus it and
   // move the user's caret to the end of the sentence
@@ -59,14 +75,68 @@ const TypingPreview = (): JSX.Element => {
     selection?.addRange(range)
   }, [])
 
+  const togglePinnedSection = (sectionName: PinnedSection): void => {
+    const currentSectionRef = refs[sectionName].current
+
+    setPinnedSection(pinnedSection === sectionName ? null : sectionName)
+
+    // In this case, the section is unpinned, remove the margin
+    if (pinnedSection === sectionName) {
+      setPageMarginTop(0)
+    } else if (currentSectionRef) {
+      setTimeout(() => {
+        // Because the pinned element has a max-height, we need to
+        // wrap this in a setTimeout so that the element has time
+        // to calculate its size
+        setPageMarginTop(currentSectionRef.offsetHeight + 52)
+      }, 50)
+    }
+  }
+
   return (
-    <div className="typing-preview">
-      <section>
-        <FontNameHeader />
-        <h2>Features</h2>
-        <FeatureToggles onFeatureToggle={css => setFontFeatureSettingsCSS(css)} />
-      </section>
-      <section>
+    <div className="typing-preview" style={{ marginTop: pageMarginTop }}>
+      <FontNameHeader />
+      {fontFeatures.length > 0 && (
+        <section
+          className={pinnedSection === 'features' ? 'pinned' : ''}
+          ref={refs.features}
+        >
+          <div className="row">
+            <h2>Features</h2>
+            <Chip
+              title={pinnedSection === 'features' ? 'Unpin' : 'Pin'}
+              onClick={() => togglePinnedSection('features')}
+              selected={pinnedSection === 'features'}
+            />
+          </div>
+          <FeatureToggles onFeatureToggle={css => setFontFeatureSettingsCSS(css)} />
+        </section>
+      )}
+      {!isTableEmpty(font.tables.fvar) && (
+        <section className={pinnedSection === 'axes' ? 'pinned' : ''} ref={refs.axes}>
+          <div className="row">
+            <h2>Axes</h2>
+            <Chip
+              title={pinnedSection === 'axes' ? 'Unpin' : 'Pin'}
+              onClick={() => togglePinnedSection('axes')}
+              selected={pinnedSection === 'axes'}
+            />
+          </div>
+          <VariableAxes onVariationChange={setVariationCSS} />
+        </section>
+      )}
+      <section
+        className={pinnedSection === 'properties' ? 'pinned' : ''}
+        ref={refs.properties}
+      >
+        <div className="row">
+          <h2>Properties</h2>
+          <Chip
+            title={pinnedSection === 'properties' ? 'Unpin' : 'Pin'}
+            onClick={() => togglePinnedSection('properties')}
+            selected={pinnedSection === 'properties'}
+          />
+        </div>
         <Slider
           className="attribute-slider"
           min={8}
@@ -93,7 +163,8 @@ const TypingPreview = (): JSX.Element => {
         style={{
           fontSize,
           lineHeight,
-          fontFeatureSettings: fontFeatureSettingsCSS
+          fontFeatureSettings: fontFeatureSettingsCSS,
+          fontVariationSettings: variationCSS
         }}
       >
         {starterText}

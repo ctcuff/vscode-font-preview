@@ -1,20 +1,12 @@
 import '../../scss/features.scss'
-import React, { useContext, useEffect, useState } from 'react'
-import type { Table } from 'opentype.js'
+import React, { useContext, useState } from 'react'
 import FontContext from '../../contexts/FontContext'
 import FeatureToggles from '../FeatureToggles'
-import Slider from '../Slider'
 import FontNameHeader from '../FontNameHeader'
 import Chip from '../Chip'
 import FeatureTable from '../FeatureTable'
-
-type FontVariableAxis = {
-  defaultValue: number
-  maxValue: number
-  minValue: number
-  name: { [key: string]: string }
-  tag: string
-}
+import VariableAxes from '../VariableAxes'
+import { createVariationCSS, isTableEmpty } from '../../util'
 
 type FontVariableAxisInstance = {
   coordinates: { [key: string]: number }
@@ -47,58 +39,6 @@ const Features = (): JSX.Element => {
     setFontFeatureSettingsCSS(css)
   }
 
-  /**
-   * Takes an object of font variations and creates the `font-variation-settings`
-   * CSS string. For example:
-   * ```
-   * createVariationCSS({ wght: 400, slnt: 0 }) === '"wght" 400, "slnt" 0'
-   * ```
-   */
-  const createVariationCSS = (variations: FontVariation): void => {
-    const css = Object.entries(variations)
-      .map(([variation, value]) => `"${variation}" ${value}`)
-      .join(', ')
-
-    setVariationCSS(css)
-  }
-
-  const onVariationChange = (variant: string, value: number) => {
-    const modifiedVariation = {
-      ...fontVariationSettings,
-      [variant]: Math.trunc(value)
-    }
-
-    setFontVariationSettings(modifiedVariation)
-    createVariationCSS(modifiedVariation)
-  }
-
-  const renderVariableSliders = (): JSX.Element | null => {
-    const fvar: Table = font.tables.fvar
-
-    if (!fvar) {
-      return null
-    }
-
-    const axes: FontVariableAxis[] = fvar.axes
-
-    return (
-      <>
-        <h2>Axes</h2>
-        {axes.map(axis => (
-          <Slider
-            className="variable-slider"
-            onChange={value => onVariationChange(axis.tag, value)}
-            key={axis.tag}
-            min={Math.trunc(axis.minValue)}
-            max={Math.trunc(axis.maxValue)}
-            value={fontVariationSettings[axis.tag]}
-            title={axis.name.en}
-          />
-        ))}
-      </>
-    )
-  }
-
   const onInstanceClick = (instance: FontVariableAxisInstance): void => {
     const coordinates = instance.coordinates
     const settingName = instance.name.en?.trim() || 'Unknown'
@@ -107,9 +47,11 @@ const Features = (): JSX.Element => {
       coordinates[key] = Math.trunc(value)
     })
 
+    const css = createVariationCSS(coordinates)
+
     setSelectedSetting(settingName)
     setFontVariationSettings(coordinates)
-    createVariationCSS(coordinates)
+    setVariationCSS(css)
   }
 
   const renderFontInstances = (): JSX.Element | null => {
@@ -140,25 +82,6 @@ const Features = (): JSX.Element => {
     )
   }
 
-  useEffect(() => {
-    // fvar (which is only present on variable fonts) contains info
-    // about the fonts axes, like weight and slant
-    const axes: FontVariableAxis[] | null = font.tables.fvar?.axes
-
-    if (axes) {
-      // If the font is a variable font, loop through the axes and
-      // apply the default variation setting for each axis
-      const fontVariations: FontVariation = {}
-
-      axes.forEach(axis => {
-        fontVariations[axis.tag] = Math.trunc(axis.defaultValue)
-      })
-
-      createVariationCSS(fontVariations)
-      setFontVariationSettings(fontVariations)
-    }
-  }, [])
-
   return (
     <div className="features">
       <FontNameHeader
@@ -172,7 +95,17 @@ const Features = (): JSX.Element => {
         <FeatureToggles onFeatureToggle={onFeatureToggle} />
       </section>
       <section>{renderFontInstances()}</section>
-      <section>{renderVariableSliders()}</section>
+      {!isTableEmpty(font.tables.fvar) && (
+        <section>
+          <h2>Axes</h2>
+          <VariableAxes
+            onVariationChange={setVariationCSS}
+            // Need to pass this component's variation settings down so that
+            // the sliders can update when font instances are clicked
+            variationSettings={fontVariationSettings}
+          />
+        </section>
+      )}
       <section>
         <h2>Preview</h2>
         <p

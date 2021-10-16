@@ -1,6 +1,8 @@
 @import './variables';
 
 .typing-preview {
+  padding-bottom: 80vh;
+
   .row {
     display: flex;
     width: 100%;
@@ -8,6 +10,26 @@
 
     h2 {
       margin-right: 12px;
+    }
+  }
+
+  .pinned {
+    width: 80vw;
+    z-index: 1;
+    position: fixed;
+    top: 32px;
+    padding: 16px 0;
+    left: 50%;
+    right: -50%;
+    max-height: 40%;
+    overflow: auto;
+    transform: translate(-50%, 0);
+
+    .row {
+      position: sticky;
+      top: -16px;
+      background-color: var(--vscode-editor-background);
+      z-index: 2;
     }
   }
 
@@ -25,11 +47,12 @@
     }
   }
 
-  .attribute-slider:not(:last-child) {
+  .attribute-slider {
     margin-bottom: 32px;
   }
 
   section {
     margin-bottom: 3em;
+    background-color: var(--vscode-editor-background);
   }
 }

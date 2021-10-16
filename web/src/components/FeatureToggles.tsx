@@ -50,7 +50,7 @@ const FeatureToggles = ({ onFeatureToggle }: FeatureTogglesProps): JSX.Element =
     }
 
     return (
-      <a className="switch-title" href={id} title="Jump to definition">
+      <a className="switch-title" href={id}>
         {feature}
       </a>
     )
