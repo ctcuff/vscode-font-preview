@@ -100,7 +100,7 @@ const Features = (): JSX.Element => {
   }
 
   const onInstanceClick = (instance: FontVariableAxisInstance): void => {
-    const { coordinates } = instance
+    const coordinates = instance.coordinates
     const settingName = instance.name.en?.trim() || 'Unknown'
 
     Object.entries(coordinates).forEach(([key, value]) => {
@@ -143,8 +143,7 @@ const Features = (): JSX.Element => {
   useEffect(() => {
     // fvar (which is only present on variable fonts) contains info
     // about the fonts axes, like weight and slant
-    const { fvar } = font.tables
-    const axes: FontVariableAxis[] | null = fvar?.axes
+    const axes: FontVariableAxis[] | null = font.tables.fvar?.axes
 
     if (axes) {
       // If the font is a variable font, loop through the axes and
@@ -169,7 +168,7 @@ const Features = (): JSX.Element => {
         }}
       />
       <section>
-        <h2>Font Features</h2>
+        <h2>Features</h2>
         <FeatureToggles onFeatureToggle={onFeatureToggle} />
       </section>
       <section>{renderFontInstances()}</section>

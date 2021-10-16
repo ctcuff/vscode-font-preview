@@ -1,0 +1,35 @@
+@import './variables';
+
+.typing-preview {
+  .row {
+    display: flex;
+    width: 100%;
+    align-items: center;
+
+    h2 {
+      margin-right: 12px;
+    }
+  }
+
+  .text-preview {
+    width: 100%;
+    font-family: $fontFamilyName;
+    line-height: 1.2;
+    background-color: transparent;
+    color: var(--vscode-editor-foreground, var(--theme-foreground));
+    display: inline-block;
+    white-space: pre-wrap;
+
+    &:focus {
+      outline: none;
+    }
+  }
+
+  .attribute-slider:not(:last-child) {
+    margin-bottom: 32px;
+  }
+
+  section {
+    margin-bottom: 3em;
+  }
+}

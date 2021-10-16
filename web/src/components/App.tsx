@@ -12,6 +12,7 @@ import LoadingOverlay from './LoadingOverlay'
 import Features from './tabs/Features'
 import Waterfall from './tabs/Waterfall'
 import Licence from './tabs/Licence'
+import TypingPreview from './tabs/TypingPreview'
 
 /**
  * Extensions that can be parsed by opentype
@@ -35,6 +36,16 @@ const getFontMimeType = (fontName: FontExtension): string => {
     default:
       return ''
   }
+}
+
+const isTableEmpty = (table: opentype.Table): boolean => {
+  if (!table) {
+    return true
+  }
+
+  return Object.values(table)
+    .filter(value => Array.isArray(value))
+    .every(value => value.length === 0)
 }
 
 /**
@@ -96,8 +107,7 @@ const App = (): JSX.Element | null => {
       }
 
       // gpos and gsub contain information about the different features available
-      // for the font (kern, tnum, sups, etc). fvar (which is only present on variable
-      // fonts) contains info about the fonts axes, like weight and slant
+      // for the font (kern, tnum, sups, etc).
       const { gpos, gsub } = fontData.tables
 
       const gposFeatures: string[] =
@@ -156,6 +166,30 @@ const App = (): JSX.Element | null => {
     }
   }
 
+  const shouldShowFeatureTab = (): boolean => {
+    if (!font) {
+      return false
+    }
+
+    const { gpos, gsub, fvar } = font.tables
+
+    if (!isFontSupported) {
+      return false
+    }
+
+    if (!gpos && !gsub && !fvar) {
+      return false
+    }
+
+    // In this case the font might have gpos, gsub, or fvar tables, but
+    // all of them might be empty. No point in showing the tab
+    if (isTableEmpty(gpos) && isTableEmpty(gsub) && isTableEmpty(fvar)) {
+      return false
+    }
+
+    return true
+  }
+
   useEffect(() => {
     postMessage({ type: 'GET_CONFIG' })
 
@@ -192,7 +226,7 @@ const App = (): JSX.Element | null => {
           visible={
             // Hide this tab if the current font doesn't have
             // any variable font features or feature tags
-            isFontSupported && !!(font.tables.gpos || font.tables.gsub)
+            shouldShowFeatureTab()
           }
         >
           <Features />
@@ -202,6 +236,9 @@ const App = (): JSX.Element | null => {
         </Tab>
         <Tab title="Waterfall" id="waterfall">
           <Waterfall />
+        </Tab>
+        <Tab title="Type Something" id="typing-preview">
+          <TypingPreview />
         </Tab>
         <Tab title="Licence" id="licence" visible={isFontSupported}>
           <Licence />

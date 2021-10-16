@@ -5,7 +5,7 @@ type SliderProps = {
   min: number
   max: number
   step?: number
-  title?: string
+  title?: string | JSX.Element
   value?: number
   className?: string
   onChange?: (value: number) => void
@@ -30,17 +30,29 @@ const Slider = ({
     onChange(val)
   }
 
+  const renderTitle = (): JSX.Element | string | null => {
+    if (!title) {
+      return null
+    }
+
+    if (typeof title === 'string') {
+      return (
+        <span className="slider-title">
+          {title}: {sliderValue}
+        </span>
+      )
+    }
+
+    return title
+  }
+
   useEffect(() => {
     setSliderValue(value)
   }, [value])
 
   return (
     <div className={`slider ${className}`}>
-      {title && (
-        <span className="slider-title">
-          {title}: {sliderValue}
-        </span>
-      )}
+      {renderTitle()}
       <div className="slider-range">
         <span className="label-min">{min}</span>
         <input

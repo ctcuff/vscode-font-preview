@@ -4,7 +4,7 @@ import FontContext from '../contexts/FontContext'
 import Switch from './Switch'
 
 type FeatureTogglesProps = {
-  onFeatureToggle?: (feature: string, activeFeatures: string[]) => void
+  onFeatureToggle?: (css: string, activeFeatures: string[]) => void
 }
 
 /**

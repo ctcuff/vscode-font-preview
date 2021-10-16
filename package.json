@@ -54,7 +54,8 @@
             "features",
             "glyphs",
             "waterfall",
-            "licence"
+            "licence",
+            "typing-preview"
           ],
           "default": "preview",
           "enumDescriptions": [
@@ -62,7 +63,8 @@
             "The preview will always start on the \"Features\" tab (if present).",
             "The preview will always start on the \"Glyphs\" tab (if present).",
             "The preview will always start on the \"Waterfall\" tab.",
-            "The preview will always start on the \"Licence\" tab (if present)."
+            "The preview will always start on the \"Licence\" tab (if present).",
+            "The preview will always start on the \"Type Something\"."
           ]
         }
       }
