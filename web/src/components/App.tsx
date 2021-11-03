@@ -114,7 +114,7 @@ const App = (): JSX.Element | null => {
 
       setFontFeatures(Array.from(features))
       setFont(fontData)
-    } catch (err) {
+    } catch (err: any) {
       postMessage({
         type: 'ERROR',
         payload: `Error loading font: ${err.message}`

@@ -19,7 +19,7 @@ class FontDocument implements vscode.CustomDocument {
   public async getContent(): Promise<Uint8Array | null> {
     try {
       return await vscode.workspace.fs.readFile(this.uri)
-    } catch (err) {
+    } catch (err: any) {
       vscode.window.showErrorMessage(err.message)
     }
 
