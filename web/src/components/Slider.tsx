@@ -7,6 +7,7 @@ type SliderProps = {
   step?: number
   title?: string | JSX.Element
   value?: number
+  unit?: string
   className?: string
   onChange?: (value: number) => void
   onFinishChange?: (value: number) => void
@@ -19,6 +20,7 @@ const Slider = ({
   step = 1,
   value = 0,
   className = '',
+  unit = '',
   onChange = () => {},
   onFinishChange = () => {}
 }: SliderProps): JSX.Element => {
@@ -39,6 +41,7 @@ const Slider = ({
       return (
         <span className="slider-title">
           {title}: {sliderValue}
+          {unit}
         </span>
       )
     }

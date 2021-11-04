@@ -43,6 +43,7 @@ const starterText = 'Type your text here...'
 const TypingPreview = (): JSX.Element => {
   const [fontSize, setFontSize] = useState(16)
   const [lineHeight, setLineHeight] = useState(1.2)
+  const [letterSpacing, setLetterSpacing] = useState(0)
   const [fontFeatureSettingsCSS, setFontFeatureSettingsCSS] = useState('normal')
   const [pageMarginTop, setPageMarginTop] = useState(0)
   const [variationCSS, setVariationCSS] = useState('')
@@ -140,9 +141,10 @@ const TypingPreview = (): JSX.Element => {
         <Slider
           className="attribute-slider"
           min={8}
-          max={96}
+          max={128}
           value={fontSize}
           title="Font Size"
+          unit="px"
           onChange={setFontSize}
         />
         <Slider
@@ -154,6 +156,16 @@ const TypingPreview = (): JSX.Element => {
           title="Line Height"
           onChange={setLineHeight}
         />
+        <Slider
+          className="attribute-slider"
+          min={0}
+          max={32}
+          step={0.01}
+          value={letterSpacing}
+          title="Letter Spacing"
+          unit="px"
+          onChange={setLetterSpacing}
+        />
       </section>
       <p
         contentEditable
@@ -163,6 +175,7 @@ const TypingPreview = (): JSX.Element => {
         style={{
           fontSize,
           lineHeight,
+          letterSpacing,
           fontFeatureSettings: fontFeatureSettingsCSS,
           fontVariationSettings: variationCSS
         }}
