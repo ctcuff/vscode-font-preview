@@ -50,21 +50,21 @@
           "description": "Controls the starting tab of the preview.",
           "type": "string",
           "enum": [
-            "preview",
-            "features",
-            "glyphs",
-            "waterfall",
-            "license",
-            "typing-preview"
+            "Preview",
+            "Features",
+            "Glyphs",
+            "Waterfall",
+            "Type Yourself",
+            "License"
           ],
-          "default": "preview",
+          "default": "Preview",
           "enumDescriptions": [
             "The preview will always start on the \"Preview\" tab.",
             "The preview will always start on the \"Features\" tab (if present).",
             "The preview will always start on the \"Glyphs\" tab (if present).",
             "The preview will always start on the \"Waterfall\" tab.",
-            "The preview will always start on the \"License\" tab (if present).",
-            "The preview will always start on the \"Type Something\"."
+            "The preview will always start on the \"Type Yourself\" tab.",
+            "The preview will always start on the \"License\" tab (if present)."
           ]
         }
       }

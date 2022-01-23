@@ -208,12 +208,12 @@ const App = (): JSX.Element | null => {
   return (
     <FontContext.Provider value={{ font, fileName, fontFeatures }}>
       <TabView panelClassName="app" defaultTabId={defaultTabId}>
-        <Tab title="Preview" id="preview">
+        <Tab title="Preview" id="Preview">
           <FontPreview />
         </Tab>
         <Tab
           title="Features"
-          id="features"
+          id="Features"
           visible={
             // Hide this tab if the current font doesn't have
             // any variable font features or feature tags
@@ -222,16 +222,16 @@ const App = (): JSX.Element | null => {
         >
           <Features />
         </Tab>
-        <Tab title="Glyphs" id="glyphs" visible={isFontSupported}>
+        <Tab title="Glyphs" id="Glyphs" visible={isFontSupported}>
           <Glyphs />
         </Tab>
-        <Tab title="Waterfall" id="waterfall">
+        <Tab title="Waterfall" id="Waterfall">
           <Waterfall />
         </Tab>
-        <Tab title="Type Yourself" id="typing-preview">
+        <Tab title="Type Yourself" id="Type Yourself">
           <TypingPreview />
         </Tab>
-        <Tab title="License" id="license" visible={isFontSupported}>
+        <Tab title="License" id="License" visible={isFontSupported}>
           <License />
         </Tab>
       </TabView>
