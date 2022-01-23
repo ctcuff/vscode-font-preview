@@ -113,7 +113,7 @@ const TypingPreview = (): JSX.Element => {
           <FeatureToggles onFeatureToggle={css => setFontFeatureSettingsCSS(css)} />
         </section>
       )}
-      {!isTableEmpty(font.tables.fvar) && (
+      {!isTableEmpty(font.tables?.fvar) && (
         <section className={pinnedSection === 'axes' ? 'pinned' : ''} ref={refs.axes}>
           <div className="row">
             <h2>Axes</h2>

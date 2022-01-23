@@ -1,4 +1,4 @@
-import '../../scss/licence.scss'
+import '../../scss/license.scss'
 import React, { useContext, useEffect, useState } from 'react'
 import Linkify from 'react-linkify'
 import FontContext from '../../contexts/FontContext'
@@ -35,16 +35,16 @@ const nameTableNames = [
   'wwsSubfamily'
 ].sort((a, b) => a.localeCompare(b))
 
-const Licence = (): JSX.Element => {
+const License = (): JSX.Element => {
   const { font } = useContext(FontContext)
   const [namingTable, setNamingTable] = useState<NameTable>({})
 
   useEffect(() => {
     const table: NameTable = {}
-    const headTable = font.tables.head
+    const headTable = font.tables?.head
 
     nameTableNames.forEach(name => {
-      const tableValue = font.tables.name[name]?.en
+      const tableValue = font.tables?.name[name]?.en
 
       if (tableValue) {
         table[name] = tableValue
@@ -63,7 +63,7 @@ const Licence = (): JSX.Element => {
   }, [])
 
   return (
-    <div className="licence">
+    <div className="license">
       <FontNameHeader />
       <table>
         <colgroup>
@@ -85,4 +85,4 @@ const Licence = (): JSX.Element => {
   )
 }
 
-export default Licence
+export default License

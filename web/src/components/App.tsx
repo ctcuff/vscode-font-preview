@@ -11,7 +11,7 @@ import { FontExtension } from '../types'
 import LoadingOverlay from './LoadingOverlay'
 import Features from './tabs/Features'
 import Waterfall from './tabs/Waterfall'
-import Licence from './tabs/Licence'
+import License from './tabs/License'
 import TypingPreview from './tabs/TypingPreview'
 import { isTableEmpty } from '../util'
 
@@ -158,7 +158,7 @@ const App = (): JSX.Element | null => {
   }
 
   const shouldShowFeatureTab = (): boolean => {
-    if (!font) {
+    if (!font || !font.tables) {
       return false
     }
 
@@ -231,8 +231,8 @@ const App = (): JSX.Element | null => {
         <Tab title="Type Yourself" id="typing-preview">
           <TypingPreview />
         </Tab>
-        <Tab title="Licence" id="licence" visible={isFontSupported}>
-          <Licence />
+        <Tab title="License" id="license" visible={isFontSupported}>
+          <License />
         </Tab>
       </TabView>
     </FontContext.Provider>

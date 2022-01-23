@@ -45,7 +45,7 @@ const VariableAxes = ({
   }
 
   const renderVariableSliders = (): JSX.Element | null => {
-    const fvar: Table = font.tables.fvar
+    const fvar: Table = font.tables?.fvar
 
     if (!fvar) {
       return null
@@ -73,7 +73,7 @@ const VariableAxes = ({
   useEffect(() => {
     // fvar (which is only present on variable fonts) contains info
     // about the fonts axes, like weight and slant
-    const axes: FontVariableAxis[] | null = font.tables.fvar?.axes
+    const axes: FontVariableAxis[] | null = font.tables?.fvar?.axes
 
     if (axes) {
       // If the font is a variable font, loop through the axes and
