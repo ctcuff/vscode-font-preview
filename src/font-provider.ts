@@ -3,7 +3,7 @@ import * as path from 'path'
 import html from './index.html'
 import { template } from './util'
 import FontDocument from './font-document'
-import { WebviewMessage } from '../shared/types'
+import { Config, WebviewMessage } from '../shared/types'
 
 class FontProvider implements vscode.CustomReadonlyEditorProvider {
   public static readonly viewType = 'font.detail.preview'
@@ -35,7 +35,7 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
     }
 
     this.postMessage(panel, {
-      type: 'LOAD',
+      type: 'FONT_LOADED',
       payload: {
         // postMessage can't handle a Uint8Array so we have to
         // send an array of numbers instead.
@@ -58,7 +58,7 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
   }
 
   private onDidReceiveMessage(panel: vscode.WebviewPanel, message: WebviewMessage): void {
-    switch (message.type.toUpperCase()) {
+    switch (message.type) {
       case 'ERROR':
         vscode.window.showErrorMessage(message.payload)
         break
@@ -69,9 +69,9 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
         const config = vscode.workspace.getConfiguration('font-preview')
 
         this.postMessage(panel, {
-          type: 'LOAD_CONFIG',
+          type: 'CONFIG_LOADED',
           payload: {
-            defaultTab: config.get('defaultTab')
+            defaultTab: config.get('defaultTab') as Config['defaultTab']
           }
         })
         break

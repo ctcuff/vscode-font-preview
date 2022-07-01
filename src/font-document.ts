@@ -1,17 +1,18 @@
 import * as vscode from 'vscode'
 import * as path from 'path'
+import { FontExtension } from '../shared/types'
 
 class FontDocument implements vscode.CustomDocument {
   public readonly uri: vscode.Uri
   public readonly fileName: string
-  public readonly extension: string
+  public readonly extension: FontExtension
 
   constructor(uri: vscode.Uri) {
     const { name, ext } = path.parse(uri.fsPath)
 
     this.uri = uri
     this.fileName = name
-    this.extension = ext.replace('.', '')
+    this.extension = ext.replace('.', '') as FontExtension
   }
 
   dispose(): void {}

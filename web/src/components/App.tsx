@@ -1,79 +1,27 @@
 import '../scss/app.scss'
 import React, { useContext, useEffect, useState } from 'react'
-import opentype, { Font } from 'opentype.js'
+import { Font } from 'opentype.js'
 import TabView, { Tab } from './TabView'
 import FontPreview from './tabs/FontPreview'
 import Glyphs from './tabs/Glyphs'
 import FontContext from '../contexts/FontContext'
-import { Config, WebviewMessage } from '../../../shared/types'
+import { Config, WebviewMessage, FontLoadEvent } from '../../../shared/types'
 import VscodeContext from '../contexts/VscodeContext'
-import { FontExtension } from '../types'
-import LoadingOverlay from './LoadingOverlay'
 import Features from './tabs/Features'
 import Waterfall from './tabs/Waterfall'
 import License from './tabs/License'
 import TypingPreview from './tabs/TypingPreview'
 import { isTableEmpty } from '../util'
-
-/**
- * Extensions that can be parsed by opentype
- */
-const opentypeExtensions: ReadonlySet<FontExtension> = new Set<FontExtension>([
-  'otf',
-  'ttf',
-  'woff'
-])
-
-const getFontMimeType = (fontName: FontExtension): string => {
-  switch (fontName) {
-    case 'otf':
-      return 'opentype'
-    case 'ttf':
-    case 'ttc':
-      return 'truetype'
-    case 'woff':
-    case 'woff2':
-      return 'woff'
-    default:
-      return ''
-  }
-}
-
-/**
- * Creates and inserts a <style> element with the loaded font. This allows
- * the font to be accessed anywhere in a stylesheet.
- */
-const createStyle = (base64Font: string, fontExtension: FontExtension): void => {
-  const style = document.createElement('style')
-  const mimeType = getFontMimeType(fontExtension)
-
-  // Using var() in the template string doesn't load the font family
-  // so it has to be grabbed from the root element
-  const fontFamilyName = getComputedStyle(document.documentElement).getPropertyValue(
-    '--font-family-name'
-  )
-
-  style.id = 'font-preview'
-  style.innerHTML = /* css */ `
-    @font-face {
-      font-family: ${fontFamilyName};
-      src:
-        url("data:font/${mimeType};base64,${base64Font}")
-        format("${mimeType}");
-    }`
-
-  document.head.insertAdjacentElement('beforeend', style)
-}
+import FontLoader from '../font-loader'
 
 const App = (): JSX.Element | null => {
-  const [font, setFont] = useState<Font | null>(null)
-  const [fileName, setFileName] = useState('')
-  const [isLoading, setLoading] = useState(true)
-  const [isFontSupported, setIsFontSupported] = useState(false)
-  const [fontFeatures, setFontFeatures] = useState<string[]>([])
   // When set to null, the tab view won't render. This is so that we can
   // wait for the postMessage event to determine the default tab
   const [defaultTabId, setDefaultTabId] = useState<Config['defaultTab'] | null>(null)
+  const [font, setFont] = useState<Font | null>(null)
+  const [fileName, setFileName] = useState('')
+  const [isFontSupported, setIsFontSupported] = useState(false)
+  const [fontFeatures, setFontFeatures] = useState<string[]>([])
   const vscode = useContext(VscodeContext)
   const savedState = vscode.getState()
 
@@ -81,66 +29,43 @@ const App = (): JSX.Element | null => {
     vscode.postMessage(message)
   }
 
-  const loadFont = (fileExtension: FontExtension, fileData: number[]): void => {
-    if (!opentypeExtensions.has(fileExtension)) {
-      setIsFontSupported(false)
-      setFont({} as Font)
-      setLoading(false)
-      return
-    }
-
+  const loadFont = (payload: FontLoadEvent['payload']) => {
     try {
-      const fontData = opentype.parse(new Uint8Array(fileData).buffer)
+      const fontLoader = new FontLoader({
+        fileExtension: payload.extension,
+        fileContent: payload.fileContent,
+        fileName: payload.fileName,
+        base64Content: payload.base64Content
+      })
 
-      if (!fontData.supported) {
-        setLoading(false)
-        return
-      }
+      fontLoader.insertStyle()
 
-      // gpos and gsub contain information about the different features available
-      // for the font (kern, tnum, sups, etc).
-      const { gpos, gsub } = fontData.tables
+      const { font: fontData, features } = fontLoader.loadFont()
 
-      const gposFeatures: string[] =
-        gpos?.features?.map((feature: any) => feature.tag) || []
-      const gsubFeatures: string[] =
-        gsub?.features?.map((feature: any) => feature.tag) || []
-
-      const features = new Set<string>(
-        [...gposFeatures, ...gsubFeatures]
-          .sort((a, b) => a.localeCompare(b))
-          .filter(str => !!str.trim())
-      )
-
-      setFontFeatures(Array.from(features))
+      setIsFontSupported(fontLoader.supported)
       setFont(fontData)
-    } catch (err: any) {
+      setFontFeatures(features)
+      setFileName(payload.fileName)
+    } catch (err: unknown) {
       postMessage({
         type: 'ERROR',
-        payload: `Error loading font: ${err.message}`
+        payload: (err as Error).message
       })
     }
-
-    setIsFontSupported(true)
-    setLoading(false)
   }
 
   const onMessage = (message: MessageEvent<WebviewMessage>): void => {
     // Reopening the the most recently closed tab (CMD/CTRL + Shift + T )
     // causes vscode to read in the saved state but also fire the init
     // message. Returning here prevents the font from being loaded twice.
-    if (savedState && message.data.type === 'LOAD') {
+    if (savedState && message.data.type === 'FONT_LOADED') {
       return
     }
 
-    const { payload } = message.data
-
-    // eslint-disable-next-line default-case
     switch (message.data.type) {
-      case 'LOAD':
-        loadFont(payload.extension, payload.fileContent)
-        createStyle(payload.base64Content, payload.extension)
-        setFileName(payload.fileName)
+      case 'FONT_LOADED': {
+        const { payload } = message.data
+        loadFont(payload)
 
         vscode.setState({
           base64Content: payload.base64Content,
@@ -149,11 +74,14 @@ const App = (): JSX.Element | null => {
           fileName: payload.fileName
         })
         break
-
-      case 'LOAD_CONFIG': {
-        setDefaultTabId(payload.defaultTab)
+      }
+      case 'CONFIG_LOADED': {
+        setDefaultTabId(message.data.payload.defaultTab)
         break
       }
+      default:
+        // eslint-disable-next-line no-console
+        console.warn(`Unsupported type: ${message.data.type}`)
     }
   }
 
@@ -182,24 +110,22 @@ const App = (): JSX.Element | null => {
   }
 
   useEffect(() => {
+    window.addEventListener('message', onMessage)
     postMessage({ type: 'GET_CONFIG' })
 
     if (savedState) {
-      createStyle(savedState.base64Content, savedState.fontExtension)
-      loadFont(savedState.fontExtension, savedState.fileContent)
-      setFileName(savedState.fileName)
+      loadFont({
+        fileContent: savedState.fileContent,
+        base64Content: savedState.base64Content,
+        extension: savedState.fontExtension,
+        fileName: savedState.fileName
+      })
     }
-
-    window.addEventListener('message', onMessage)
 
     return () => {
       window.removeEventListener('message', onMessage)
     }
   }, [])
-
-  if (isLoading) {
-    return <LoadingOverlay />
-  }
 
   if (!font) {
     return null

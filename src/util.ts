@@ -6,7 +6,7 @@
  * @param data Key value pairs. These must match the names of the variables in the HTML file
  * @returns The HTML file with all variables replaced
  */
-function template(content: string, data: Readonly<{ [key: string]: string }>): string {
+function template(content: string, data: Readonly<Record<string, string>>): string {
   let html = content
 
   Object.entries(data).forEach(([key, value]) => {

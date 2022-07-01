@@ -1,4 +1,4 @@
-export type FontExtension = 'otf' | 'ttc' | 'ttf' | 'woff' | 'woff2' | ''
+import { FontExtension } from '../../shared/types'
 
 export type GlobalSavedState = {
   base64Content: string
