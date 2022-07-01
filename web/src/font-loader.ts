@@ -1,12 +1,12 @@
 import opentype, { Font } from 'opentype.js'
 import { FontExtension } from '../../shared/types'
 import FontLoadError from './font-load-error'
+import { base64ArrayBuffer } from './util'
 
 type FontLoaderOptions = {
   fileExtension: FontExtension
   fileContent: number[]
   fileName: string
-  base64Content: string
 }
 
 type FontFeature = {
@@ -66,6 +66,7 @@ class FontLoader {
   public insertStyle(): void {
     const style = document.createElement('style')
     const mimeType = this.getFontMimeType()
+    const base64Content = base64ArrayBuffer(this.opts.fileContent)
 
     // Using var() in the template string doesn't load the font family
     // so it has to be grabbed from the root element
@@ -75,12 +76,12 @@ class FontLoader {
 
     style.id = 'font-preview'
     style.innerHTML = /* css */ `
-      @font-face {
-        font-family: ${fontFamilyName};
-        src:
-          url("data:font/${mimeType};base64,${this.opts.base64Content}")
-          format("${mimeType}");
-      }`
+        @font-face {
+          font-family: ${fontFamilyName};
+          src:
+            url("data:font/${mimeType};base64,${base64Content}")
+            format("${mimeType}");
+        }`
 
     document.head.insertAdjacentElement('beforeend', style)
   }

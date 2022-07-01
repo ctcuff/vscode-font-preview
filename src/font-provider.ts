@@ -51,8 +51,7 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
         // send an array of numbers instead.
         fileContent: Array.from(content),
         fileName: document.fileName,
-        fileExtension: document.extension,
-        base64Content: Buffer.from(content).toString('base64')
+        fileExtension: document.extension
       }
     })
 

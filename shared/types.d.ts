@@ -20,7 +20,6 @@ export type FontLoadEvent = {
      */
     fileContent: number[]
     fileName: string
-    base64Content: string
   }
 }
 

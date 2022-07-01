@@ -16,6 +16,7 @@ module.exports = {
     'no-plusplus': 'off',
     'func-names': 'off',
     'no-param-reassign': ['error', { props: false }],
+    'no-bitwise': 'off',
     'lines-between-class-members': 'off',
     'prefer-destructuring': 'off',
     // Disabled to let TypeScript handle unused variable checking.

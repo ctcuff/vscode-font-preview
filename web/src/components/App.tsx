@@ -34,8 +34,7 @@ const App = (): JSX.Element | null => {
       const fontLoader = new FontLoader({
         fileExtension: payload.fileExtension,
         fileContent: payload.fileContent,
-        fileName: payload.fileName,
-        base64Content: payload.base64Content
+        fileName: payload.fileName
       })
 
       fontLoader.insertStyle()
@@ -68,7 +67,6 @@ const App = (): JSX.Element | null => {
         loadFont(payload)
 
         vscode.setState({
-          base64Content: payload.base64Content,
           fileContent: payload.fileContent,
           fileExtension: payload.fileExtension,
           fileName: payload.fileName
@@ -114,9 +112,10 @@ const App = (): JSX.Element | null => {
     postMessage({ type: 'GET_CONFIG' })
 
     if (savedState) {
+      // eslint-disable-next-line no-console
+      console.log('Saved state!!!')
       loadFont({
         fileContent: savedState.fileContent,
-        base64Content: savedState.base64Content,
         fileExtension: savedState.fileExtension,
         fileName: savedState.fileName
       })
