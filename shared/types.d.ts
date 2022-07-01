@@ -13,7 +13,11 @@ export type Config = {
 export type FontLoadEvent = {
   type: 'FONT_LOADED'
   payload: {
-    extension: FontExtension
+    fileExtension: FontExtension
+    /**
+     * VSCode can't post a UIntArray or ArrayBuffer so the file content needs to
+     * be transferred as an array of numbers
+     */
     fileContent: number[]
     fileName: string
     base64Content: string

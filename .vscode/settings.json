@@ -15,6 +15,7 @@
     "gpos",
     "gsub",
     "opentype",
-    "truetype"
+    "truetype",
+    "wawoff"
   ]
 }

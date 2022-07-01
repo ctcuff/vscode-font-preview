@@ -32,7 +32,7 @@ const App = (): JSX.Element | null => {
   const loadFont = (payload: FontLoadEvent['payload']) => {
     try {
       const fontLoader = new FontLoader({
-        fileExtension: payload.extension,
+        fileExtension: payload.fileExtension,
         fileContent: payload.fileContent,
         fileName: payload.fileName,
         base64Content: payload.base64Content
@@ -70,7 +70,7 @@ const App = (): JSX.Element | null => {
         vscode.setState({
           base64Content: payload.base64Content,
           fileContent: payload.fileContent,
-          fontExtension: payload.extension,
+          fileExtension: payload.fileExtension,
           fileName: payload.fileName
         })
         break
@@ -117,7 +117,7 @@ const App = (): JSX.Element | null => {
       loadFont({
         fileContent: savedState.fileContent,
         base64Content: savedState.base64Content,
-        extension: savedState.fontExtension,
+        fileExtension: savedState.fileExtension,
         fileName: savedState.fileName
       })
     }

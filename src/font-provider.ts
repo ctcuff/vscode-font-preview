@@ -4,6 +4,7 @@ import html from './index.html'
 import { template } from './util'
 import FontDocument from './font-document'
 import { Config, WebviewMessage } from '../shared/types'
+import * as wawoff2 from 'wawoff2'
 
 class FontProvider implements vscode.CustomReadonlyEditorProvider {
   public static readonly viewType = 'font.detail.preview'
@@ -28,10 +29,19 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
       localResourceRoots: [vscode.Uri.file(path.join(this.context.extensionPath, 'dist'))]
     }
 
-    const content = await document.getContent()
+    let content = await document.getContent()
 
     if (!content) {
       return
+    }
+
+    if (document.extension === 'woff2') {
+      try {
+        content = await wawoff2.decompress(content)
+      } catch (err: any) {
+        // eslint-disable-next-line no-console
+        console.warn(`Couldn't decompress file content ${err}`)
+      }
     }
 
     this.postMessage(panel, {
@@ -41,7 +51,7 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
         // send an array of numbers instead.
         fileContent: Array.from(content),
         fileName: document.fileName,
-        extension: document.extension,
+        fileExtension: document.extension,
         base64Content: Buffer.from(content).toString('base64')
       }
     })

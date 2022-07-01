@@ -24,7 +24,8 @@ type FontPayload = {
 const supportedExtensions: ReadonlySet<FontExtension> = new Set<FontExtension>([
   'otf',
   'ttf',
-  'woff'
+  'woff',
+  'woff2'
 ])
 
 class FontLoader {
@@ -87,7 +88,7 @@ class FontLoader {
   public loadFont(): FontPayload {
     const { fileExtension, fileContent } = this.opts
 
-    // Opentype can't parse some font types (like woff2 and ttc). In that case, we don't
+    // Opentype can't parse some font types (like ttc). In that case, we don't
     // wan't to throw an error since those fonts can still be rendered in the window so
     // we'll just return a dummy object
     if (!supportedExtensions.has(fileExtension)) {
@@ -99,7 +100,9 @@ class FontLoader {
 
     const font = opentype.parse(new Uint8Array(fileContent).buffer)
 
-    if (!font.supported) {
+    // woff2 is supported thanks to the wawoff2 decompression library but it's hardcoded
+    // to be unsupported by opentype
+    if (!font.supported && fileExtension !== 'woff2') {
       throw new FontLoadError()
     }
 

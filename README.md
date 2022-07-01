@@ -2,7 +2,7 @@
 
 An extension that lets you view fonts straight in your editor! Try out different font feature settings and mess with variable font axes!
 
-This extension currently supports the following font types: `otf`, `ttf`, `ttc`, `woff`, and `woff2`. Note that the `Features`, `Glyphs`, and `License` tabs are only available for `otf`, `ttf`, and `woff` fonts.
+This extension currently supports the following font types: `otf`, `ttf`, `ttc`, `woff`, and `woff2`. Note that the `Features`, `Glyphs`, and `License` tabs are only available for `otf`, `ttf`, `woff`, and `woff2` fonts.
 
 <div align="center">
   <img width="1648" alt="Screen Shot 2022-01-23 at 1 03 58 AM" src="https://user-images.githubusercontent.com/7400747/150666960-9098d97a-8cdd-4004-9d9a-5d7c11bf3b9f.png">
