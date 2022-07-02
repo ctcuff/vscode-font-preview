@@ -112,8 +112,6 @@ const App = (): JSX.Element | null => {
     postMessage({ type: 'GET_CONFIG' })
 
     if (savedState) {
-      // eslint-disable-next-line no-console
-      console.log('Saved state!!!')
       loadFont({
         fileContent: savedState.fileContent,
         fileExtension: savedState.fileExtension,
