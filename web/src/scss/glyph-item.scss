@@ -1,0 +1,67 @@
+@import './variables';
+@import './mixins';
+
+.glyph-item {
+  position: relative;
+  border: 1px solid;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  margin: -1px 0 0 -1px;
+  user-select: none;
+  cursor: pointer;
+  overflow: hidden;
+
+  .glyph-detail {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    font-family: var(--vscode-font-family, var(--theme-font-family));
+    font-size: 12px;
+    padding: 8px 6px;
+    border-top: 1px solid;
+    transform: translateY(calc(100% + 1px));
+    text-align: center;
+    background-color: var(--vscode-editor-background);
+    z-index: 2;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  &:hover .glyph-detail {
+    transform: translateY(0%);
+  }
+
+  &::before {
+    content: attr(data-index);
+    font-family: var(--vscode-font-family, var(--theme-font-family));
+    position: absolute;
+    bottom: 4px;
+    left: 4px;
+    font-size: 12px;
+  }
+}
+
+@include vscode-light('.glyphs') {
+  .glyph-item,
+  .glyph-detail {
+    border-color: #cccccc !important;
+  }
+
+  .glyph::before {
+    color: #7a7a7a;
+  }
+}
+
+@include vscode-dark('.glyphs') {
+  .glyph-item,
+  .glyph-detail {
+    border-color: #555555 !important;
+  }
+
+  .glyph::before {
+    color: #bababa;
+  }
+}

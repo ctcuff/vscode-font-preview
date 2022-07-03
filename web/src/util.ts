@@ -13,6 +13,15 @@ const createVariationCSS = (variations: { [key: string]: number }): string => {
     .join(', ')
 }
 
+const getCSSVar = (cssVar: string, fallback = ''): string => {
+  const computedStyle = getComputedStyle(document.documentElement)
+
+  return (
+    computedStyle.getPropertyValue(cssVar).trim() ||
+    computedStyle.getPropertyValue(fallback).trim()
+  )
+}
+
 const isTableEmpty = (table: Table): boolean => {
   if (!table) {
     return true
@@ -82,4 +91,4 @@ const base64ArrayBuffer = (buffer: number[]): string => {
   return base64
 }
 
-export { createVariationCSS, isTableEmpty, base64ArrayBuffer }
+export { createVariationCSS, isTableEmpty, base64ArrayBuffer, getCSSVar }

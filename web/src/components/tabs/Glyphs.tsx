@@ -1,17 +1,15 @@
 import '../../scss/glyphs.scss'
 import 'react-toastify/dist/ReactToastify.css'
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useMemo, useState } from 'react'
 import { ToastContainer, toast, cssTransition } from 'react-toastify'
 import { Glyph } from 'opentype.js'
 import FontContext from '../../contexts/FontContext'
 import FontNameHeader from '../FontNameHeader'
 import GlyphInspectorModal from '../GlyphInspectorModal'
+import Chip from '../Chip'
+import GlyphItem from '../GlyphItem'
 
-type GlyphData = {
-  htmlEntity: string
-  glyphIndex: number
-  glyph: Glyph
-}
+const GLYPHS_PER_PAGE = 200
 
 const entityTextArea = document.createElement('textarea')
 
@@ -46,41 +44,70 @@ const copyGlyphToClipboard = (glyph: string): void => {
 
 const Glyphs = (): JSX.Element => {
   const { font } = useContext(FontContext)
-  const [glyphs, setGlyphs] = useState<GlyphData[]>([])
+  const [glyphs, setGlyphs] = useState<Glyph[]>([])
   const [isModalOpen, setModalOpen] = useState(false)
   const [selectedGlyph, setSelectedGlyph] = useState<Glyph | null>(null)
+  const [currentPage, setCurrentPage] = useState(0)
 
-  useEffect(() => {
-    const glyphList: GlyphData[] = []
+  const numPages = Math.ceil(font.glyphs.length / GLYPHS_PER_PAGE)
 
-    for (let i = 0; i < font.glyphs.length; i++) {
-      const glyph = font.glyphs.get(i)
-      const { leftSideBearing, rightSideBearing, yMin, yMax } = glyph.getMetrics()
+  const renderPageButtons = (): JSX.Element[] => {
+    const elements: JSX.Element[] = []
 
-      // Glyphs that have a height of 0 for their bounding box are either
-      // empty or won't be visible so we'll skip them
-      if (leftSideBearing === 0 && rightSideBearing === 0 && yMin === 0 && yMax === 0) {
-        continue
+    for (let i = 0; i < numPages; i++) {
+      let title = `${GLYPHS_PER_PAGE * i} - ${GLYPHS_PER_PAGE * (i + 1) - 1}`
+
+      if (i === numPages - 1) {
+        title = `${GLYPHS_PER_PAGE * i} - ${font.glyphs.length - 1}`
       }
 
-      // Skip rendering null glyphs and the space character
-      // since these characters can break the grid layout
-      if (glyph.unicode !== undefined && glyph.unicode !== 32) {
-        glyphList.push({
-          glyph,
-          htmlEntity: `&#${glyph.unicode};`,
-          glyphIndex: i
-        })
-      }
-
-      setGlyphs(glyphList)
+      elements.push(
+        <Chip
+          key={i}
+          selected={currentPage === i}
+          title={title}
+          onClick={() => setCurrentPage(i)}
+        />
+      )
     }
-  }, [])
+
+    return elements
+  }
 
   const onSelectGlyph = (glyph: Glyph) => {
     setSelectedGlyph(glyph)
     setModalOpen(true)
   }
+
+  const loadGlyphs = () => {
+    const glyphList: Glyph[] = []
+
+    for (let i = 0; i < GLYPHS_PER_PAGE; i++) {
+      const index = i + GLYPHS_PER_PAGE * currentPage
+
+      if (index === font.glyphs.length) {
+        break
+      }
+
+      glyphList.push(font.glyphs.get(index))
+    }
+
+    setGlyphs(glyphList)
+  }
+
+  useEffect(() => {
+    loadGlyphs()
+  }, [currentPage])
+
+  const buttonRow = useMemo(() => renderPageButtons(), [currentPage])
+
+  const glyphComponent = useMemo(
+    () =>
+      glyphs.map(glyph => (
+        <GlyphItem glyph={glyph} key={glyph.index} onClick={onSelectGlyph} />
+      )),
+    [glyphs]
+  )
 
   return (
     <div className="glyphs">
@@ -93,25 +120,21 @@ const Glyphs = (): JSX.Element => {
       )}
       <ToastContainer limit={1} />
       <FontNameHeader />
-      {glyphs.map(({ htmlEntity, glyphIndex, glyph }, i) => (
-        <div
-          className="glyph"
-          title={glyph.name || `${glyph.unicode}`}
-          key={glyphIndex}
-          data-index={i}
-          onClick={() => onSelectGlyph(glyph)}
-        >
-          <span
-            // eslint-disable-next-line react/no-danger
-            dangerouslySetInnerHTML={{
-              // In order for the editor to render the decoded glyph, we need to
-              // render it as an unsafe string rather than a string inside a component
-              __html: htmlEntity
-            }}
-          />
-          <div className="glyph-detail">{glyph.name || `${glyph.unicode}`}</div>
+      <div className="page-button-wrapper">
+        <div className="page-button-row">
+          {buttonRow}
+          <div className="row-spacer" />
         </div>
-      ))}
+      </div>
+      {glyphComponent}
+      {numPages > 1 && (
+        <div className="page-button-wrapper bottom">
+          <div className="page-button-row">
+            {buttonRow}
+            <div className="row-spacer" />
+          </div>
+        </div>
+      )}
     </div>
   )
 }

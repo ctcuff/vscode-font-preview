@@ -2,30 +2,15 @@ import opentype, { Glyph, Font } from 'opentype.js'
 import React, { useContext } from 'react'
 import FontContext from '../contexts/FontContext'
 import useRefWithCallback from '../hooks/ref-with-callback'
+import { enableHighDPICanvas } from '../glyph-util'
+import { getCSSVar } from '../util'
 
 type GlyphCanvasProps = {
   glyph: Glyph
 }
 
 const GLYPH_MARGIN = 5
-
-const enableHighDPICanvas = (canvas: HTMLCanvasElement) => {
-  const pixelRatio = window.devicePixelRatio || 1
-
-  if (pixelRatio === 1) {
-    return
-  }
-
-  const width = canvas.width
-  const oldHeight = canvas.height
-
-  canvas.width = width * pixelRatio
-  canvas.height = oldHeight * pixelRatio
-  canvas.style.width = `${width}px`
-  canvas.style.height = `${oldHeight}px`
-
-  canvas.getContext('2d')?.scale(pixelRatio, pixelRatio)
-}
+const MARK_SIZE = 20
 
 const drawArrow = (
   ctx: CanvasRenderingContext2D,
@@ -114,10 +99,7 @@ const drawPathWithArrows = (ctx: CanvasRenderingContext2D, path: opentype.Path) 
   arrows.forEach(arrow => drawArrow(...arrow))
 }
 
-/**
- * Handles rendering information about the font's tables on the canvas
- */
-const initGlyphDisplay = (canvas: HTMLCanvasElement, font: Font) => {
+const renderTableInfo = (canvas: HTMLCanvasElement, font: Font) => {
   const pixelRatio = window.devicePixelRatio || 1
   const width = canvas.width / pixelRatio
   const height = canvas.height / pixelRatio
@@ -132,19 +114,21 @@ const initGlyphDisplay = (canvas: HTMLCanvasElement, font: Font) => {
 
   const hLine = (text: string, yUnits: number) => {
     const maxWidth = width - GLYPH_MARGIN * 2
-
     const glyphScale = Math.min(
       maxWidth / (head.xMax - head.xMin),
       glyphHeight / maxHeight
     )
     const glyphBaseline = GLYPH_MARGIN + (glyphHeight * head.yMax) / maxHeight
     const ypx = glyphBaseline - yUnits * glyphScale
+
     context.fillText(text, 2, ypx + 3)
     context.fillRect(80, ypx, width, 1)
   }
 
   context.clearRect(0, 0, width, height)
-  context.fillStyle = '#a0a0a0'
+
+  context.fillStyle = getCSSVar('--vscode-editor-foreground', '--theme-foreground')
+  context.font = `12px ${getCSSVar('--vscode-font-family', '--theme-font-family')}`
 
   hLine('Baseline', 0)
   hLine('yMax', font.tables.head.yMax)
@@ -153,54 +137,51 @@ const initGlyphDisplay = (canvas: HTMLCanvasElement, font: Font) => {
   hLine('Descender', font.tables.hhea.descender)
 }
 
-const displayGlyph = (canvas: HTMLCanvasElement, font: opentype.Font, glyph: Glyph) => {
+const renderGlyph = (canvas: HTMLCanvasElement, font: opentype.Font, glyph: Glyph) => {
   const pixelRatio = window.devicePixelRatio || 1
-  const ctx = canvas.getContext('2d')
+  const context = canvas.getContext('2d')
   const width = canvas.width / pixelRatio
   const height = canvas.height / pixelRatio
   const head = font.tables.head
   const maxHeight = head.yMax - head.yMin
   const maxWidth = width - GLYPH_MARGIN * 2
 
-  if (!ctx) {
+  if (!context) {
     return
   }
 
-  ctx.clearRect(0, 0, width, height)
+  context.clearRect(0, 0, width, height)
 
   const glyphHeight = height - GLYPH_MARGIN * 2
   const glyphScale = Math.min(maxWidth / (head.xMax - head.xMin), glyphHeight / maxHeight)
   const glyphSize = glyphScale * font.unitsPerEm
   const glyphBaseline = GLYPH_MARGIN + (glyphHeight * head.yMax) / maxHeight
-
   const glyphWidth = glyph.advanceWidth * glyphScale
   const xMin = (width - glyphWidth) / 2
   const xMax = (width + glyphWidth) / 2
-  const markSize = 10
 
-  ctx.fillStyle = '#606060'
+  context.fillStyle = getCSSVar('--vscode-editor-foreground', '--theme-foreground')
 
-  ctx.fillRect(xMin - markSize + 1, glyphBaseline, markSize, 1)
-  ctx.fillRect(xMin, glyphBaseline, 1, markSize)
-  ctx.fillRect(xMax, glyphBaseline, markSize, 1)
-  ctx.fillRect(xMax, glyphBaseline, 1, markSize)
+  context.fillRect(xMin - MARK_SIZE + 1, glyphBaseline, MARK_SIZE, 1)
+  context.fillRect(xMin, glyphBaseline, 1, MARK_SIZE)
+  context.fillRect(xMax, glyphBaseline, MARK_SIZE, 1)
+  context.fillRect(xMax, glyphBaseline, 1, MARK_SIZE)
 
-  ctx.textAlign = 'center'
+  context.textAlign = 'center'
+  context.font = `12px ${getCSSVar('--vscode-font-family', '--theme-font-family')}`
 
-  ctx.fillText('0', xMin, glyphBaseline + markSize + 10)
-  ctx.fillText(`${glyph.advanceWidth}`, xMax, glyphBaseline + markSize + 10)
+  context.fillText('0', xMin, glyphBaseline + MARK_SIZE + 10)
+  context.fillText(`${glyph.advanceWidth}`, xMax, glyphBaseline + MARK_SIZE + 10)
 
-  ctx.fillStyle = '#000000'
+  context.fillStyle = '#000000'
 
   const path = glyph.getPath(xMin, glyphBaseline, glyphSize)
 
-  path.fill = '#808080'
-  path.stroke = '#000000'
-  path.strokeWidth = 1.5
+  path.fill = getCSSVar('--vscode-editor-foreground', '--theme-foreground')
 
-  drawPathWithArrows(ctx, path)
+  drawPathWithArrows(context, path)
 
-  glyph.drawPoints(ctx, xMin, glyphBaseline, glyphSize)
+  glyph.drawPoints(context, xMin, glyphBaseline, glyphSize)
 }
 
 const GlyphCanvas = ({ glyph }: GlyphCanvasProps): JSX.Element => {
@@ -208,12 +189,12 @@ const GlyphCanvas = ({ glyph }: GlyphCanvasProps): JSX.Element => {
   const { font } = useContext(FontContext)
   const setCanvasBgRef = useRefWithCallback<HTMLCanvasElement>(canvas => {
     enableHighDPICanvas(canvas)
-    initGlyphDisplay(canvas, font)
+    renderTableInfo(canvas, font)
   })
 
   const setCanvasGlyphRef = useRefWithCallback<HTMLCanvasElement>(canvas => {
     enableHighDPICanvas(canvas)
-    displayGlyph(canvas, font, glyph)
+    renderGlyph(canvas, font, glyph)
   })
 
   return (
