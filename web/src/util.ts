@@ -34,9 +34,9 @@ const isTableEmpty = (table: Table): boolean => {
 
 // Because the file content coming from the font-provider postMessage is already
 // pretty large, we don't want to send another large string for the base64
-// content. This means we have to do the conversion on the web extension side.
+// content. This means we have to do the conversion on the webview side.
 // https://gist.github.com/jonleighton/958841
-const base64ArrayBuffer = (buffer: number[]): string => {
+const base64ArrayBuffer = (buffer: ArrayBuffer): string => {
   let base64 = ''
   const encodings = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
 

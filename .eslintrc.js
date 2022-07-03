@@ -11,6 +11,6 @@ module.exports = {
   rules: {
     ...baseConfig.rules
   },
-  ignorePatterns: ['out', 'dist', '**/*.d.ts', 'web-dist', 'web'],
+  ignorePatterns: ['out', 'dist', '**/*.d.ts', 'web-dist', 'web/**/*'],
   overrides: [...baseConfig.overrides]
 }

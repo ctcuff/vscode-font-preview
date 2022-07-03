@@ -29,17 +29,16 @@ const App = (): JSX.Element | null => {
     vscode.postMessage(message)
   }
 
-  const loadFont = (payload: FontLoadEvent['payload']) => {
+  const loadFont = async (payload: FontLoadEvent['payload']) => {
     try {
       const fontLoader = new FontLoader({
         fileExtension: payload.fileExtension,
-        fileContent: payload.fileContent,
-        fileName: payload.fileName
+        fileName: payload.fileName,
+        fileUrl: payload.fileUrl,
+        fileContent: payload.fileContent
       })
 
-      fontLoader.insertStyle()
-
-      const { font: fontData, features } = fontLoader.loadFont()
+      const { font: fontData, features } = await fontLoader.loadFont()
 
       setIsFontSupported(fontLoader.supported)
       setFont(fontData)
@@ -64,12 +63,14 @@ const App = (): JSX.Element | null => {
     switch (message.data.type) {
       case 'FONT_LOADED': {
         const { payload } = message.data
+
         loadFont(payload)
 
         vscode.setState({
-          fileContent: payload.fileContent,
           fileExtension: payload.fileExtension,
-          fileName: payload.fileName
+          fileName: payload.fileName,
+          fileUrl: payload.fileUrl,
+          fileContent: payload.fileContent
         })
         break
       }
@@ -112,9 +113,10 @@ const App = (): JSX.Element | null => {
 
     if (savedState) {
       loadFont({
-        fileContent: savedState.fileContent,
         fileExtension: savedState.fileExtension,
-        fileName: savedState.fileName
+        fileName: savedState.fileName,
+        fileUrl: savedState.fileUrl,
+        fileContent: savedState.fileContent
       })
     }
 

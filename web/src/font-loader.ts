@@ -1,13 +1,9 @@
 import opentype, { Font } from 'opentype.js'
-import { FontExtension } from '../../shared/types'
+import { FontExtension, FontLoadEvent } from '../../shared/types'
 import FontLoadError from './font-load-error'
-import { base64ArrayBuffer } from './util'
+import { base64ArrayBuffer, getCSSVar } from './util'
 
-type FontLoaderOptions = {
-  fileExtension: FontExtension
-  fileContent: number[]
-  fileName: string
-}
+type FontLoaderOptions = FontLoadEvent['payload']
 
 type FontFeature = {
   tag: string
@@ -63,16 +59,14 @@ class FontLoader {
    * Creates and inserts a <style> element with the loaded font. This allows
    * the font to be accessed anywhere in a stylesheet.
    */
-  public insertStyle(): void {
+  public insertStyle(arrayBuffer: ArrayBuffer): void {
     const style = document.createElement('style')
     const mimeType = this.getFontMimeType()
-    const base64Content = base64ArrayBuffer(this.opts.fileContent)
+    const base64Content = base64ArrayBuffer(arrayBuffer)
 
     // Using var() in the template string doesn't load the font family
     // so it has to be grabbed from the root element
-    const fontFamilyName = getComputedStyle(document.documentElement).getPropertyValue(
-      '--font-family-name'
-    )
+    const fontFamilyName = getCSSVar('--font-family-name')
 
     style.id = 'font-preview'
     style.innerHTML = /* css */ `
@@ -86,8 +80,23 @@ class FontLoader {
     document.head.insertAdjacentElement('beforeend', style)
   }
 
-  public loadFont(): FontPayload {
-    const { fileExtension, fileContent } = this.opts
+  private async fetchFileBuffer(): Promise<ArrayBuffer> {
+    const res = await fetch(this.opts.fileUrl)
+    const buffer = await res.arrayBuffer()
+    return buffer
+  }
+
+  public async loadFont(): Promise<FontPayload> {
+    const { fileExtension } = this.opts
+
+    // WOFF2 needs to be decompressed so we need to use the file data
+    // coming from VSCode instead of fetching it
+    const buffer =
+      this.opts.fileExtension === 'woff2'
+        ? new Uint8Array(this.opts.fileContent).buffer
+        : await this.fetchFileBuffer()
+
+    this.insertStyle(buffer)
 
     // Opentype can't parse some font types (like ttc). In that case, we don't
     // wan't to throw an error since those fonts can still be rendered in the window so
@@ -99,9 +108,9 @@ class FontLoader {
       }
     }
 
-    const font = opentype.parse(new Uint8Array(fileContent).buffer)
+    const font = opentype.parse(buffer)
 
-    // woff2 is supported thanks to the wawoff2 decompression library but it's hardcoded
+    // WOFF2 is supported thanks to the wawoff2 decompression library but it's hardcoded
     // to be unsupported by opentype
     if (!font.supported && fileExtension !== 'woff2') {
       throw new FontLoadError()

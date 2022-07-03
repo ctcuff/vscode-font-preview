@@ -26,18 +26,27 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
   ): Promise<void> {
     panel.webview.options = {
       enableScripts: true,
-      localResourceRoots: [vscode.Uri.file(path.join(this.context.extensionPath, 'dist'))]
+      enableCommandUris: true,
+      localResourceRoots: [
+        vscode.Uri.file(path.join(this.context.extensionPath, 'dist')),
+        vscode.Uri.file(path.dirname(document.uri.path))
+      ]
     }
 
-    let content = await document.getContent()
+    const fileUri = panel.webview.asWebviewUri(document.uri)
 
-    if (!content) {
-      return
-    }
+    let fileContent: number[] = []
 
     if (document.extension === 'woff2') {
       try {
-        content = await wawoff2.decompress(content)
+        const content = await document.read()
+
+        if (!content) {
+          throw new Error(`Couldn't read ${document.uri.path}: no content`)
+        }
+
+        let decompressedContent = await wawoff2.decompress(content)
+        fileContent = Array.from(decompressedContent)
       } catch (err: any) {
         // eslint-disable-next-line no-console
         console.warn(`Couldn't decompress file content ${err}`)
@@ -47,9 +56,10 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
     this.postMessage(panel, {
       type: 'FONT_LOADED',
       payload: {
-        // postMessage can't handle a Uint8Array so we have to
-        // send an array of numbers instead.
-        fileContent: Array.from(content),
+        // Formats the URL to look something like:
+        // https://file+.vscode-resource.vscode-cdn.net/path/to/font.ttf
+        fileUrl: `${fileUri.scheme}://${fileUri.authority}${fileUri.path}`,
+        fileContent,
         fileName: document.fileName,
         fileExtension: document.extension
       }

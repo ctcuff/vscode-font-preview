@@ -34,7 +34,7 @@ module.exports = {
       }
     }
   },
-  ignorePatterns: [...baseConfig.ignorePatterns, 'src/lib/**/*'],
+  ignorePatterns: [...baseConfig.ignorePatterns, 'src/lib/**/*', 'src/brotli/**/*'],
   rules: {
     ...baseConfig.rules,
     'no-alert': 'error',

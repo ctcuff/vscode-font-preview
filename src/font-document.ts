@@ -17,7 +17,7 @@ class FontDocument implements vscode.CustomDocument {
 
   dispose(): void {}
 
-  public async getContent(): Promise<Uint8Array | null> {
+  public async read(): Promise<Uint8Array | null> {
     try {
       return await vscode.workspace.fs.readFile(this.uri)
     } catch (err: any) {

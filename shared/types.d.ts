@@ -16,12 +16,15 @@ export type FontLoadEvent = {
   type: 'FONT_LOADED'
   payload: {
     fileExtension: FontExtension
+    fileName: string
+    fileUrl: string
     /**
      * VSCode can't post a UIntArray or ArrayBuffer so the file content needs to
-     * be transferred as an array of numbers
+     * be transferred as an array of numbers. This field will *only* be populated
+     * if the font being read is a WOFF2 file. This is because decompression happens
+     * on the extension side rather than the webview side.
      */
     fileContent: number[]
-    fileName: string
   }
 }
 

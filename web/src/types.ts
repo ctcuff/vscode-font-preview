@@ -1,7 +1,3 @@
-import { FontExtension } from '../../shared/types'
+import { FontLoadEvent } from '../../shared/types'
 
-export type GlobalSavedState = {
-  fileContent: number[]
-  fileExtension: FontExtension
-  fileName: string
-}
+export type GlobalSavedState = FontLoadEvent['payload']
