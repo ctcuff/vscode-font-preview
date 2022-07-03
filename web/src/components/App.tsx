@@ -78,8 +78,7 @@ const App = (): JSX.Element | null => {
         break
       }
       default:
-        // eslint-disable-next-line no-console
-        console.warn(`Unsupported type: ${message.data.type}`)
+        break
     }
   }
 

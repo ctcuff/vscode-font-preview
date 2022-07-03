@@ -7,10 +7,14 @@ import { getCSSVar } from '../util'
 
 type GlyphCanvasProps = {
   glyph: Glyph
+  width: number
+  height: number
 }
 
-const GLYPH_MARGIN = 5
+const GLYPH_MARGIN = 16
 const MARK_SIZE = 20
+const ARROW_LENGTH = 10
+const ARROW_APERTURE = 4
 
 const drawArrow = (
   ctx: CanvasRenderingContext2D,
@@ -19,17 +23,15 @@ const drawArrow = (
   x2: number,
   y2: number
 ) => {
-  const arrowLength = 10
-  const arrowAperture = 4
   const dx = x2 - x1
   const dy = y2 - y1
   const segmentLength = Math.sqrt(dx * dx + dy * dy)
   const unitX = dx / segmentLength
   const unitY = dy / segmentLength
-  const baseX = x2 - arrowLength * unitX
-  const baseY = y2 - arrowLength * unitY
-  const normalX = arrowAperture * unitY
-  const normalY = -arrowAperture * unitX
+  const baseX = x2 - ARROW_LENGTH * unitX
+  const baseY = y2 - ARROW_LENGTH * unitY
+  const normalX = ARROW_APERTURE * unitY
+  const normalY = -ARROW_APERTURE * unitX
 
   ctx.beginPath()
   ctx.moveTo(x2, y2)
@@ -128,13 +130,11 @@ const renderTableInfo = (canvas: HTMLCanvasElement, font: Font) => {
   context.clearRect(0, 0, width, height)
 
   context.fillStyle = getCSSVar('--vscode-editor-foreground', '--theme-foreground')
-  context.font = `12px ${getCSSVar('--vscode-font-family', '--theme-font-family')}`
+  context.font = `13px ${getCSSVar('--vscode-font-family', '--theme-font-family')}`
 
-  hLine('Baseline', 0)
-  hLine('yMax', font.tables.head.yMax)
-  hLine('yMin', font.tables.head.yMin)
-  hLine('Ascender', font.tables.hhea.ascender)
-  hLine('Descender', font.tables.hhea.descender)
+  hLine('baseline', 0)
+  hLine('ascender', font.tables.hhea.ascender)
+  hLine('descender', font.tables.hhea.descender)
 }
 
 const renderGlyph = (canvas: HTMLCanvasElement, font: opentype.Font, glyph: Glyph) => {
@@ -184,23 +184,22 @@ const renderGlyph = (canvas: HTMLCanvasElement, font: opentype.Font, glyph: Glyp
   glyph.drawPoints(context, xMin, glyphBaseline, glyphSize)
 }
 
-const GlyphCanvas = ({ glyph }: GlyphCanvasProps): JSX.Element => {
-  const canvasSize = 500
+const GlyphCanvas = ({ glyph, width, height }: GlyphCanvasProps): JSX.Element => {
   const { font } = useContext(FontContext)
   const setCanvasBgRef = useRefWithCallback<HTMLCanvasElement>(canvas => {
-    enableHighDPICanvas(canvas)
+    enableHighDPICanvas(canvas, width, height)
     renderTableInfo(canvas, font)
   })
 
   const setCanvasGlyphRef = useRefWithCallback<HTMLCanvasElement>(canvas => {
-    enableHighDPICanvas(canvas)
+    enableHighDPICanvas(canvas, width, height)
     renderGlyph(canvas, font, glyph)
   })
 
   return (
     <>
-      <canvas width={canvasSize} height={canvasSize} ref={setCanvasGlyphRef} />
-      <canvas width={canvasSize} height={canvasSize} ref={setCanvasBgRef} />
+      <canvas width={width} height={height} ref={setCanvasGlyphRef} />
+      <canvas width={width} height={height} ref={setCanvasBgRef} />
     </>
   )
 }

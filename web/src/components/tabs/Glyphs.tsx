@@ -1,46 +1,15 @@
 import '../../scss/glyphs.scss'
 import 'react-toastify/dist/ReactToastify.css'
 import React, { useContext, useEffect, useMemo, useState } from 'react'
-import { ToastContainer, toast, cssTransition } from 'react-toastify'
 import { Glyph } from 'opentype.js'
 import FontContext from '../../contexts/FontContext'
 import FontNameHeader from '../FontNameHeader'
 import GlyphInspectorModal from '../GlyphInspectorModal'
 import Chip from '../Chip'
 import GlyphItem from '../GlyphItem'
+import { WebviewMessage } from '../../../../shared/types'
 
 const GLYPHS_PER_PAGE = 200
-
-const entityTextArea = document.createElement('textarea')
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const copyGlyphToClipboard = (glyph: string): void => {
-  // The glyph will be encoded (for example F => &#70;) so we need
-  // to put the glyph in a text area in order to copy the decoded version
-  entityTextArea.innerHTML = glyph
-
-  navigator.clipboard
-    .writeText(entityTextArea.value)
-    .then(() => {
-      toast('Glyph copied to clipboard', {
-        position: 'bottom-right',
-        className: 'react-toast',
-        autoClose: 3000,
-        hideProgressBar: true,
-        closeOnClick: true,
-        pauseOnFocusLoss: false,
-        pauseOnHover: false,
-        draggable: true,
-        progress: undefined,
-        transition: cssTransition({
-          enter: 'react-toast__enter',
-          exit: 'react-toast__exit'
-        })
-      })
-    })
-    // eslint-disable-next-line no-console
-    .catch(err => console.error(err))
-}
 
 const Glyphs = (): JSX.Element => {
   const { font } = useContext(FontContext)
@@ -59,6 +28,11 @@ const Glyphs = (): JSX.Element => {
 
       if (i === numPages - 1) {
         title = `${GLYPHS_PER_PAGE * i} - ${font.glyphs.length - 1}`
+      }
+
+      // Edge case: don't repeat the last index if it's the same as the first
+      if (GLYPHS_PER_PAGE * i === font.glyphs.length - 1) {
+        title = `${GLYPHS_PER_PAGE * i}`
       }
 
       elements.push(
@@ -95,8 +69,24 @@ const Glyphs = (): JSX.Element => {
     setGlyphs(glyphList)
   }
 
+  const onMessage = (message: MessageEvent<WebviewMessage>) => {
+    // Because the canvas doesn't update its color when VSCode's theme
+    // changes, we need to re-render the glyphs
+    if (message.data.type === 'COLOR_THEME_CHANGE') {
+      loadGlyphs()
+    }
+  }
+
   useEffect(() => {
     loadGlyphs()
+
+    // The window event listener needs to depend on current page so that
+    // the value of 'currentPage' is up to date when it changes
+    window.addEventListener('message', onMessage)
+
+    return () => {
+      window.removeEventListener('message', onMessage)
+    }
   }, [currentPage])
 
   const buttonRow = useMemo(() => renderPageButtons(), [currentPage])
@@ -118,16 +108,18 @@ const Glyphs = (): JSX.Element => {
           glyph={selectedGlyph}
         />
       )}
-      <ToastContainer limit={1} />
       <FontNameHeader />
-      <div className="page-button-wrapper">
-        <div className="page-button-row">
-          {buttonRow}
-          <div className="row-spacer" />
+      {glyphs.length > 0 && numPages > 1 && (
+        // TODO: Can this be extracted?
+        <div className="page-button-wrapper">
+          <div className="page-button-row">
+            {buttonRow}
+            <div className="row-spacer" />
+          </div>
         </div>
-      </div>
+      )}
       {glyphComponent}
-      {numPages > 1 && (
+      {glyphs.length > 0 && numPages > 1 && (
         <div className="page-button-wrapper bottom">
           <div className="page-button-row">
             {buttonRow}

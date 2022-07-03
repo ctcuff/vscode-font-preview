@@ -1,3 +1,5 @@
+@import './mixins';
+
 .glyph-inspector-modal {
   &:focus {
     outline: none;
@@ -21,13 +23,14 @@
     color: var(--vscode-editor-foreground, var(--theme-foreground));
     background-color: var(--vscode-editor-background);
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
-    padding: 3em;
+    padding: 5em 3em 5em 3em;
     box-sizing: border-box;
     margin: 0 auto;
     justify-content: center;
     position: relative;
+    border-radius: 6px;
   }
 
   .modal-close-btn {
@@ -35,7 +38,7 @@
     border: none;
     color: var(--vscode-editor-foreground, var(--theme-foreground));
     position: absolute;
-    top: 1em;
+    top: 1.5em;
     right: 1em;
     cursor: pointer;
 
@@ -47,14 +50,42 @@
 
   .canvas-container {
     position: relative;
-    width: 500px;
-    height: 516px;
     display: flex;
     align-items: center;
+    justify-content: center;
   }
 
   canvas {
     position: absolute;
+  }
+
+  .glyph-detail {
+    align-self: flex-start;
+    margin-left: 3em;
+    margin-top: 1em;
+    display: flex;
+    flex-direction: column;
+  }
+
+  table {
+    font-size: 15px;
+    font-family: var(--vscode-editor-font-family);
+    color: var(--vscode-editor-foreground, var(--theme-foreground));
+
+    td {
+      padding: 0.25em 1em;
+    }
+  }
+
+  .chip-actions {
+    margin-top: 1em;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .chip-action {
+    font-size: 15px;
+    font-family: var(--vscode-editor-font-family);
   }
 }
 
@@ -70,4 +101,59 @@
   left: 0;
   right: 0;
   z-index: 100;
+  animation: fade-in 450ms cubic-bezier(0.38, 0.1, 0.36, 0.9);
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+}
+
+.react-toast {
+  font-size: var(--vscode-font-size, 13px);
+  font-family: var(--vscode-font-family, var(--theme-font-family));
+  border-radius: 0;
+  color: var(--vscode-notifications-foreground, var(--theme-foreground));
+  background-color: var(--vscode-notifications-background);
+  box-shadow: 0px 0px 8px 2px var(--vscode-widget-shadow);
+  min-height: unset;
+  padding: 10px;
+
+  svg {
+    fill: var(--vscode-notifications-foreground, var(--theme-foreground));
+  }
+}
+
+.react-toast__enter {
+  animation: toast-slide-up 0.3s ease-in-out both;
+}
+
+.react-toast__exit {
+  animation: toast-slide-down 0.3s ease-in-out both;
+}
+
+@keyframes toast-slide-up {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0%);
+    opacity: 1;
+  }
+}
+
+@keyframes toast-slide-down {
+  from {
+    transform: translateY(0%);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(100%);
+    opacity: 0;
+  }
 }

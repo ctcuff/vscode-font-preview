@@ -12,6 +12,7 @@ const CELL_MARGIN_TOP = 8
 const CELL_MARGIN_BOTTOM = 8
 const CELL_MARGIN_LEFT_RIGHT = 8
 const CELL_MARK_SIZE = 4
+const CANVAS_PADDING = 16
 
 type GlyphItemProps = {
   glyph: Glyph
@@ -60,16 +61,17 @@ const renderGlyph = (canvas: HTMLCanvasElement, font: Font, glyphIndex: number) 
 const GlyphItem = ({ glyph, onClick }: GlyphItemProps): JSX.Element => {
   const { font } = useContext(FontContext)
   const setCanvasRef = useRefWithCallback<HTMLCanvasElement>(canvas => {
-    enableHighDPICanvas(canvas)
+    enableHighDPICanvas(canvas, CELL_WIDTH, CELL_HEIGHT)
     renderGlyph(canvas, font, glyph.index)
   })
 
   return (
     <div
       className="glyph-item"
+      title="Click to inspect"
       style={{
-        width: CELL_WIDTH + 16,
-        height: CELL_HEIGHT + 16
+        width: CELL_WIDTH + CANVAS_PADDING,
+        height: CELL_HEIGHT + CANVAS_PADDING
       }}
       onClick={() => onClick(glyph)}
       data-glyph-index={glyph.index}

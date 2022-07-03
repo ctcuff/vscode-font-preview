@@ -1,12 +1,13 @@
-const enableHighDPICanvas = (canvas: HTMLCanvasElement): void => {
+const enableHighDPICanvas = (
+  canvas: HTMLCanvasElement,
+  width: number,
+  height: number
+): void => {
   const pixelRatio = window.devicePixelRatio || 1
 
   if (pixelRatio === 1) {
     return
   }
-
-  const width = canvas.width
-  const height = canvas.height
 
   canvas.width = width * pixelRatio
   canvas.height = height * pixelRatio

@@ -60,6 +60,15 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
     )
 
     panel.webview.html = this.getWebviewContent()
+
+    const colorThemeListener = vscode.window.onDidChangeActiveColorTheme(event => {
+      this.postMessage(panel, {
+        type: 'COLOR_THEME_CHANGE',
+        payload: event.kind
+      })
+    })
+
+    panel.onDidDispose(() => colorThemeListener.dispose())
   }
 
   private postMessage(panel: vscode.WebviewPanel, message: WebviewMessage): void {
@@ -73,6 +82,9 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
         break
       case 'WARNING':
         vscode.window.showWarningMessage(message.payload)
+        break
+      case 'INFO':
+        vscode.window.showInformationMessage(message.payload)
         break
       case 'GET_CONFIG': {
         const config = vscode.workspace.getConfiguration('font-preview')
