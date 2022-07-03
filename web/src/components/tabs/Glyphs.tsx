@@ -2,17 +2,20 @@ import '../../scss/glyphs.scss'
 import 'react-toastify/dist/ReactToastify.css'
 import React, { useContext, useEffect, useState } from 'react'
 import { ToastContainer, toast, cssTransition } from 'react-toastify'
+import { Glyph } from 'opentype.js'
 import FontContext from '../../contexts/FontContext'
 import FontNameHeader from '../FontNameHeader'
+import GlyphInspectorModal from '../GlyphInspectorModal'
 
 type GlyphData = {
   htmlEntity: string
   glyphIndex: number
-  name: string
+  glyph: Glyph
 }
 
 const entityTextArea = document.createElement('textarea')
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const copyGlyphToClipboard = (glyph: string): void => {
   // The glyph will be encoded (for example F => &#70;) so we need
   // to put the glyph in a text area in order to copy the decoded version
@@ -44,6 +47,8 @@ const copyGlyphToClipboard = (glyph: string): void => {
 const Glyphs = (): JSX.Element => {
   const { font } = useContext(FontContext)
   const [glyphs, setGlyphs] = useState<GlyphData[]>([])
+  const [isModalOpen, setModalOpen] = useState(false)
+  const [selectedGlyph, setSelectedGlyph] = useState<Glyph | null>(null)
 
   useEffect(() => {
     const glyphList: GlyphData[] = []
@@ -62,9 +67,9 @@ const Glyphs = (): JSX.Element => {
       // since these characters can break the grid layout
       if (glyph.unicode !== undefined && glyph.unicode !== 32) {
         glyphList.push({
+          glyph,
           htmlEntity: `&#${glyph.unicode};`,
-          glyphIndex: i,
-          name: glyph.name || `${glyph.unicode}`
+          glyphIndex: i
         })
       }
 
@@ -72,17 +77,29 @@ const Glyphs = (): JSX.Element => {
     }
   }, [])
 
+  const onSelectGlyph = (glyph: Glyph) => {
+    setSelectedGlyph(glyph)
+    setModalOpen(true)
+  }
+
   return (
     <div className="glyphs">
+      {selectedGlyph && (
+        <GlyphInspectorModal
+          isOpen={isModalOpen}
+          onClose={() => setModalOpen(false)}
+          glyph={selectedGlyph}
+        />
+      )}
       <ToastContainer limit={1} />
       <FontNameHeader />
-      {glyphs.map(({ htmlEntity, glyphIndex, name }, i) => (
+      {glyphs.map(({ htmlEntity, glyphIndex, glyph }, i) => (
         <div
           className="glyph"
-          title={name}
+          title={glyph.name || `${glyph.unicode}`}
           key={glyphIndex}
           data-index={i}
-          onClick={() => copyGlyphToClipboard(htmlEntity)}
+          onClick={() => onSelectGlyph(glyph)}
         >
           <span
             // eslint-disable-next-line react/no-danger
@@ -92,7 +109,7 @@ const Glyphs = (): JSX.Element => {
               __html: htmlEntity
             }}
           />
-          <div className="glyph-detail">{name}</div>
+          <div className="glyph-detail">{glyph.name || `${glyph.unicode}`}</div>
         </div>
       ))}
     </div>

@@ -1,0 +1,73 @@
+.glyph-inspector-modal {
+  &:focus {
+    outline: none;
+  }
+
+  padding: 0.5em 0;
+  animation: slide-up 450ms cubic-bezier(0.38, 0.1, 0.36, 0.9);
+
+  @keyframes slide-up {
+    from {
+      transform: translateY(10%);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0%);
+      opacity: 1;
+    }
+  }
+
+  .modal-content {
+    color: var(--vscode-editor-foreground, var(--theme-foreground));
+    background-color: var(--vscode-editor-background);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 3em;
+    box-sizing: border-box;
+    margin: 0 auto;
+    justify-content: center;
+    position: relative;
+  }
+
+  .modal-close-btn {
+    background-color: transparent;
+    border: none;
+    color: var(--vscode-editor-foreground, var(--theme-foreground));
+    position: absolute;
+    top: 1em;
+    right: 1em;
+    cursor: pointer;
+
+    svg {
+      width: 2em;
+      height: 2em;
+    }
+  }
+
+  .canvas-container {
+    position: relative;
+    width: 500px;
+    height: 516px;
+    display: flex;
+    align-items: center;
+  }
+
+  canvas {
+    position: absolute;
+  }
+}
+
+.glyph-inspector-modal-overlay {
+  z-index: 3;
+  background-color: rgba(0, 0, 0, 0.75);
+  position: fixed;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+}
