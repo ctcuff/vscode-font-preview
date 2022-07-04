@@ -8,6 +8,7 @@ import GlyphInspectorModal from '../GlyphInspectorModal'
 import Chip from '../Chip'
 import GlyphItem from '../GlyphItem'
 import { WebviewMessage } from '../../../../shared/types'
+import useRefWithCallback from '../../hooks/ref-with-callback'
 
 const GLYPHS_PER_PAGE = 200
 
@@ -17,6 +18,13 @@ const Glyphs = (): JSX.Element => {
   const [isModalOpen, setModalOpen] = useState(false)
   const [selectedGlyph, setSelectedGlyph] = useState<Glyph | null>(null)
   const [currentPage, setCurrentPage] = useState(0)
+
+  const buttonRowRef = useRefWithCallback<HTMLDivElement>(element => {
+    element.onwheel = event => {
+      event.preventDefault()
+      element.scrollLeft += event.deltaY
+    }
+  })
 
   const numPages = Math.ceil(font.glyphs.length / GLYPHS_PER_PAGE)
 
@@ -110,23 +118,14 @@ const Glyphs = (): JSX.Element => {
       )}
       <FontNameHeader />
       {glyphs.length > 0 && numPages > 1 && (
-        // TODO: Can this be extracted?
         <div className="page-button-wrapper">
-          <div className="page-button-row">
+          <div className="page-button-row" ref={buttonRowRef}>
             {buttonRow}
             <div className="row-spacer" />
           </div>
         </div>
       )}
       {glyphComponent}
-      {glyphs.length > 0 && numPages > 1 && (
-        <div className="page-button-wrapper bottom">
-          <div className="page-button-row">
-            {buttonRow}
-            <div className="row-spacer" />
-          </div>
-        </div>
-      )}
     </div>
   )
 }
