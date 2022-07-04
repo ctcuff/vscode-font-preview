@@ -3,7 +3,7 @@
   "displayName": "Font Preview",
   "description": "Preview fonts in VS Code",
   "license": "MIT",
-  "version": "1.3.2",
+  "version": "2.0.0",
   "publisher": "ctcuff",
   "icon": "icon.png",
   "repository": {
@@ -23,11 +23,15 @@
   "engines": {
     "vscode": "^1.56.0"
   },
+  "vsce": {
+    "yarn": true
+  },
   "categories": [
     "Programming Languages"
   ],
   "activationEvents": [
-    "onCustomEditor:font.detail.preview"
+    "onCustomEditor:font.detail.preview",
+    "onStartupFinished"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -95,7 +99,7 @@
     "@types/glob": "^7.1.3",
     "@types/mocha": "^8.0.4",
     "@types/node": "^12.11.7",
-    "@types/vscode": "^1.68.1",
+    "@types/vscode": "^1.56.0",
     "@types/vscode-webview": "^1.57.0",
     "@types/wawoff2": "^1.0.0",
     "@typescript-eslint/eslint-plugin": "^4.14.1",
