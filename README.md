@@ -1,8 +1,15 @@
 # Font Preview
 
-An extension that lets you view fonts straight in your editor! Try out different font feature settings and mess with variable font axes!
+An extension that lets you view fonts straight in your editor. Try out different font feature settings, mess with variable font axes, and view glyphs without leaving VS Code!
 
-This extension currently supports the following font types: `otf`, `ttf`, `ttc`, `woff`, and `woff2`. Note that the `Features`, `Glyphs`, and `License` tabs are only available for `otf`, `ttf`, `woff`, and `woff2` fonts.
+This extension currently supports the following font types:
+- OTF
+- TTF
+- TTC
+- WOFF
+- WOFF2
+
+_Note that the `Features`, `Glyphs`, and `License` tabs are only available for `OTF`, `TTF`, `WOFF`, and `WOFF2` fonts._
 
 <div align="center">
   <img width="1648" alt="Screen Shot 2022-01-23 at 1 03 58 AM" src="https://user-images.githubusercontent.com/7400747/150666960-9098d97a-8cdd-4004-9d9a-5d7c11bf3b9f.png">
@@ -15,8 +22,13 @@ This extension currently supports the following font types: `otf`, `ttf`, `ttc`,
 </div>
 
 <div align="center">
-  <img width="1648" alt="Screen Shot 2022-01-23 at 1 05 20 AM" src="https://user-images.githubusercontent.com/7400747/150666958-e2e773f7-b54b-4ee0-8ef0-3f6f5643959c.png">
-  <sub>View and copy available glyphs for your font</sub>
+  <img width="1648" alt="Screen Shot 2022-01-23 at 1 05 20 AM" src="https://user-images.githubusercontent.com/7400747/177062821-738222a6-4dd8-4ede-9c10-0c79d7c35614.png">
+  <sub>View available glyphs</sub>
+</div>
+
+<div align="center">
+  <img width="1648" alt="Screen Shot 2022-01-23 at 1 05 20 AM" src="https://user-images.githubusercontent.com/7400747/177062897-a3fa74c0-c1cb-49a6-b91a-4691a712897e.png">
+  <sub>Get detailed glyph information</sub>
 </div>
 
 <div align="center">
