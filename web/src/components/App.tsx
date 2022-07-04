@@ -54,9 +54,9 @@ const App = (): JSX.Element | null => {
 
   const onMessage = (message: MessageEvent<WebviewMessage>): void => {
     // Reopening the the most recently closed tab (CMD/CTRL + Shift + T )
-    // causes vscode to read in the saved state but also fire the init
-    // message. Returning here prevents the font from being loaded twice.
-    if (savedState && message.data.type === 'FONT_LOADED') {
+    // causes vscode to read in the saved state but also fire the FONT_LOADED
+    // event. Returning here prevents the font from being loaded twice.
+    if (savedState?.fileUrl && message.data.type === 'FONT_LOADED') {
       return
     }
 
@@ -111,7 +111,7 @@ const App = (): JSX.Element | null => {
     window.addEventListener('message', onMessage)
     postMessage({ type: 'GET_CONFIG' })
 
-    if (savedState) {
+    if (savedState?.fileUrl) {
       loadFont({
         fileExtension: savedState.fileExtension,
         fileName: savedState.fileName,

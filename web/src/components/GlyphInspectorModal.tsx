@@ -52,7 +52,6 @@ const GlyphInspectorModal = ({
 }: GlyphInspectorModalProps): JSX.Element => {
   const glyphMetrics = useMemo(() => glyph.getMetrics(), [glyph])
   const glyphPath = useMemo(() => glyph.getPath(), [glyph])
-
   const { font } = useContext(FontContext)
 
   const copyGlyphToClipboard = (svg: boolean): void => {
@@ -92,6 +91,7 @@ const GlyphInspectorModal = ({
         preventScroll
         shouldCloseOnOverlayClick
         shouldCloseOnEsc
+        onRequestClose={onClose}
         isOpen={isOpen}
         className="glyph-inspector-modal"
         overlayClassName="glyph-inspector-modal-overlay"
