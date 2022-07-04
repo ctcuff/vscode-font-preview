@@ -44,7 +44,7 @@ const pathToSVG = (path: Path): string => {
       'fill="#808080" ' +
       'xmlns="http://www.w3.org/2000/svg"' +
     '>' +
-      `${path.toSVG(0)}` +
+      `${path.toSVG(4)}` +
     '</svg>'
   )
 }
