@@ -1,5 +1,4 @@
 # !/bin/bash
-
 if [ -z "$1" ]; then
     echo "Usage: bash scripts/create-zip [version]"
     exit 1

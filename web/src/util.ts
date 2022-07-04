@@ -37,19 +37,18 @@ const isTableEmpty = (table: Table): boolean => {
 // content. This means we have to do the conversion on the webview side.
 // https://gist.github.com/jonleighton/958841
 const base64ArrayBuffer = (buffer: ArrayBuffer): string => {
-  let base64 = ''
   const encodings = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
-
   const bytes = new Uint8Array(buffer)
   const byteLength = bytes.byteLength
   const byteRemainder = byteLength % 3
   const mainLength = byteLength - byteRemainder
 
-  let a
-  let b
-  let c
-  let d
-  let chunk
+  let base64 = ''
+  let a: number
+  let b: number
+  let c: number
+  let d: number
+  let chunk: number
 
   // Main loop deals with bytes in chunks of 3
   for (let i = 0; i < mainLength; i += 3) {
