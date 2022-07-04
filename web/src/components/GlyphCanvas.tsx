@@ -186,11 +186,14 @@ const renderGlyph = (canvas: HTMLCanvasElement, font: opentype.Font, glyph: Glyp
 
 const GlyphCanvas = ({ glyph, width, height }: GlyphCanvasProps): JSX.Element => {
   const { font } = useContext(FontContext)
+
+  // Displays baseline, ascender, and descender info
   const setCanvasBgRef = useRefWithCallback<HTMLCanvasElement>(canvas => {
     enableHighDPICanvas(canvas, width, height)
     renderTableInfo(canvas, font)
   })
 
+  // Renders the glyph
   const setCanvasGlyphRef = useRefWithCallback<HTMLCanvasElement>(canvas => {
     enableHighDPICanvas(canvas, width, height)
     renderGlyph(canvas, font, glyph)

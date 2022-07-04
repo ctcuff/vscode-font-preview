@@ -1,7 +1,7 @@
 import '../scss/glyph-inspector-modal.scss'
 import React, { useContext, useMemo } from 'react'
 import Modal from 'react-modal'
-import { Glyph } from 'opentype.js'
+import { Glyph, Path } from 'opentype.js'
 import { ToastContainer, toast, cssTransition } from 'react-toastify'
 import { VscClose } from 'react-icons/vsc'
 import GlyphCanvas from './GlyphCanvas'
@@ -29,6 +29,26 @@ const formatUnicode = (unicode: number | undefined): string => {
     : `0000${unicodeHex.toUpperCase()}`.slice(-4)
 }
 
+const pathToSVG = (path: Path): string => {
+  const { x1, y1, x2, y2 } = path.getBoundingBox()
+  const w = (x2 - x1).toFixed(0)
+  const h = (y2 - y1).toFixed(0)
+
+  // prettier-ignore
+  return (
+    '' +
+    '<svg ' +
+      `width="${w}" ` +
+      `height="${h}" ` +
+      `viewBox="${x1.toFixed(0)} ${y1.toFixed(0)} ${w} ${h}" ` +
+      'fill="#808080" ' +
+      'xmlns="http://www.w3.org/2000/svg"' +
+    '>' +
+      `${path.toSVG(0)}` +
+    '</svg>'
+  )
+}
+
 function renderTableRow<T>(
   object: T,
   property: keyof T,
@@ -37,14 +57,13 @@ function renderTableRow<T>(
   return (
     <tr>
       <td>{displayName || property}</td>
-      <td>{object[property]}</td>
+      <td>{object[property] ?? '(null)'}</td>
     </tr>
   )
 }
 
 const entityTextArea = document.createElement('textarea')
 
-// TODO: Clicking the overlay and pressing ESC doesn't close the modal
 const GlyphInspectorModal = ({
   isOpen,
   onClose,
@@ -57,9 +76,7 @@ const GlyphInspectorModal = ({
   const copyGlyphToClipboard = (svg: boolean): void => {
     // The glyph will be encoded (for example F => &#70;) so we need
     // to put the glyph in a text area in order to copy the decoded version
-    entityTextArea.innerHTML = svg
-      ? `<svg>${glyphPath.toSVG(0)}</svg>`
-      : `&#${glyph.unicode};`
+    entityTextArea.innerHTML = svg ? pathToSVG(glyphPath) : `&#${glyph.unicode};`
 
     navigator.clipboard
       .writeText(entityTextArea.value)
