@@ -5,10 +5,22 @@ import useRefWithCallback from '../hooks/ref-with-callback'
 import { enableHighDPICanvas } from '../glyph-util'
 import { getCSSVar } from '../util'
 
+export type RenderField =
+  | 'ascender'
+  | 'baseline'
+  | 'descender'
+  | 'fill'
+  | 'points'
+  | 'stroke'
+  | 'width'
+  | 'yMax'
+  | 'yMin'
+
 type GlyphCanvasProps = {
   glyph: Glyph
   width: number
   height: number
+  renderFields: RenderField[]
 }
 
 const GLYPH_MARGIN = 16
@@ -42,7 +54,11 @@ const drawArrow = (
   ctx.fill()
 }
 
-const drawPathWithArrows = (ctx: CanvasRenderingContext2D, path: opentype.Path) => {
+const drawPathWithArrows = (
+  ctx: CanvasRenderingContext2D,
+  path: opentype.Path,
+  renderFields: RenderField[]
+) => {
   let i: number
   let cmd: opentype.PathCommand
   let x1: number | undefined
@@ -98,10 +114,16 @@ const drawPathWithArrows = (ctx: CanvasRenderingContext2D, path: opentype.Path) 
 
   ctx.fillStyle = '#00FF00'
 
-  arrows.forEach(arrow => drawArrow(...arrow))
+  if (renderFields.includes('points')) {
+    arrows.forEach(arrow => drawArrow(...arrow))
+  }
 }
 
-const renderTableInfo = (canvas: HTMLCanvasElement, font: Font) => {
+const renderTableInfo = (
+  canvas: HTMLCanvasElement,
+  font: Font,
+  renderFields: RenderField[]
+) => {
   const pixelRatio = window.devicePixelRatio || 1
   const width = canvas.width / pixelRatio
   const height = canvas.height / pixelRatio
@@ -132,12 +154,33 @@ const renderTableInfo = (canvas: HTMLCanvasElement, font: Font) => {
   context.fillStyle = getCSSVar('--vscode-editor-foreground', '--theme-foreground')
   context.font = `13px ${getCSSVar('--vscode-font-family', '--theme-font-family')}`
 
-  hLine('baseline', 0)
-  hLine('ascender', font.tables.hhea.ascender)
-  hLine('descender', font.tables.hhea.descender)
+  if (renderFields.includes('baseline')) {
+    hLine('baseline', 0)
+  }
+
+  if (renderFields.includes('ascender')) {
+    hLine('ascender', font.tables.hhea.ascender)
+  }
+
+  if (renderFields.includes('descender')) {
+    hLine('descender', font.tables.hhea.descender)
+  }
+
+  if (renderFields.includes('yMin')) {
+    hLine('yMin', font.tables.head.yMin)
+  }
+
+  if (renderFields.includes('yMax')) {
+    hLine('yMax', font.tables.head.yMax)
+  }
 }
 
-const renderGlyph = (canvas: HTMLCanvasElement, font: opentype.Font, glyph: Glyph) => {
+const renderGlyph = (
+  canvas: HTMLCanvasElement,
+  font: opentype.Font,
+  glyph: Glyph,
+  renderFields: RenderField[]
+) => {
   const pixelRatio = window.devicePixelRatio || 1
   const context = canvas.getContext('2d')
   const width = canvas.width / pixelRatio
@@ -160,53 +203,66 @@ const renderGlyph = (canvas: HTMLCanvasElement, font: opentype.Font, glyph: Glyp
   const xMin = (width - glyphWidth) / 2
   const xMax = (width + glyphWidth) / 2
 
-  context.fillStyle = getCSSVar('--vscode-editor-foreground', '--theme-foreground')
+  if (renderFields.includes('width')) {
+    context.fillStyle = getCSSVar('--vscode-editor-foreground', '--theme-foreground')
 
-  context.fillRect(xMin - MARK_SIZE + 1, glyphBaseline, MARK_SIZE, 1)
-  context.fillRect(xMin, glyphBaseline, 1, MARK_SIZE)
-  context.fillRect(xMax, glyphBaseline, MARK_SIZE, 1)
-  context.fillRect(xMax, glyphBaseline, 1, MARK_SIZE)
+    context.fillRect(xMin - MARK_SIZE + 1, glyphBaseline, MARK_SIZE, 1)
+    context.fillRect(xMin, glyphBaseline, 1, MARK_SIZE)
+    context.fillRect(xMax, glyphBaseline, MARK_SIZE, 1)
+    context.fillRect(xMax, glyphBaseline, 1, MARK_SIZE)
 
-  context.textAlign = 'center'
-  context.font = `12px ${getCSSVar('--vscode-font-family', '--theme-font-family')}`
+    context.textAlign = 'center'
+    context.font = `12px ${getCSSVar('--vscode-font-family', '--theme-font-family')}`
 
-  context.fillText('0', xMin, glyphBaseline + MARK_SIZE + 10)
-  context.fillText(`${glyph.advanceWidth}`, xMax, glyphBaseline + MARK_SIZE + 10)
+    context.fillText('0', xMin, glyphBaseline + MARK_SIZE + 10)
+    context.fillText(`${glyph.advanceWidth}`, xMax, glyphBaseline + MARK_SIZE + 10)
+  }
 
   context.fillStyle = '#808080'
 
   const path = glyph.getPath(xMin, glyphBaseline, glyphSize)
 
-  path.fill = '#808080'
-  path.stroke = '#808080'
-  path.strokeWidth = 2.5
+  if (renderFields.includes('stroke')) {
+    path.fill = '#808080'
+    path.stroke = '#808080'
+    path.strokeWidth = 2
+  }
 
-  path.fill = getCSSVar('--vscode-editor-foreground', '--theme-foreground')
+  path.fill = renderFields.includes('fill')
+    ? getCSSVar('--vscode-editor-foreground', '--theme-foreground')
+    : 'transparent'
 
-  drawPathWithArrows(context, path)
+  drawPathWithArrows(context, path, renderFields)
 
-  glyph.drawPoints(context, xMin, glyphBaseline, glyphSize)
+  if (renderFields.includes('points')) {
+    glyph.drawPoints(context, xMin, glyphBaseline, glyphSize)
+  }
 }
 
-const GlyphCanvas = ({ glyph, width, height }: GlyphCanvasProps): JSX.Element => {
+const GlyphCanvas = ({
+  glyph,
+  width,
+  height,
+  renderFields
+}: GlyphCanvasProps): JSX.Element => {
   const { font } = useContext(FontContext)
 
   // Displays baseline, ascender, and descender info
   const setCanvasBgRef = useRefWithCallback<HTMLCanvasElement>(canvas => {
     enableHighDPICanvas(canvas, width, height)
-    renderTableInfo(canvas, font)
+    renderTableInfo(canvas, font, renderFields)
   })
 
   // Renders the glyph
   const setCanvasGlyphRef = useRefWithCallback<HTMLCanvasElement>(canvas => {
     enableHighDPICanvas(canvas, width, height)
-    renderGlyph(canvas, font, glyph)
+    renderGlyph(canvas, font, glyph, renderFields)
   })
 
   return (
     <>
-      <canvas width={width} height={height} ref={setCanvasGlyphRef} />
       <canvas width={width} height={height} ref={setCanvasBgRef} />
+      <canvas width={width} height={height} ref={setCanvasGlyphRef} />
     </>
   )
 }

@@ -25,9 +25,7 @@ const App = (): JSX.Element | null => {
   const vscode = useContext(VscodeContext)
   const savedState = vscode.getState()
 
-  const postMessage = (message: WebviewMessage): void => {
-    vscode.postMessage(message)
-  }
+  const postMessage = (message: WebviewMessage): void => vscode.postMessage(message)
 
   const loadFont = async (payload: FontLoadEvent['payload']) => {
     try {
@@ -74,10 +72,9 @@ const App = (): JSX.Element | null => {
         })
         break
       }
-      case 'CONFIG_LOADED': {
+      case 'CONFIG_LOADED':
         setDefaultTabId(message.data.payload.defaultTab)
         break
-      }
       default:
         break
     }
