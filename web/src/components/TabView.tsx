@@ -1,6 +1,7 @@
 import '../scss/tab-view.scss'
 import React from 'react'
 import { Tabs, TabList, TabPanel, Tab as ReactTab } from 'react-tabs'
+import { Config } from '../../../shared/types'
 
 type TabProps = {
   // These props are accessed in the TabView component
@@ -11,10 +12,10 @@ type TabProps = {
 }
 
 type TabViewProps = {
-  children: typeof Tab[] | React.ReactNode
+  children: React.ReactElement<TabProps>[]
   className?: string
   panelClassName?: string
-  defaultTabId: string | null
+  defaultTabId: Config['defaultTab'] | null
 }
 
 /**
@@ -34,9 +35,7 @@ const TabView = ({
     return null
   }
 
-  const tabs = (children as React.ReactElement<TabProps>[]).filter(
-    tab => !!tab && (tab.props.visible ?? true)
-  )
+  const tabs = children.filter(tab => !!tab && (tab.props.visible ?? true))
   const tabIndex = tabs.findIndex(tab => tab.props.id === defaultTabId)
 
   return (

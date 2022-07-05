@@ -25,8 +25,6 @@ const App = (): JSX.Element | null => {
   const vscode = useContext(VscodeContext)
   const savedState = vscode.getState()
 
-  const postMessage = (message: WebviewMessage): void => vscode.postMessage(message)
-
   const loadFont = async (payload: FontLoadEvent['payload']) => {
     try {
       const fontLoader = new FontLoader({
@@ -43,7 +41,7 @@ const App = (): JSX.Element | null => {
       setFontFeatures(features)
       setFileName(payload.fileName)
     } catch (err: unknown) {
-      postMessage({
+      vscode.postMessage({
         type: 'ERROR',
         payload: (err as Error).message
       })
@@ -106,7 +104,7 @@ const App = (): JSX.Element | null => {
 
   useEffect(() => {
     window.addEventListener('message', onMessage)
-    postMessage({ type: 'GET_CONFIG' })
+    vscode.postMessage({ type: 'GET_CONFIG' })
 
     if (savedState?.fileUrl) {
       loadFont({
