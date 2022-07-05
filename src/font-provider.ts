@@ -3,8 +3,9 @@ import * as path from 'path'
 import html from './index.html'
 import { template } from './util'
 import FontDocument from './font-document'
-import { Config, WebviewMessage } from '../shared/types'
+import { WebviewMessage } from '../shared/types'
 import * as wawoff2 from 'wawoff2'
+import { ExtensionConfiguration, TypedWebviewPanel } from './types/overrides'
 
 class FontProvider implements vscode.CustomReadonlyEditorProvider {
   public static readonly viewType = 'font.detail.preview'
@@ -22,7 +23,7 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
 
   public async resolveCustomEditor(
     document: FontDocument,
-    panel: vscode.WebviewPanel
+    panel: TypedWebviewPanel
   ): Promise<void> {
     panel.webview.options = {
       enableScripts: true,
@@ -53,7 +54,7 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
       }
     }
 
-    this.postMessage(panel, {
+    panel.webview.postMessage({
       type: 'FONT_LOADED',
       payload: {
         // Formats the URL to look something like:
@@ -72,7 +73,7 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
     panel.webview.html = this.getWebviewContent()
 
     const colorThemeListener = vscode.window.onDidChangeActiveColorTheme(event => {
-      this.postMessage(panel, {
+      panel.webview.postMessage({
         type: 'COLOR_THEME_CHANGE',
         payload: event.kind
       })
@@ -81,11 +82,7 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
     panel.onDidDispose(() => colorThemeListener.dispose())
   }
 
-  private postMessage(panel: vscode.WebviewPanel, message: WebviewMessage): void {
-    panel.webview.postMessage(message)
-  }
-
-  private onDidReceiveMessage(panel: vscode.WebviewPanel, message: WebviewMessage): void {
+  private onDidReceiveMessage(panel: TypedWebviewPanel, message: WebviewMessage): void {
     switch (message.type) {
       case 'ERROR':
         vscode.window.showErrorMessage(message.payload)
@@ -97,12 +94,13 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
         vscode.window.showInformationMessage(message.payload)
         break
       case 'GET_CONFIG': {
-        const config = vscode.workspace.getConfiguration('font-preview')
+        const config: ExtensionConfiguration =
+          vscode.workspace.getConfiguration('font-preview')
 
-        this.postMessage(panel, {
+        panel.webview.postMessage({
           type: 'CONFIG_LOADED',
           payload: {
-            defaultTab: config.get('defaultTab') as Config['defaultTab']
+            defaultTab: config.get('defaultTab')
           }
         })
         break
