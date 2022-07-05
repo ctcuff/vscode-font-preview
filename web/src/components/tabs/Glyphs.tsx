@@ -111,6 +111,13 @@ const Glyphs = (): JSX.Element => {
     <div className="glyphs">
       {selectedGlyph && (
         <GlyphInspectorModal
+          // Needed because the 'preventScroll' prop doesn't work
+          onAfterOpen={() => {
+            document.body.style.overflowY = 'hidden'
+          }}
+          onAfterClose={() => {
+            document.body.style.overflowY = 'overlay'
+          }}
           isOpen={isModalOpen}
           onClose={() => setModalOpen(false)}
           glyph={selectedGlyph}

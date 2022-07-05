@@ -12,9 +12,9 @@ type GlyphCanvasProps = {
 }
 
 const GLYPH_MARGIN = 16
-const MARK_SIZE = 20
+const MARK_SIZE = 15
 const ARROW_LENGTH = 10
-const ARROW_APERTURE = 4
+const ARROW_APERTURE = 6
 
 const drawArrow = (
   ctx: CanvasRenderingContext2D,
@@ -96,7 +96,7 @@ const drawPathWithArrows = (ctx: CanvasRenderingContext2D, path: opentype.Path) 
     ctx.stroke()
   }
 
-  ctx.fillStyle = '#000000'
+  ctx.fillStyle = '#00FF00'
 
   arrows.forEach(arrow => drawArrow(...arrow))
 }
@@ -173,9 +173,13 @@ const renderGlyph = (canvas: HTMLCanvasElement, font: opentype.Font, glyph: Glyp
   context.fillText('0', xMin, glyphBaseline + MARK_SIZE + 10)
   context.fillText(`${glyph.advanceWidth}`, xMax, glyphBaseline + MARK_SIZE + 10)
 
-  context.fillStyle = '#000000'
+  context.fillStyle = '#808080'
 
   const path = glyph.getPath(xMin, glyphBaseline, glyphSize)
+
+  path.fill = '#808080'
+  path.stroke = '#808080'
+  path.strokeWidth = 2.5
 
   path.fill = getCSSVar('--vscode-editor-foreground', '--theme-foreground')
 

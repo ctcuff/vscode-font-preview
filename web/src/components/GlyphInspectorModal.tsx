@@ -11,7 +11,9 @@ import Chip from './Chip'
 type GlyphInspectorModalProps = {
   isOpen: boolean
   onClose: () => void
+  onAfterOpen: Modal.OnAfterOpenCallback
   glyph: Glyph
+  onAfterClose?: () => void
 }
 
 const GLYPH_CANVAS_SIZE = 500
@@ -54,10 +56,17 @@ function renderTableRow<T>(
   property: keyof T,
   displayName?: string
 ): JSX.Element {
+  const objectProperty = object[property]
+  let displayProperty: T[keyof T] | string = objectProperty
+
+  if (typeof displayProperty === 'number') {
+    displayProperty = displayProperty.toFixed(2)
+  }
+
   return (
     <tr>
       <td>{displayName || property}</td>
-      <td>{object[property] ?? '(null)'}</td>
+      <td>{displayProperty ?? '(null)'}</td>
     </tr>
   )
 }
@@ -67,7 +76,9 @@ const entityTextArea = document.createElement('textarea')
 const GlyphInspectorModal = ({
   isOpen,
   onClose,
-  glyph
+  glyph,
+  onAfterOpen,
+  onAfterClose
 }: GlyphInspectorModalProps): JSX.Element => {
   const glyphMetrics = useMemo(() => glyph.getMetrics(), [glyph])
   const glyphPath = useMemo(() => glyph.getPath(), [glyph])
@@ -105,9 +116,10 @@ const GlyphInspectorModal = ({
     <div>
       <ToastContainer limit={1} />
       <Modal
-        preventScroll
         shouldCloseOnOverlayClick
         shouldCloseOnEsc
+        onAfterOpen={onAfterOpen}
+        onAfterClose={onAfterClose}
         onRequestClose={onClose}
         isOpen={isOpen}
         className="glyph-inspector-modal"
