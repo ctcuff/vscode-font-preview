@@ -129,7 +129,6 @@ const GlyphInspectorModal = ({
     'ascender',
     'baseline',
     'descender',
-    'stroke',
     'fill'
   ])
 
