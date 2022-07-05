@@ -1,5 +1,5 @@
 import '../../scss/typing-preview.scss'
-import React, { useState, useCallback, useContext, useRef } from 'react'
+import React, { useState, useContext, useRef } from 'react'
 import FontNameHeader from '../FontNameHeader'
 import FeatureToggles from '../FeatureToggles'
 import Slider from '../Slider'
@@ -7,6 +7,7 @@ import VariableAxes from '../VariableAxes'
 import FontContext from '../../contexts/FontContext'
 import { isTableEmpty } from '../../util'
 import Chip from '../Chip'
+import useRefWithCallback from '../../hooks/ref-with-callback'
 
 type PinnedSection = 'features' | 'axes' | 'properties'
 
@@ -58,11 +59,7 @@ const TypingPreview = (): JSX.Element => {
 
   // When the paragraph element gets mounted, focus it and
   // move the user's caret to the end of the sentence
-  const paragraphRef = useCallback((paragraphNode: HTMLParagraphElement | null): void => {
-    if (!paragraphNode) {
-      return
-    }
-
+  const paragraphRef = useRefWithCallback<HTMLDivElement>(paragraphNode => {
     paragraphNode.focus()
 
     const range = document.createRange()

@@ -24,7 +24,7 @@ const Glyphs = (): JSX.Element => {
       event.preventDefault()
       element.scrollLeft += event.deltaY
     }
-  })
+  }, [])
 
   const numPages = Math.ceil(font.glyphs.length / GLYPHS_PER_PAGE)
 
@@ -99,6 +99,8 @@ const Glyphs = (): JSX.Element => {
 
   const buttonRow = useMemo(() => renderPageButtons(), [currentPage])
 
+  // Ensures that the glyphs only re-render when either the color theme changes
+  // or the current page changes
   const glyphComponent = useMemo(
     () =>
       glyphs.map(glyph => (
