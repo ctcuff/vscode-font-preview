@@ -1,6 +1,7 @@
 import '../scss/app.scss'
 import React, { useContext, useEffect, useState } from 'react'
 import { Font } from 'opentype.js'
+import { ToastContainer } from 'react-toastify'
 import TabView, { Tab } from './TabView'
 import FontPreview from './tabs/FontPreview'
 import Glyphs from './tabs/Glyphs'
@@ -126,6 +127,7 @@ const App = (): JSX.Element | null => {
 
   return (
     <FontContext.Provider value={{ font, fileName, fontFeatures }}>
+      <ToastContainer limit={1} />
       <TabView panelClassName="app" defaultTabId={defaultTabId}>
         <Tab title="Preview" id="Preview">
           <FontPreview />
@@ -133,11 +135,9 @@ const App = (): JSX.Element | null => {
         <Tab
           title="Features"
           id="Features"
-          visible={
-            // Hide this tab if the current font doesn't have
-            // any variable font features or feature tags
-            shouldShowFeatureTab()
-          }
+          // Hide this tab if the current font doesn't have
+          // any variable font features or feature tags
+          visible={shouldShowFeatureTab()}
         >
           <Features />
         </Tab>

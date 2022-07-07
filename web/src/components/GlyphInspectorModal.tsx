@@ -2,7 +2,7 @@ import '../scss/glyph-inspector-modal.scss'
 import React, { useContext, useMemo, useState } from 'react'
 import Modal from 'react-modal'
 import { Glyph, Path } from 'opentype.js'
-import { ToastContainer, toast, cssTransition } from 'react-toastify'
+import { toast, cssTransition } from 'react-toastify'
 import { VscClose } from 'react-icons/vsc'
 import GlyphCanvas, { RenderField } from './GlyphCanvas'
 import FontContext from '../contexts/FontContext'
@@ -141,88 +141,85 @@ const GlyphInspectorModal = ({
   }
 
   return (
-    <div>
-      <ToastContainer limit={1} />
-      <Modal
-        shouldCloseOnOverlayClick
-        shouldCloseOnEsc
-        onAfterOpen={onAfterOpen}
-        onAfterClose={onAfterClose}
-        onRequestClose={onClose}
-        isOpen={isOpen}
-        className="glyph-inspector-modal"
-        overlayClassName="glyph-inspector-modal-overlay"
-      >
-        <div className="modal-content">
-          <button type="button" onClick={onClose} className="modal-close-btn">
-            <VscClose />
-          </button>
-          <div
-            className="canvas-container"
-            style={{
-              width: GLYPH_CANVAS_SIZE + CANVAS_PADDING,
-              height: GLYPH_CANVAS_SIZE + CANVAS_PADDING
-            }}
-          >
-            <GlyphCanvas
-              renderFields={renderFields}
-              glyph={glyph}
-              width={GLYPH_CANVAS_SIZE}
-              height={GLYPH_CANVAS_SIZE}
-            />
+    <Modal
+      shouldCloseOnOverlayClick
+      shouldCloseOnEsc
+      onAfterOpen={onAfterOpen}
+      onAfterClose={onAfterClose}
+      onRequestClose={onClose}
+      isOpen={isOpen}
+      className="glyph-inspector-modal"
+      overlayClassName="glyph-inspector-modal-overlay"
+    >
+      <div className="modal-content">
+        <button type="button" onClick={onClose} className="modal-close-btn">
+          <VscClose />
+        </button>
+        <div
+          className="canvas-container"
+          style={{
+            width: GLYPH_CANVAS_SIZE + CANVAS_PADDING,
+            height: GLYPH_CANVAS_SIZE + CANVAS_PADDING
+          }}
+        >
+          <GlyphCanvas
+            renderFields={renderFields}
+            glyph={glyph}
+            width={GLYPH_CANVAS_SIZE}
+            height={GLYPH_CANVAS_SIZE}
+          />
+        </div>
+        <div className="glyph-detail">
+          <table>
+            <tbody>
+              {renderTableRow(glyph, 'name')}
+              <tr>
+                <td>unicode</td>
+                <td>{formatUnicode(glyph.unicode)}</td>
+              </tr>
+              {renderTableRow(glyph, 'index')}
+              {renderTableRow(glyphMetrics, 'xMin')}
+              {renderTableRow(glyphMetrics, 'xMax')}
+              {renderTableRow(glyphMetrics, 'yMin')}
+              {renderTableRow(glyphMetrics, 'yMax')}
+              {renderTableRow(glyph, 'advanceWidth')}
+              {renderTableRow(glyphMetrics, 'leftSideBearing')}
+              {renderTableRow(glyphMetrics, 'rightSideBearing')}
+              {renderTableRow(font, 'ascender')}
+              {renderTableRow(font, 'descender')}
+              {renderTableRow(font, 'unitsPerEm')}
+            </tbody>
+          </table>
+          <div className="toggle-list">
+            {allRenderFields.map(field => (
+              <Switch
+                key={field}
+                defaultChecked={renderFields.includes(field)}
+                title={field}
+                className="feature-toggle"
+                onChange={checked => toggleTableField(field, checked)}
+              />
+            ))}
           </div>
-          <div className="glyph-detail">
-            <table>
-              <tbody>
-                {renderTableRow(glyph, 'name')}
-                <tr>
-                  <td>unicode</td>
-                  <td>{formatUnicode(glyph.unicode)}</td>
-                </tr>
-                {renderTableRow(glyph, 'index')}
-                {renderTableRow(glyphMetrics, 'xMin')}
-                {renderTableRow(glyphMetrics, 'xMax')}
-                {renderTableRow(glyphMetrics, 'yMin')}
-                {renderTableRow(glyphMetrics, 'yMax')}
-                {renderTableRow(glyph, 'advanceWidth')}
-                {renderTableRow(glyphMetrics, 'leftSideBearing')}
-                {renderTableRow(glyphMetrics, 'rightSideBearing')}
-                {renderTableRow(font, 'ascender')}
-                {renderTableRow(font, 'descender')}
-                {renderTableRow(font, 'unitsPerEm')}
-              </tbody>
-            </table>
-            <div className="toggle-list">
-              {allRenderFields.map(field => (
-                <Switch
-                  key={field}
-                  defaultChecked={renderFields.includes(field)}
-                  title={field}
-                  className="feature-toggle"
-                  onChange={checked => toggleTableField(field, checked)}
-                />
-              ))}
-            </div>
-            <div className="chip-actions">
-              {glyph.unicode !== undefined && (
-                <Chip
-                  title="Copy as text"
-                  className="chip-action"
-                  onClick={() => copyGlyphToClipboard(false, glyph, glyphPath)}
-                />
-              )}
-              {glyphPath.commands.length > 0 && (
-                <Chip
-                  title="Copy as SVG"
-                  className="chip-action"
-                  onClick={() => copyGlyphToClipboard(true, glyph, glyphPath)}
-                />
-              )}
-            </div>
+          <div className="chip-actions">
+            {glyph.unicode !== undefined && (
+              <Chip
+                title="Copy as text"
+                className="chip-action"
+                onClick={() => copyGlyphToClipboard(false, glyph, glyphPath)}
+              />
+            )}
+            {glyphPath.commands.length > 0 && (
+              <Chip
+                title="Copy as SVG"
+                className="chip-action"
+                onClick={() => copyGlyphToClipboard(true, glyph, glyphPath)}
+              />
+            )}
           </div>
         </div>
-      </Modal>
-    </div>
+      </div>
+    </Modal>
   )
 }
 

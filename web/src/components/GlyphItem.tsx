@@ -77,7 +77,7 @@ const GlyphItem = ({ glyph, onClick }: GlyphItemProps): JSX.Element => {
       data-glyph-index={glyph.index}
     >
       <canvas width={CELL_WIDTH} height={CELL_HEIGHT} ref={setCanvasRef} />
-      <div className="glyph-detail">{glyph.name || `${glyph.unicode}`}</div>
+      <div className="glyph-detail">{glyph.name || '(null)'}</div>
     </div>
   )
 }
