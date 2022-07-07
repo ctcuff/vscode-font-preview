@@ -55,9 +55,7 @@ const App = (): JSX.Element | null => {
     switch (message.data.type) {
       case 'FONT_LOADED': {
         const { payload } = message.data
-
         loadFont(payload)
-
         vscode.setState(payload)
         break
       }
@@ -95,11 +93,12 @@ const App = (): JSX.Element | null => {
 
   useEffect(() => {
     window.addEventListener('message', onMessage)
-    vscode.postMessage({ type: 'GET_CONFIG' })
 
     if (savedState?.fileUrl) {
       loadFont(savedState)
     }
+
+    vscode.postMessage({ type: 'GET_CONFIG' })
 
     return () => {
       window.removeEventListener('message', onMessage)
