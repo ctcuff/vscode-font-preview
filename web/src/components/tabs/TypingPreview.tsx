@@ -107,7 +107,7 @@ const TypingPreview = (): JSX.Element => {
               selected={pinnedSection === 'features'}
             />
           </div>
-          <FeatureToggles onFeatureToggle={css => setFontFeatureSettingsCSS(css)} />
+          <FeatureToggles onToggleFeature={css => setFontFeatureSettingsCSS(css)} />
         </section>
       )}
       {!isTableEmpty(font.tables?.fvar) && (

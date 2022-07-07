@@ -4,7 +4,7 @@ import FontContext from '../contexts/FontContext'
 import Switch from './Switch'
 
 type FeatureTogglesProps = {
-  onFeatureToggle?: (css: string, activeFeatures: string[]) => void
+  onToggleFeature?: (css: string, activeFeatures: string[]) => void
 }
 
 /**
@@ -16,7 +16,7 @@ const characterVariantRegex = /^[cv]{2}\d{2}/
  */
 const stylisticVariantRegex = /^[s]{2}\d{2}/
 
-const FeatureToggles = ({ onFeatureToggle }: FeatureTogglesProps): JSX.Element => {
+const FeatureToggles = ({ onToggleFeature }: FeatureTogglesProps): JSX.Element => {
   const [activeFeatures, setActiveFeatures] = useState<string[]>([])
   const { fontFeatures } = useContext(FontContext)
 
@@ -35,7 +35,7 @@ const FeatureToggles = ({ onFeatureToggle }: FeatureTogglesProps): JSX.Element =
     const css = features.length === 0 ? 'normal' : `"${features.join('", "')}"`
 
     setActiveFeatures(features)
-    onFeatureToggle?.(css, features)
+    onToggleFeature?.(css, features)
   }
 
   const renderSwitchTitle = (feature: string): JSX.Element => {

@@ -1,6 +1,10 @@
 import type { WebviewApi } from 'vscode-webview'
 import type { FontLoadEvent, WebviewMessage } from '../../shared/types'
 
+/**
+ * Represents the state saved when the content of the webview
+ * panel is destroyed.
+ */
 export type GlobalSavedState = FontLoadEvent['payload']
 
 /**

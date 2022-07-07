@@ -34,7 +34,7 @@ const Features = (): JSX.Element => {
   const [selectedSetting, setSelectedSetting] = useState('')
   const { font } = useContext(FontContext)
 
-  const onFeatureToggle = (css: string, currentActiveFeatures: string[]): void => {
+  const onToggleFeature = (css: string, currentActiveFeatures: string[]): void => {
     setActiveFeatures(currentActiveFeatures)
     setFontFeatureSettingsCSS(css)
   }
@@ -92,7 +92,7 @@ const Features = (): JSX.Element => {
       />
       <section>
         <h2>Features</h2>
-        <FeatureToggles onFeatureToggle={onFeatureToggle} />
+        <FeatureToggles onToggleFeature={onToggleFeature} />
       </section>
       <section>{renderFontInstances()}</section>
       {!isTableEmpty(font.tables.fvar) && (

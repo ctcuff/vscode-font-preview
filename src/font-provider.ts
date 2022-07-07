@@ -38,6 +38,8 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
 
     let fileContent: number[] = []
 
+    // WOFF2 fonts are compressed and can't be parsed by opentype.js so we
+    // we need to decompress it and send the file contents using postMessage
     if (document.extension === 'woff2') {
       try {
         const content = await document.read()
@@ -54,11 +56,11 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
       }
     }
 
+    panel.webview.html = this.getWebviewContent()
+
     panel.webview.postMessage({
       type: 'FONT_LOADED',
       payload: {
-        // Formats the URL to look something like:
-        // https://file+.vscode-resource.vscode-cdn.net/path/to/font.ttf
         fileUrl: `${fileUri.scheme}://${fileUri.authority}${fileUri.path}`,
         fileContent,
         fileName: document.fileName,
@@ -69,8 +71,6 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
     panel.webview.onDidReceiveMessage((message: WebviewMessage) =>
       this.onDidReceiveMessage(panel, message)
     )
-
-    panel.webview.html = this.getWebviewContent()
 
     const colorThemeListener = vscode.window.onDidChangeActiveColorTheme(event => {
       panel.webview.postMessage({

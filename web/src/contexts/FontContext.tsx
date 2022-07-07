@@ -8,6 +8,9 @@ type FontContextProps = {
    * in case the name of the font can be accessed through opentype
    */
   fileName: string
+  /**
+   * A list of features for this font from the `gpos` and `gsub` tables
+   */
   fontFeatures: string[]
 }
 
