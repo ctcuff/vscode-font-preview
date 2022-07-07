@@ -2,11 +2,12 @@ import '../scss/app.scss'
 import React, { useContext, useEffect, useState } from 'react'
 import { Font } from 'opentype.js'
 import { ToastContainer } from 'react-toastify'
+import { VscWarning } from 'react-icons/vsc'
 import TabView, { Tab } from './TabView'
 import FontPreview from './tabs/FontPreview'
 import Glyphs from './tabs/Glyphs'
 import FontContext from '../contexts/FontContext'
-import { Config, WebviewMessage, FontLoadEvent } from '../../../shared/types'
+import { Config, FontLoadEvent, WebviewMessage } from '../../../shared/types'
 import VscodeContext from '../contexts/VscodeContext'
 import Features from './tabs/Features'
 import Waterfall from './tabs/Waterfall'
@@ -23,18 +24,13 @@ const App = (): JSX.Element | null => {
   const [fileName, setFileName] = useState('')
   const [isFontSupported, setIsFontSupported] = useState(false)
   const [fontFeatures, setFontFeatures] = useState<string[]>([])
+  const [error, setError] = useState<string | null>(null)
   const vscode = useContext(VscodeContext)
   const savedState = vscode.getState()
 
   const loadFont = async (payload: FontLoadEvent['payload']) => {
     try {
-      const fontLoader = new FontLoader({
-        fileExtension: payload.fileExtension,
-        fileName: payload.fileName,
-        fileUrl: payload.fileUrl,
-        fileContent: payload.fileContent
-      })
-
+      const fontLoader = new FontLoader(payload)
       const { font: fontData, features } = await fontLoader.loadFont()
 
       setIsFontSupported(fontLoader.supported)
@@ -42,10 +38,9 @@ const App = (): JSX.Element | null => {
       setFontFeatures(features)
       setFileName(payload.fileName)
     } catch (err: unknown) {
-      vscode.postMessage({
-        type: 'ERROR',
-        payload: (err as Error).message
-      })
+      setError(`An error occurred while parsing this font: ${(err as Error).message}`)
+      // eslint-disable-next-line no-console
+      console.error(err)
     }
   }
 
@@ -63,12 +58,7 @@ const App = (): JSX.Element | null => {
 
         loadFont(payload)
 
-        vscode.setState({
-          fileExtension: payload.fileExtension,
-          fileName: payload.fileName,
-          fileUrl: payload.fileUrl,
-          fileContent: payload.fileContent
-        })
+        vscode.setState(payload)
         break
       }
       case 'CONFIG_LOADED':
@@ -108,18 +98,22 @@ const App = (): JSX.Element | null => {
     vscode.postMessage({ type: 'GET_CONFIG' })
 
     if (savedState?.fileUrl) {
-      loadFont({
-        fileExtension: savedState.fileExtension,
-        fileName: savedState.fileName,
-        fileUrl: savedState.fileUrl,
-        fileContent: savedState.fileContent
-      })
+      loadFont(savedState)
     }
 
     return () => {
       window.removeEventListener('message', onMessage)
     }
   }, [])
+
+  if (error) {
+    return (
+      <div className="app error-container">
+        <VscWarning />
+        <p className="error-msg">{error}</p>
+      </div>
+    )
+  }
 
   if (!font) {
     return null

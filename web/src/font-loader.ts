@@ -14,6 +14,9 @@ type FontPayload = {
   features: string[]
 }
 
+// https://chromium.googlesource.com/chromium/blink/+/refs/heads/main/Source/platform/fonts/opentype/OpenTypeSanitizer.cpp#70
+const MAX_WEB_FONT_SIZE = 30 * 1024 * 1024 // MB
+
 /**
  * Fonts that can be parsed by opentype
  */
@@ -96,7 +99,9 @@ class FontLoader {
         ? new Uint8Array(this.opts.fileContent).buffer
         : await this.fetchFileBuffer()
 
-    this.insertStyle(buffer)
+    if (this.opts.fileSize <= MAX_WEB_FONT_SIZE) {
+      this.insertStyle(buffer)
+    }
 
     // Opentype can't parse some font types (like ttc). In that case, we don't
     // wan't to throw an error since those fonts can still be rendered in the window so

@@ -25,6 +25,7 @@ export type Config = {
 export type FontLoadEvent = {
   type: 'FONT_LOADED'
   payload: {
+    fileSize: number
     fileExtension: FontExtension
     fileName: string
     /**

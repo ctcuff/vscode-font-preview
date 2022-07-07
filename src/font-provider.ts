@@ -4,8 +4,10 @@ import html from './index.html'
 import { template } from './util'
 import FontDocument from './font-document'
 import { WebviewMessage } from '../shared/types'
-import * as wawoff2 from 'wawoff2'
 import { ExtensionConfiguration, TypedWebviewPanel } from './types/overrides'
+
+// https://chromium.googlesource.com/chromium/blink/+/refs/heads/main/Source/platform/fonts/opentype/OpenTypeSanitizer.cpp#70
+const MAX_WEB_FONT_SIZE = 30 * 1024 * 1024 // MB
 
 class FontProvider implements vscode.CustomReadonlyEditorProvider {
   public static readonly viewType = 'font.detail.preview'
@@ -35,25 +37,21 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
     }
 
     const fileUri = panel.webview.asWebviewUri(document.uri)
+    const fileSize = await document.size()
 
     let fileContent: number[] = []
 
-    // WOFF2 fonts are compressed and can't be parsed by opentype.js so we
-    // we need to decompress it and send the file contents using postMessage
+    if (fileSize > MAX_WEB_FONT_SIZE) {
+      vscode.window.showErrorMessage(
+        `This font exceeds than the maximum web font size (30 MB)
+        and cannot be rendered correctly.`
+      )
+    }
+
+    // We only need to read the file if it's a WOFF2 font. This is because
+    // it can't be decompressed in the webview.
     if (document.extension === 'woff2') {
-      try {
-        const content = await document.read()
-
-        if (!content) {
-          throw new Error(`Couldn't read ${document.uri.path}: no content`)
-        }
-
-        let decompressedContent = await wawoff2.decompress(content)
-        fileContent = Array.from(decompressedContent)
-      } catch (err: any) {
-        // eslint-disable-next-line no-console
-        console.warn(`Couldn't decompress file content ${err}`)
-      }
+      fileContent = Array.from((await document.read()) || [])
     }
 
     panel.webview.html = this.getWebviewContent()
@@ -61,8 +59,9 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
     panel.webview.postMessage({
       type: 'FONT_LOADED',
       payload: {
-        fileUrl: `${fileUri.scheme}://${fileUri.authority}${fileUri.path}`,
         fileContent,
+        fileSize,
+        fileUrl: `${fileUri.scheme}://${fileUri.authority}${fileUri.path}`,
         fileName: document.fileName,
         fileExtension: document.extension
       }
