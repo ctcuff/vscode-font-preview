@@ -38,6 +38,9 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
 
     const fileUri = panel.webview.asWebviewUri(document.uri)
     const fileSize = await document.size()
+    const config = vscode.workspace.getConfiguration(
+      'font-preview'
+    ) as ExtensionConfiguration
 
     let fileContent: number[] = []
 
@@ -63,7 +66,11 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
         fileSize,
         fileUrl: `${fileUri.scheme}://${fileUri.authority}${fileUri.path}`,
         fileName: document.fileName,
-        fileExtension: document.extension
+        fileExtension: document.extension,
+        config: {
+          defaultTab: config.get('defaultTab'),
+          useWorker: config.get('useWorker')
+        }
       }
     })
 
@@ -93,13 +100,15 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
         vscode.window.showInformationMessage(message.payload)
         break
       case 'GET_CONFIG': {
-        const config: ExtensionConfiguration =
-          vscode.workspace.getConfiguration('font-preview')
+        const config = vscode.workspace.getConfiguration(
+          'font-preview'
+        ) as ExtensionConfiguration
 
         panel.webview.postMessage({
           type: 'CONFIG_LOADED',
           payload: {
-            defaultTab: config.get('defaultTab')
+            defaultTab: config.get('defaultTab'),
+            useWorker: config.get('useWorker')
           }
         })
         break

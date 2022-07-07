@@ -19,12 +19,13 @@ import FontLoader from '../font-loader'
 const App = (): JSX.Element | null => {
   // When set to null, the tab view won't render. This is so that we can
   // wait for the postMessage event to determine the default tab
-  const [defaultTabId, setDefaultTabId] = useState<Config['defaultTab'] | null>(null)
+  // const [defaultTabId, setDefaultTabId] = useState<Config['defaultTab'] | null>(null)
   const [font, setFont] = useState<Font | null>(null)
   const [fileName, setFileName] = useState('')
   const [isFontSupported, setIsFontSupported] = useState(false)
   const [fontFeatures, setFontFeatures] = useState<string[]>([])
   const [error, setError] = useState<string | null>(null)
+  const [config, setConfig] = useState<Config | null>(null)
   const vscode = useContext(VscodeContext)
   const savedState = vscode.getState()
 
@@ -56,12 +57,26 @@ const App = (): JSX.Element | null => {
       case 'FONT_LOADED': {
         const { payload } = message.data
         loadFont(payload)
+        setConfig(payload.config)
         vscode.setState(payload)
         break
       }
-      case 'CONFIG_LOADED':
-        setDefaultTabId(message.data.payload.defaultTab)
+      case 'CONFIG_LOADED': {
+        const { payload } = message.data
+
+        setConfig(payload)
+
+        if (savedState) {
+          const updatedState = {
+            ...savedState,
+            config: payload
+          }
+
+          loadFont(updatedState)
+          vscode.setState(updatedState)
+        }
         break
+      }
       default:
         break
     }
@@ -94,11 +109,11 @@ const App = (): JSX.Element | null => {
   useEffect(() => {
     window.addEventListener('message', onMessage)
 
+    // If we're loading from the saved state, we need to fetch the config
+    // again just in case it changed while the webview was hidden
     if (savedState?.fileUrl) {
-      loadFont(savedState)
+      vscode.postMessage({ type: 'GET_CONFIG' })
     }
-
-    vscode.postMessage({ type: 'GET_CONFIG' })
 
     return () => {
       window.removeEventListener('message', onMessage)
@@ -121,7 +136,7 @@ const App = (): JSX.Element | null => {
   return (
     <FontContext.Provider value={{ font, fileName, fontFeatures }}>
       <ToastContainer limit={1} />
-      <TabView panelClassName="app" defaultTabId={defaultTabId}>
+      <TabView panelClassName="app" defaultTabId={config?.defaultTab || 'Preview'}>
         <Tab title="Preview" id="Preview">
           <FontPreview />
         </Tab>

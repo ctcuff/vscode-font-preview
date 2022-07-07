@@ -73,7 +73,7 @@ class FontLoader {
    * this will be done synchronously
    */
   public insertStyle(buffer: ArrayBuffer): void {
-    if (this.worker) {
+    if (this.worker && this.opts.config.useWorker) {
       this.insertStyleWithWorker(buffer)
     } else {
       this.insertStyleSync(buffer)
@@ -143,7 +143,7 @@ class FontLoader {
   private async initWorker(): Promise<Worker | null> {
     // Workers are only supported using data: or blob: uris so
     // we need to use fetch and load the worker src as a blob
-    // https://github.com/Microsoft/vscode-docs/blob/eb58fbbf6c26e781f33aec963eeba0139337ba87/api/extension-guides/webview.md#using-web-workers
+    // https://github.com/Microsoft/vscode-docs/blob/main/api/extension-guides/webview.md#using-web-workers
     try {
       const res = await fetch(workerUrl)
       const blob = await res.blob()

@@ -20,8 +20,12 @@ export type Config = {
     | 'Waterfall'
     | 'Type Yourself'
     | 'License'
+  useWorker: boolean
 }
 
+/**
+ * Dispatched from the extension when the font has loaded
+ */
 export type FontLoadEvent = {
   type: 'FONT_LOADED'
   payload: {
@@ -42,14 +46,15 @@ export type FontLoadEvent = {
      * on the extension side rather than the webview side. In all other cases, this
      * will just be an empty array
      */
-    fileContent: number[]
+    fileContent: number[],
+    config: Config
   }
 }
 
 /**
  * Dispatched from the webview to get the user settings for this extension
  */
- export type ConfigRequestEvent = {
+export type ConfigRequestEvent = {
   type: 'GET_CONFIG'
 }
 
