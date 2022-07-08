@@ -9,8 +9,11 @@ import { ExtensionConfiguration, TypedWebviewPanel } from './types/overrides'
 // https://chromium.googlesource.com/chromium/blink/+/refs/heads/main/Source/platform/fonts/opentype/OpenTypeSanitizer.cpp#70
 const MAX_WEB_FONT_SIZE = 30 * 1024 * 1024 // MB
 
+const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+
 class FontProvider implements vscode.CustomReadonlyEditorProvider {
   public static readonly viewType = 'font.detail.preview'
+  private shouldShowProgressNotification: boolean = true
 
   constructor(private readonly context: vscode.ExtensionContext) {}
 
@@ -55,6 +58,10 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
     // it can't be decompressed in the webview.
     if (document.extension === 'woff2') {
       fileContent = Array.from((await document.read()) || [])
+    }
+
+    if (fileSize <= MAX_WEB_FONT_SIZE) {
+      this.showProgressNotification(panel)
     }
 
     panel.webview.html = this.getWebviewContent()
@@ -113,6 +120,12 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
         })
         break
       }
+      case 'PROGRESS_START':
+        this.showProgressNotification(panel)
+        break
+      case 'PROGRESS_STOP':
+        this.shouldShowProgressNotification = false
+        break
     }
   }
 
@@ -124,6 +137,26 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
     const reactAppUri = webDistPath.with({ scheme: 'vscode-resource' }).toString()
 
     return template(html, { reactAppUri })
+  }
+
+  private showProgressNotification(panel: TypedWebviewPanel): void {
+    this.shouldShowProgressNotification = true
+
+    vscode.window.withProgress(
+      {
+        location: vscode.ProgressLocation.Window,
+        title: 'Rendering font'
+      },
+      async () => {
+        // Need to check if the panel is still visible so the notification
+        // doesn't spin forever when the font editor is hidden
+        while (this.shouldShowProgressNotification && panel.visible) {
+          // VS Code will dismiss the notification once this function
+          // returns so we need to create a fake loading scenario
+          await wait(250)
+        }
+      }
+    )
   }
 }
 

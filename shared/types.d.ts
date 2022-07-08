@@ -46,7 +46,7 @@ export type FontLoadEvent = {
      * on the extension side rather than the webview side. In all other cases, this
      * will just be an empty array
      */
-    fileContent: number[],
+    fileContent: number[]
     config: Config
   }
 }
@@ -102,6 +102,22 @@ export type ColorThemeChangeEvent = {
   payload: ColorThemeKind
 }
 
+/**
+ * Dispatched from the webview to start the loading notification that appears
+ * in VS Code's status bar
+ */
+export type StartProgressNotificationEvent = {
+  type: 'PROGRESS_START'
+}
+
+/**
+ * Dispatched from the webview to dismiss the loading notification that appears
+ * in VS Code's status bar
+ */
+export type StopProgressNotificationEvent = {
+  type: 'PROGRESS_STOP'
+}
+
 export type WebviewMessage =
   | FontLoadEvent
   | ConfigLoadEvent
@@ -110,3 +126,5 @@ export type WebviewMessage =
   | InfoEvent
   | ConfigRequestEvent
   | ColorThemeChangeEvent
+  | StartProgressNotificationEvent
+  | StopProgressNotificationEvent

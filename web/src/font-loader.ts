@@ -79,8 +79,8 @@ class FontLoader {
   /**
    * Creates and inserts a <style> element with the loaded font. This allows
    * the font to be accessed anywhere in a stylesheet. If the worker was successfully
-   * initialized, this will be done off the main thread to spare resources. Otherwise,
-   * this will be done synchronously
+   * initialized, this will be done off of the main thread to spare resources.
+   * Otherwise, this will be done synchronously
    */
   public insertStyle(buffer: ArrayBuffer): void {
     if (this.worker && this.opts.config.useWorker) {
@@ -145,7 +145,10 @@ class FontLoader {
         .filter(str => !!str.trim())
     )
 
-    return { font, features: Array.from(features) }
+    return {
+      font,
+      features: Array.from(features)
+    }
   }
 
   private async fetchFileBuffer(): Promise<ArrayBuffer> {

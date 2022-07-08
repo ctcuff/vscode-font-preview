@@ -1,7 +1,7 @@
 import '../scss/app.scss'
 import React, { useContext, useEffect, useState } from 'react'
 import { Font } from 'opentype.js'
-import { ToastContainer, toast, cssTransition } from 'react-toastify'
+import { ToastContainer } from 'react-toastify'
 import { VscWarning } from 'react-icons/vsc'
 import TabView, { Tab } from './TabView'
 import FontPreview from './tabs/FontPreview'
@@ -30,29 +30,8 @@ const App = (): JSX.Element | null => {
     try {
       const fontLoader = new FontLoader({
         ...payload,
-        onBeforeCreateStyle: () => {
-          if (payload.config.useWorker) {
-            toast('Creating font face...', {
-              toastId: 'toast-loading-style',
-              position: 'bottom-right',
-              className: 'react-toast',
-              closeOnClick: true,
-              pauseOnFocusLoss: false,
-              pauseOnHover: false,
-              draggable: true,
-              progress: 100,
-              transition: cssTransition({
-                enter: 'react-toast__enter',
-                exit: 'react-toast__exit'
-              })
-            })
-          }
-        },
-        onStyleCreated: () => {
-          // Need to give the dismissal a small delay to make sure this
-          // doesn't trigger before the toast is shown
-          setTimeout(() => toast.dismiss('toast-loading-style'), 500)
-        }
+        onBeforeCreateStyle: () => vscode.postMessage({ type: 'PROGRESS_START' }),
+        onStyleCreated: () => vscode.postMessage({ type: 'PROGRESS_STOP' })
       })
 
       const { font: fontData, features } = await fontLoader.loadFont()
@@ -62,9 +41,9 @@ const App = (): JSX.Element | null => {
       setFontFeatures(features)
       setFileName(payload.fileName)
     } catch (err: unknown) {
-      setError(`An error occurred while parsing this font: ${(err as Error).message}`)
       // eslint-disable-next-line no-console
       console.error(err)
+      setError(`An error occurred while parsing this font: ${(err as Error).message}`)
     }
   }
 
