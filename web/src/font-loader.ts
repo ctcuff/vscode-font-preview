@@ -1,7 +1,7 @@
 /* eslint-disable */
 // @ts-ignore
 // Ignored because TypeScript doesn't have type definitions
-// for webpack's inline loader
+// for webpack's inline loader (maybe fix this???)
 import workerUrl from 'worker-plugin/loader!./font-worker'
 /* eslint-enable */
 import opentype, { Font } from 'opentype.js'
@@ -9,7 +9,18 @@ import { FontExtension, FontLoadEvent } from '../../shared/types'
 import FontLoadError from './font-load-error'
 import { base64ArrayBuffer, getCSSVar } from './util'
 
-type FontLoaderOptions = FontLoadEvent['payload']
+type FontLoaderOptions = FontLoadEvent['payload'] & {
+  /**
+   * Dispatched when the <style> element was successfully added to the DOM
+   */
+  onStyleCreated: () => void
+  /**
+   * Dispatched before a request is made to fetch the file and create
+   * the style. Note that this is only dispatched if the file to be
+   * loaded is less than the maximum web font size (30 MB)
+   */
+  onBeforeCreateStyle: () => void
+}
 
 type FontFeature = {
   tag: string
@@ -36,15 +47,14 @@ const supportedExtensions: ReadonlySet<FontExtension> = new Set<FontExtension>([
 class FontLoader {
   private opts: FontLoaderOptions
   private worker: Worker | null = null
-
   /**
    * True if the font can be parsed by Opentype, false otherwise
    */
-  public supported: boolean
+  public isSupported: boolean
 
   constructor(opts: FontLoaderOptions) {
     this.opts = opts
-    this.supported = supportedExtensions.has(this.opts.fileExtension)
+    this.isSupported = supportedExtensions.has(this.opts.fileExtension)
   }
 
   public getFontMimeType(): string {
@@ -86,6 +96,10 @@ class FontLoader {
     }
 
     const { fileExtension } = this.opts
+
+    if (this.opts.fileSize <= MAX_WEB_FONT_SIZE) {
+      this.opts.onBeforeCreateStyle()
+    }
 
     // WOFF2 needs to be decompressed so we need to use the file data
     // coming from VSCode instead of fetching it
@@ -175,12 +189,11 @@ class FontLoader {
   }
 
   private addStyleToDom(base64Font: string): void {
-    const style = document.createElement('style')
-    const mimeType = this.getFontMimeType()
-
     // Using var() in the template string doesn't load the font family
     // so it has to be grabbed from the root element
     const fontFamilyName = getCSSVar('--font-family-name')
+    const style = document.createElement('style')
+    const mimeType = this.getFontMimeType()
 
     style.id = 'font-preview'
     style.innerHTML = /* css */ `
@@ -192,6 +205,8 @@ class FontLoader {
         }`
 
     document.head.insertAdjacentElement('beforeend', style)
+
+    this.opts.onStyleCreated()
   }
 }
 

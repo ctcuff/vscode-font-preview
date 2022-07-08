@@ -1,7 +1,7 @@
 import '../scss/app.scss'
 import React, { useContext, useEffect, useState } from 'react'
 import { Font } from 'opentype.js'
-import { ToastContainer } from 'react-toastify'
+import { ToastContainer, toast, cssTransition } from 'react-toastify'
 import { VscWarning } from 'react-icons/vsc'
 import TabView, { Tab } from './TabView'
 import FontPreview from './tabs/FontPreview'
@@ -17,9 +17,6 @@ import { isTableEmpty } from '../util'
 import FontLoader from '../font-loader'
 
 const App = (): JSX.Element | null => {
-  // When set to null, the tab view won't render. This is so that we can
-  // wait for the postMessage event to determine the default tab
-  // const [defaultTabId, setDefaultTabId] = useState<Config['defaultTab'] | null>(null)
   const [font, setFont] = useState<Font | null>(null)
   const [fileName, setFileName] = useState('')
   const [isFontSupported, setIsFontSupported] = useState(false)
@@ -31,10 +28,36 @@ const App = (): JSX.Element | null => {
 
   const loadFont = async (payload: FontLoadEvent['payload']) => {
     try {
-      const fontLoader = new FontLoader(payload)
+      const fontLoader = new FontLoader({
+        ...payload,
+        onBeforeCreateStyle: () => {
+          if (payload.config.useWorker) {
+            toast('Creating font face...', {
+              toastId: 'toast-loading-style',
+              position: 'bottom-right',
+              className: 'react-toast',
+              closeOnClick: true,
+              pauseOnFocusLoss: false,
+              pauseOnHover: false,
+              draggable: true,
+              progress: 100,
+              transition: cssTransition({
+                enter: 'react-toast__enter',
+                exit: 'react-toast__exit'
+              })
+            })
+          }
+        },
+        onStyleCreated: () => {
+          // Need to give the dismissal a small delay to make sure this
+          // doesn't trigger before the toast is shown
+          setTimeout(() => toast.dismiss('toast-loading-style'), 500)
+        }
+      })
+
       const { font: fontData, features } = await fontLoader.loadFont()
 
-      setIsFontSupported(fontLoader.supported)
+      setIsFontSupported(fontLoader.isSupported)
       setFont(fontData)
       setFontFeatures(features)
       setFileName(payload.fileName)
@@ -141,11 +164,11 @@ const App = (): JSX.Element | null => {
           <FontPreview />
         </Tab>
         <Tab
-          title="Features"
-          id="Features"
           // Hide this tab if the current font doesn't have
           // any variable font features or feature tags
           visible={shouldShowFeatureTab()}
+          title="Features"
+          id="Features"
         >
           <Features />
         </Tab>
