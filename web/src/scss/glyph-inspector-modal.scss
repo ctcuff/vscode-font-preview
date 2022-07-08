@@ -24,6 +24,7 @@ $borderRadius: 6px;
   max-height: 685px;
   max-width: 993px;
   border-radius: $borderRadius;
+  padding: 0 32px;
 
   @include breakpoint-max() {
     overflow: overlay;
@@ -134,12 +135,14 @@ $borderRadius: 6px;
   .chip-actions {
     margin-top: 1em;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    gap: 8px;
   }
 
   .chip-action {
     font-family: var(--vscode-editor-font-family);
     font-size: 15px;
+    width: 100%;
   }
 
   .toggle-list {
