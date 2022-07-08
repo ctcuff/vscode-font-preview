@@ -70,6 +70,11 @@
             "The preview will always start on the \"Type Yourself\" tab.",
             "The preview will always start on the \"License\" tab (if present)."
           ]
+        },
+        "font-preview.useWorker": {
+          "description": "(Experimental) If true, VS Code will try to use a worker when loading the font. Fonts may load faster, but you may also see a small shift while the font loads. Disable this setting if you notice any weird behavior.",
+          "type": "boolean",
+          "default": false
         }
       }
     }

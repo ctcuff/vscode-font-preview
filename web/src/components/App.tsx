@@ -2,11 +2,12 @@ import '../scss/app.scss'
 import React, { useContext, useEffect, useState } from 'react'
 import { Font } from 'opentype.js'
 import { ToastContainer } from 'react-toastify'
+import { VscWarning } from 'react-icons/vsc'
 import TabView, { Tab } from './TabView'
 import FontPreview from './tabs/FontPreview'
 import Glyphs from './tabs/Glyphs'
 import FontContext from '../contexts/FontContext'
-import { Config, WebviewMessage, FontLoadEvent } from '../../../shared/types'
+import { Config, FontLoadEvent, WebviewMessage } from '../../../shared/types'
 import VscodeContext from '../contexts/VscodeContext'
 import Features from './tabs/Features'
 import Waterfall from './tabs/Waterfall'
@@ -16,36 +17,33 @@ import { isTableEmpty } from '../util'
 import FontLoader from '../font-loader'
 
 const App = (): JSX.Element | null => {
-  // When set to null, the tab view won't render. This is so that we can
-  // wait for the postMessage event to determine the default tab
-  const [defaultTabId, setDefaultTabId] = useState<Config['defaultTab'] | null>(null)
   const [font, setFont] = useState<Font | null>(null)
   const [fileName, setFileName] = useState('')
   const [isFontSupported, setIsFontSupported] = useState(false)
   const [fontFeatures, setFontFeatures] = useState<string[]>([])
+  const [error, setError] = useState<string | null>(null)
+  const [config, setConfig] = useState<Config | null>(null)
   const vscode = useContext(VscodeContext)
   const savedState = vscode.getState()
 
   const loadFont = async (payload: FontLoadEvent['payload']) => {
     try {
       const fontLoader = new FontLoader({
-        fileExtension: payload.fileExtension,
-        fileName: payload.fileName,
-        fileUrl: payload.fileUrl,
-        fileContent: payload.fileContent
+        ...payload,
+        onBeforeCreateStyle: () => vscode.postMessage({ type: 'PROGRESS_START' }),
+        onStyleCreated: () => vscode.postMessage({ type: 'PROGRESS_STOP' })
       })
 
       const { font: fontData, features } = await fontLoader.loadFont()
 
-      setIsFontSupported(fontLoader.supported)
+      setIsFontSupported(fontLoader.isSupported)
       setFont(fontData)
       setFontFeatures(features)
       setFileName(payload.fileName)
     } catch (err: unknown) {
-      vscode.postMessage({
-        type: 'ERROR',
-        payload: (err as Error).message
-      })
+      // eslint-disable-next-line no-console
+      console.error(err)
+      setError(`An error occurred while parsing this font: ${(err as Error).message}`)
     }
   }
 
@@ -60,20 +58,27 @@ const App = (): JSX.Element | null => {
     switch (message.data.type) {
       case 'FONT_LOADED': {
         const { payload } = message.data
-
         loadFont(payload)
-
-        vscode.setState({
-          fileExtension: payload.fileExtension,
-          fileName: payload.fileName,
-          fileUrl: payload.fileUrl,
-          fileContent: payload.fileContent
-        })
+        setConfig(payload.config)
+        vscode.setState(payload)
         break
       }
-      case 'CONFIG_LOADED':
-        setDefaultTabId(message.data.payload.defaultTab)
+      case 'CONFIG_LOADED': {
+        const { payload } = message.data
+
+        setConfig(payload)
+
+        if (savedState) {
+          const updatedState = {
+            ...savedState,
+            config: payload
+          }
+
+          loadFont(updatedState)
+          vscode.setState(updatedState)
+        }
         break
+      }
       default:
         break
     }
@@ -105,21 +110,26 @@ const App = (): JSX.Element | null => {
 
   useEffect(() => {
     window.addEventListener('message', onMessage)
-    vscode.postMessage({ type: 'GET_CONFIG' })
 
+    // If we're loading from the saved state, we need to fetch the config
+    // again just in case it changed while the webview was hidden
     if (savedState?.fileUrl) {
-      loadFont({
-        fileExtension: savedState.fileExtension,
-        fileName: savedState.fileName,
-        fileUrl: savedState.fileUrl,
-        fileContent: savedState.fileContent
-      })
+      vscode.postMessage({ type: 'GET_CONFIG' })
     }
 
     return () => {
       window.removeEventListener('message', onMessage)
     }
   }, [])
+
+  if (error) {
+    return (
+      <div className="app error-container">
+        <VscWarning />
+        <p className="error-msg">{error}</p>
+      </div>
+    )
+  }
 
   if (!font) {
     return null
@@ -128,16 +138,16 @@ const App = (): JSX.Element | null => {
   return (
     <FontContext.Provider value={{ font, fileName, fontFeatures }}>
       <ToastContainer limit={1} />
-      <TabView panelClassName="app" defaultTabId={defaultTabId}>
+      <TabView panelClassName="app" defaultTabId={config?.defaultTab || 'Preview'}>
         <Tab title="Preview" id="Preview">
           <FontPreview />
         </Tab>
         <Tab
-          title="Features"
-          id="Features"
           // Hide this tab if the current font doesn't have
           // any variable font features or feature tags
           visible={shouldShowFeatureTab()}
+          title="Features"
+          id="Features"
         >
           <Features />
         </Tab>

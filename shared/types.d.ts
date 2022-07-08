@@ -20,11 +20,17 @@ export type Config = {
     | 'Waterfall'
     | 'Type Yourself'
     | 'License'
+  useWorker: boolean
 }
 
+/**
+ * Dispatched from the extension when the font has loaded
+ */
 export type FontLoadEvent = {
   type: 'FONT_LOADED'
   payload: {
+    config: Config
+    fileSize: number
     fileExtension: FontExtension
     fileName: string
     /**
@@ -48,7 +54,7 @@ export type FontLoadEvent = {
 /**
  * Dispatched from the webview to get the user settings for this extension
  */
- export type ConfigRequestEvent = {
+export type ConfigRequestEvent = {
   type: 'GET_CONFIG'
 }
 
@@ -96,6 +102,22 @@ export type ColorThemeChangeEvent = {
   payload: ColorThemeKind
 }
 
+/**
+ * Dispatched from the webview to start the loading notification that appears
+ * in VS Code's status bar
+ */
+export type StartProgressNotificationEvent = {
+  type: 'PROGRESS_START'
+}
+
+/**
+ * Dispatched from the webview to dismiss the loading notification that appears
+ * in VS Code's status bar
+ */
+export type StopProgressNotificationEvent = {
+  type: 'PROGRESS_STOP'
+}
+
 export type WebviewMessage =
   | FontLoadEvent
   | ConfigLoadEvent
@@ -104,3 +126,5 @@ export type WebviewMessage =
   | InfoEvent
   | ConfigRequestEvent
   | ColorThemeChangeEvent
+  | StartProgressNotificationEvent
+  | StopProgressNotificationEvent

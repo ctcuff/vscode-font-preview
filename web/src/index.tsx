@@ -1,4 +1,5 @@
 import './scss/index.scss'
+import './scss/toast.scss'
 import React from 'react'
 import ReactDOM from 'react-dom'
 import Modal from 'react-modal'

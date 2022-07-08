@@ -4,11 +4,16 @@ import html from './index.html'
 import { template } from './util'
 import FontDocument from './font-document'
 import { WebviewMessage } from '../shared/types'
-import * as wawoff2 from 'wawoff2'
 import { ExtensionConfiguration, TypedWebviewPanel } from './types/overrides'
+
+// https://chromium.googlesource.com/chromium/blink/+/refs/heads/main/Source/platform/fonts/opentype/OpenTypeSanitizer.cpp#70
+const MAX_WEB_FONT_SIZE = 30 * 1024 * 1024 // MB
+
+const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
 class FontProvider implements vscode.CustomReadonlyEditorProvider {
   public static readonly viewType = 'font.detail.preview'
+  private shouldShowProgressNotification: boolean = true
 
   constructor(private readonly context: vscode.ExtensionContext) {}
 
@@ -35,42 +40,31 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
     }
 
     const fileUri = panel.webview.asWebviewUri(document.uri)
+    const fileSize = await document.size()
+    const config = vscode.workspace.getConfiguration(
+      'font-preview'
+    ) as ExtensionConfiguration
 
     let fileContent: number[] = []
 
-    // WOFF2 fonts are compressed and can't be parsed by opentype.js so we
-    // we need to decompress it and send the file contents using postMessage
+    if (fileSize > MAX_WEB_FONT_SIZE) {
+      vscode.window.showErrorMessage(
+        `This font exceeds than the maximum web font size (30 MB)
+        and cannot be rendered correctly.`
+      )
+    }
+
+    // We only need to read the file if it's a WOFF2 font. This is because
+    // it can't be decompressed in the webview.
     if (document.extension === 'woff2') {
-      try {
-        const content = await document.read()
+      fileContent = Array.from((await document.read()) || [])
+    }
 
-        if (!content) {
-          throw new Error(`Couldn't read ${document.uri.path}: no content`)
-        }
-
-        let decompressedContent = await wawoff2.decompress(content)
-        fileContent = Array.from(decompressedContent)
-      } catch (err: any) {
-        // eslint-disable-next-line no-console
-        console.warn(`Couldn't decompress file content ${err}`)
-      }
+    if (fileSize <= MAX_WEB_FONT_SIZE) {
+      this.showProgressNotification(panel)
     }
 
     panel.webview.html = this.getWebviewContent()
-
-    panel.webview.postMessage({
-      type: 'FONT_LOADED',
-      payload: {
-        fileUrl: `${fileUri.scheme}://${fileUri.authority}${fileUri.path}`,
-        fileContent,
-        fileName: document.fileName,
-        fileExtension: document.extension
-      }
-    })
-
-    panel.webview.onDidReceiveMessage((message: WebviewMessage) =>
-      this.onDidReceiveMessage(panel, message)
-    )
 
     const colorThemeListener = vscode.window.onDidChangeActiveColorTheme(event => {
       panel.webview.postMessage({
@@ -79,7 +73,35 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
       })
     })
 
-    panel.onDidDispose(() => colorThemeListener.dispose())
+    panel.webview.onDidReceiveMessage((message: WebviewMessage) => {
+      this.onDidReceiveMessage(panel, message)
+    })
+
+    panel.onDidChangeViewState(event => {
+      if (!event.webviewPanel.visible) {
+        this.shouldShowProgressNotification = false
+      }
+    })
+
+    panel.onDidDispose(() => {
+      this.shouldShowProgressNotification = false
+      colorThemeListener.dispose()
+    })
+
+    panel.webview.postMessage({
+      type: 'FONT_LOADED',
+      payload: {
+        fileContent,
+        fileSize,
+        fileUrl: `${fileUri.scheme}://${fileUri.authority}${fileUri.path}`,
+        fileName: document.fileName,
+        fileExtension: document.extension,
+        config: {
+          defaultTab: config.get('defaultTab'),
+          useWorker: config.get('useWorker')
+        }
+      }
+    })
   }
 
   private onDidReceiveMessage(panel: TypedWebviewPanel, message: WebviewMessage): void {
@@ -94,17 +116,25 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
         vscode.window.showInformationMessage(message.payload)
         break
       case 'GET_CONFIG': {
-        const config: ExtensionConfiguration =
-          vscode.workspace.getConfiguration('font-preview')
+        const config = vscode.workspace.getConfiguration(
+          'font-preview'
+        ) as ExtensionConfiguration
 
         panel.webview.postMessage({
           type: 'CONFIG_LOADED',
           payload: {
-            defaultTab: config.get('defaultTab')
+            defaultTab: config.get('defaultTab'),
+            useWorker: config.get('useWorker')
           }
         })
         break
       }
+      case 'PROGRESS_START':
+        this.showProgressNotification(panel)
+        break
+      case 'PROGRESS_STOP':
+        this.shouldShowProgressNotification = false
+        break
     }
   }
 
@@ -116,6 +146,26 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
     const reactAppUri = webDistPath.with({ scheme: 'vscode-resource' }).toString()
 
     return template(html, { reactAppUri })
+  }
+
+  private showProgressNotification(panel: TypedWebviewPanel): void {
+    this.shouldShowProgressNotification = true
+
+    vscode.window.withProgress(
+      {
+        location: vscode.ProgressLocation.Window,
+        title: 'Rendering font'
+      },
+      async () => {
+        // Need to check if the panel is still visible so the notification
+        // doesn't spin forever when the font editor is hidden
+        while (this.shouldShowProgressNotification && panel.visible) {
+          // VS Code will dismiss the notification once this function
+          // returns so we need to create a fake loading scenario
+          await wait(250)
+        }
+      }
+    )
   }
 }
 

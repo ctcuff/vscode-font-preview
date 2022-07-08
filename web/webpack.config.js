@@ -1,4 +1,5 @@
 const path = require('path')
+const WorkerPlugin = require('worker-plugin')
 
 /**@type {import('webpack').Configuration}*/
 module.exports = {
@@ -19,6 +20,7 @@ module.exports = {
   resolve: {
     extensions: ['.ts', '.js', '.tsx', '.json']
   },
+  plugins: [new WorkerPlugin()],
   module: {
     rules: [
       {

@@ -204,14 +204,14 @@ const GlyphInspectorModal = ({
           <div className="chip-actions">
             {glyph.unicode !== undefined && (
               <Chip
-                title="Copy as text"
+                title="Copy Text"
                 className="chip-action"
                 onClick={() => copyGlyphToClipboard(false, glyph, glyphPath)}
               />
             )}
             {glyphPath.commands.length > 0 && (
               <Chip
-                title="Copy as SVG"
+                title="Copy SVG"
                 className="chip-action"
                 onClick={() => copyGlyphToClipboard(true, glyph, glyphPath)}
               />

@@ -46,6 +46,7 @@
     color: var(--vscode-tab-activeForeground);
     background-color: var(--vscode-tab-activeBackground);
     box-shadow: 0 1px 0 0px var(--vscode-tab-activeBorder, transparent);
+    max-width: 1350px;
 
     // For high contrast themes
     outline: 1px solid var(--vscode-contrastActiveBorder, transparent);

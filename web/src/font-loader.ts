@@ -1,9 +1,26 @@
+/* eslint-disable */
+// @ts-ignore
+// Ignored because TypeScript doesn't have type definitions
+// for webpack's inline loader (maybe fix this???)
+import workerUrl from 'worker-plugin/loader!./font-worker'
+/* eslint-enable */
 import opentype, { Font } from 'opentype.js'
 import { FontExtension, FontLoadEvent } from '../../shared/types'
 import FontLoadError from './font-load-error'
 import { base64ArrayBuffer, getCSSVar } from './util'
 
-type FontLoaderOptions = FontLoadEvent['payload']
+type FontLoaderOptions = FontLoadEvent['payload'] & {
+  /**
+   * Dispatched when the <style> element was successfully added to the DOM
+   */
+  onStyleCreated: () => void
+  /**
+   * Dispatched before a request is made to fetch the file and create
+   * the style. Note that this is only dispatched if the file to be
+   * loaded is less than the maximum web font size (30 MB)
+   */
+  onBeforeCreateStyle: () => void
+}
 
 type FontFeature = {
   tag: string
@@ -13,6 +30,9 @@ type FontPayload = {
   font: Font
   features: string[]
 }
+
+// https://chromium.googlesource.com/chromium/blink/+/refs/heads/main/Source/platform/fonts/opentype/OpenTypeSanitizer.cpp#70
+const MAX_WEB_FONT_SIZE = 30 * 1024 * 1024 // MB
 
 /**
  * Fonts that can be parsed by opentype
@@ -26,14 +46,15 @@ const supportedExtensions: ReadonlySet<FontExtension> = new Set<FontExtension>([
 
 class FontLoader {
   private opts: FontLoaderOptions
+  private worker: Worker | null = null
   /**
    * True if the font can be parsed by Opentype, false otherwise
    */
-  public supported: boolean
+  public isSupported: boolean
 
   constructor(opts: FontLoaderOptions) {
     this.opts = opts
-    this.supported = supportedExtensions.has(this.opts.fileExtension)
+    this.isSupported = supportedExtensions.has(this.opts.fileExtension)
   }
 
   public getFontMimeType(): string {
@@ -57,37 +78,28 @@ class FontLoader {
 
   /**
    * Creates and inserts a <style> element with the loaded font. This allows
-   * the font to be accessed anywhere in a stylesheet.
+   * the font to be accessed anywhere in a stylesheet. If the worker was successfully
+   * initialized, this will be done off of the main thread to spare resources.
+   * Otherwise, this will be done synchronously
    */
-  public insertStyle(arrayBuffer: ArrayBuffer): void {
-    const style = document.createElement('style')
-    const mimeType = this.getFontMimeType()
-    const base64Content = base64ArrayBuffer(arrayBuffer)
-
-    // Using var() in the template string doesn't load the font family
-    // so it has to be grabbed from the root element
-    const fontFamilyName = getCSSVar('--font-family-name')
-
-    style.id = 'font-preview'
-    style.innerHTML = /* css */ `
-        @font-face {
-          font-family: ${fontFamilyName};
-          src:
-            url("data:font/${mimeType};base64,${base64Content}")
-            format("${mimeType}");
-        }`
-
-    document.head.insertAdjacentElement('beforeend', style)
-  }
-
-  private async fetchFileBuffer(): Promise<ArrayBuffer> {
-    const res = await fetch(this.opts.fileUrl)
-    const buffer = await res.arrayBuffer()
-    return buffer
+  public insertStyle(buffer: ArrayBuffer): void {
+    if (this.worker && this.opts.config.useWorker) {
+      this.insertStyleWithWorker(buffer)
+    } else {
+      this.insertStyleSync(buffer)
+    }
   }
 
   public async loadFont(): Promise<FontPayload> {
+    if (!this.worker) {
+      this.worker = await this.initWorker()
+    }
+
     const { fileExtension } = this.opts
+
+    if (this.opts.fileSize <= MAX_WEB_FONT_SIZE) {
+      this.opts.onBeforeCreateStyle()
+    }
 
     // WOFF2 needs to be decompressed so we need to use the file data
     // coming from VSCode instead of fetching it
@@ -96,7 +108,9 @@ class FontLoader {
         ? new Uint8Array(this.opts.fileContent).buffer
         : await this.fetchFileBuffer()
 
-    this.insertStyle(buffer)
+    if (this.opts.fileSize <= MAX_WEB_FONT_SIZE) {
+      this.insertStyle(buffer)
+    }
 
     // Opentype can't parse some font types (like ttc). In that case, we don't
     // wan't to throw an error since those fonts can still be rendered in the window so
@@ -131,7 +145,71 @@ class FontLoader {
         .filter(str => !!str.trim())
     )
 
-    return { font, features: Array.from(features) }
+    return {
+      font,
+      features: Array.from(features)
+    }
+  }
+
+  private async fetchFileBuffer(): Promise<ArrayBuffer> {
+    const res = await fetch(this.opts.fileUrl)
+    const buffer = await res.arrayBuffer()
+    return buffer
+  }
+
+  private async initWorker(): Promise<Worker | null> {
+    // Workers are only supported using data: or blob: uris so
+    // we need to use fetch and load the worker src as a blob
+    // https://github.com/Microsoft/vscode-docs/blob/main/api/extension-guides/webview.md#using-web-workers
+    try {
+      const res = await fetch(workerUrl)
+      const blob = await res.blob()
+      const blobUrl = URL.createObjectURL(blob)
+      const worker = new Worker(blobUrl, { type: 'module' })
+
+      return worker
+    } catch (err: unknown) {
+      // eslint-disable-next-line no-console
+      console.error(`Failed to initialize worker: ${err}`)
+      return null
+    }
+  }
+
+  private insertStyleSync(buffer: ArrayBuffer): void {
+    const base64Content = base64ArrayBuffer(buffer)
+    this.addStyleToDom(base64Content)
+  }
+
+  private insertStyleWithWorker(buffer: ArrayBuffer): void {
+    // Shouldn't make it here but just in case...
+    if (!this.worker) {
+      this.insertStyleSync(buffer)
+      return
+    }
+
+    this.worker.onmessage = ({ data }: MessageEvent<string>) => this.addStyleToDom(data)
+    this.worker.postMessage(buffer)
+  }
+
+  private addStyleToDom(base64Font: string): void {
+    // Using var() in the template string doesn't load the font family
+    // so it has to be grabbed from the root element
+    const fontFamilyName = getCSSVar('--font-family-name')
+    const style = document.createElement('style')
+    const mimeType = this.getFontMimeType()
+
+    style.id = 'font-preview'
+    style.innerHTML = /* css */ `
+        @font-face {
+          font-family: ${fontFamilyName};
+          src:
+            url("data:font/${mimeType};base64,${base64Font}")
+            format("${mimeType}");
+        }`
+
+    document.head.insertAdjacentElement('beforeend', style)
+
+    this.opts.onStyleCreated()
   }
 }
 

@@ -12,7 +12,8 @@
     "isolatedModules": true,
     "outDir": "web-dist",
     "jsx": "react",
-    "rootDir": "."
+    "rootDir": ".",
+    "module": "es2020"
   },
   "include": ["."],
   "exclude": ["node_modules"]
