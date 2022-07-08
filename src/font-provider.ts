@@ -66,6 +66,28 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
 
     panel.webview.html = this.getWebviewContent()
 
+    const colorThemeListener = vscode.window.onDidChangeActiveColorTheme(event => {
+      panel.webview.postMessage({
+        type: 'COLOR_THEME_CHANGE',
+        payload: event.kind
+      })
+    })
+
+    panel.webview.onDidReceiveMessage((message: WebviewMessage) => {
+      this.onDidReceiveMessage(panel, message)
+    })
+
+    panel.onDidChangeViewState(event => {
+      if (!event.webviewPanel.visible) {
+        this.shouldShowProgressNotification = false
+      }
+    })
+
+    panel.onDidDispose(() => {
+      this.shouldShowProgressNotification = false
+      colorThemeListener.dispose()
+    })
+
     panel.webview.postMessage({
       type: 'FONT_LOADED',
       payload: {
@@ -80,19 +102,6 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
         }
       }
     })
-
-    panel.webview.onDidReceiveMessage((message: WebviewMessage) =>
-      this.onDidReceiveMessage(panel, message)
-    )
-
-    const colorThemeListener = vscode.window.onDidChangeActiveColorTheme(event => {
-      panel.webview.postMessage({
-        type: 'COLOR_THEME_CHANGE',
-        payload: event.kind
-      })
-    })
-
-    panel.onDidDispose(() => colorThemeListener.dispose())
   }
 
   private onDidReceiveMessage(panel: TypedWebviewPanel, message: WebviewMessage): void {

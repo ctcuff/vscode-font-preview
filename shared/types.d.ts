@@ -29,6 +29,7 @@ export type Config = {
 export type FontLoadEvent = {
   type: 'FONT_LOADED'
   payload: {
+    config: Config
     fileSize: number
     fileExtension: FontExtension
     fileName: string
@@ -47,7 +48,6 @@ export type FontLoadEvent = {
      * will just be an empty array
      */
     fileContent: number[]
-    config: Config
   }
 }
 

@@ -2,14 +2,8 @@
 
 $borderRadius: 6px;
 
-@mixin breakpoint-max() {
+@mixin breakpoint() {
   @media screen and (max-width: 1000px) {
-    @content;
-  }
-}
-
-@mixin breakpoint-min() {
-  @media screen and (min-width: 1001px) {
     @content;
   }
 }
@@ -24,9 +18,9 @@ $borderRadius: 6px;
   max-height: 685px;
   max-width: 993px;
   border-radius: $borderRadius;
-  padding: 0 32px;
+  margin: 0 32px;
 
-  @include breakpoint-max() {
+  @include breakpoint() {
     overflow: overlay;
   }
 
@@ -47,14 +41,15 @@ $borderRadius: 6px;
     display: flex;
     flex-direction: row;
     align-items: center;
-    padding: 5em 3em 5em 3em;
+    padding: 5em 0 3em 3em;
     box-sizing: border-box;
     margin: 0 auto;
     justify-content: center;
     position: relative;
     border-radius: $borderRadius;
 
-    @include breakpoint-max() {
+    @include breakpoint() {
+      padding: 4em 4em 2em 4em;
       flex-direction: column;
     }
   }
@@ -91,17 +86,18 @@ $borderRadius: 6px;
     margin-top: 1em;
     display: flex;
     flex-direction: column;
+    padding-right: 3em;
+    overflow: auto;
+    max-height: 500px;
+    max-width: 350px;
 
-    @include breakpoint-min() {
-      overflow: auto;
-      max-height: 500px;
-      max-width: 350px;
-    }
-
-    @include breakpoint-max() {
+    @include breakpoint() {
       margin-left: 0;
       margin-top: 3em;
       width: 100%;
+      padding-right: 0;
+      max-width: 516px;
+      max-height: 100%;
     }
   }
 
@@ -123,7 +119,7 @@ $borderRadius: 6px;
       }
     }
 
-    @include breakpoint-max() {
+    @include breakpoint() {
       margin-bottom: 1em;
 
       td:last-child {
@@ -147,7 +143,6 @@ $borderRadius: 6px;
 
   .toggle-list {
     margin: 2em 0 1em 0;
-    padding-left: 1em;
   }
 
   .feature-toggle {

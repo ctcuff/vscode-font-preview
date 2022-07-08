@@ -14,17 +14,6 @@ div.react-toast {
   }
 }
 
-div.Toastify__progress-bar--default {
-  background: linear-gradient(
-    -45deg,
-    var(--vscode-textLink-foreground),
-    var(--vscode-textLink-activeForeground),
-    var(--vscode-progressBar-background)
-  );
-  background-size: 400% 400%;
-  animation: toast-gradient 1s ease infinite;
-}
-
 .react-toast__enter {
   animation: toast-slide-up 0.3s ease-in-out both;
 }
