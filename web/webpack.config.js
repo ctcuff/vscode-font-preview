@@ -1,5 +1,6 @@
 const path = require('path')
 const WorkerPlugin = require('worker-plugin')
+const ESLintPlugin = require('eslint-webpack-plugin')
 
 /**@type {import('webpack').Configuration}*/
 module.exports = {
@@ -20,14 +21,14 @@ module.exports = {
   resolve: {
     extensions: ['.ts', '.js', '.tsx', '.json']
   },
-  plugins: [new WorkerPlugin()],
+  plugins: [new WorkerPlugin(), new ESLintPlugin()],
   module: {
     rules: [
       {
         test: /\.(ts|js)x?$/,
         include: path.resolve(__dirname, '../web'),
         exclude: /node_modules/,
-        use: ['babel-loader', 'eslint-loader']
+        use: ['babel-loader']
       },
       {
         test: /\.(css|scss)$/,
