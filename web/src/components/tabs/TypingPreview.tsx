@@ -60,7 +60,7 @@ const TypingPreview = (): JSX.Element => {
   // When the paragraph element gets mounted, focus it and
   // move the user's caret to the end of the sentence
   const paragraphRef = useRefWithCallback<HTMLDivElement>(paragraphNode => {
-    paragraphNode.focus()
+    paragraphNode.focus({ preventScroll: true })
 
     const range = document.createRange()
     const selection = window.getSelection()
