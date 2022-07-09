@@ -55,13 +55,14 @@ const pathToSVG = (path: Path): string => {
 function renderTableRow<T>(
   object: T,
   property: keyof T,
-  displayName?: string
+  displayName?: string,
+  numberPrecision = 2
 ): JSX.Element {
   const objectProperty = object[property]
   let displayProperty: T[keyof T] | string = objectProperty
 
   if (typeof displayProperty === 'number') {
-    displayProperty = displayProperty.toFixed(2)
+    displayProperty = displayProperty.toFixed(numberPrecision)
   }
 
   return (
@@ -177,7 +178,7 @@ const GlyphInspectorModal = ({
                 <td>unicode</td>
                 <td>{formatUnicode(glyph.unicode)}</td>
               </tr>
-              {renderTableRow(glyph, 'index')}
+              {renderTableRow(glyph, 'index', undefined, 0)}
               {renderTableRow(glyphMetrics, 'xMin')}
               {renderTableRow(glyphMetrics, 'xMax')}
               {renderTableRow(glyphMetrics, 'yMin')}

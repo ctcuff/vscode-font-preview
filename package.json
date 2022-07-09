@@ -80,7 +80,7 @@
     }
   },
   "scripts": {
-    "build": "npm-run-all -p build:*",
+    "build": "(rm -rf ./dist || true) && npm-run-all -p build:*",
     "build:extension": "webpack --mode production --devtool eval",
     "build:web": "cd ./web && yarn build",
     "format": "prettier --write './src/**/*{.js,.ts}' './web/**/*{.js,.jsx,.ts,.tsx,.scss}'",
