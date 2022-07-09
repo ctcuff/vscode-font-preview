@@ -3,7 +3,7 @@
   "displayName": "Font Preview",
   "description": "Preview fonts in VS Code",
   "license": "MIT",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "publisher": "ctcuff",
   "icon": "icon.png",
   "repository": {
@@ -72,7 +72,7 @@
           ]
         },
         "font-preview.useWorker": {
-          "description": "(Experimental) If true, VS Code will try to use a worker when loading the font. Fonts may load faster, but you may also see a small shift while the font loads. Disable this setting if you notice any weird behavior.",
+          "description": "If true, VS Code will try to use a worker when loading the font. Fonts may load faster, but you may also see a small shift while the font loads. Disable this setting if you notice any weird behavior.",
           "type": "boolean",
           "default": false
         }
