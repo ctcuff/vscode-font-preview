@@ -7,7 +7,7 @@ This version requires VS Code 1.56.0+
 ## Features
 
 - There's now an option to use a worker when lading a font. If enabled, VS Code will use a worker to create a base64 version of the font that can be rendered using `@font-face`. This setting can be enabled in the settings UI or in JSON with:
-  ```json
+  ```js
   {
     "font-preview.useWorker": <boolean> // false by default
   }
