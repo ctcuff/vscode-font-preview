@@ -1,9 +1,8 @@
 import '../scss/glyph-item.scss'
-import React, { useContext } from 'react'
+import React from 'react'
 import { Font, Glyph } from 'opentype.js'
 import useRefWithCallback from '../hooks/ref-with-callback'
 import { enableHighDPICanvas } from '../glyph-util'
-import FontContext from '../contexts/FontContext'
 import { getCSSVar } from '../util'
 
 const CELL_WIDTH = 120
@@ -17,9 +16,16 @@ const CANVAS_PADDING = 16
 type GlyphItemProps = {
   glyph: Glyph
   onClick: (glyph: Glyph) => void
+  font: Font
+  showGlyphWidth: boolean
 }
 
-const renderGlyph = (canvas: HTMLCanvasElement, font: Font, glyphIndex: number) => {
+const renderGlyph = (
+  canvas: HTMLCanvasElement,
+  font: Font,
+  glyphIndex: number,
+  showGlyphWidth: boolean
+) => {
   const context = canvas.getContext('2d')
 
   if (!context) {
@@ -45,10 +51,12 @@ const renderGlyph = (canvas: HTMLCanvasElement, font: Font, glyphIndex: number) 
   const xMin = (CELL_WIDTH - glyphWidth) / 2
   const xMax = (CELL_WIDTH + glyphWidth) / 2
 
-  context.fillRect(xMin - CELL_MARK_SIZE + 1, fontBaseline, CELL_MARK_SIZE, 1)
-  context.fillRect(xMin, fontBaseline, 1, CELL_MARK_SIZE)
-  context.fillRect(xMax, fontBaseline, CELL_MARK_SIZE, 1)
-  context.fillRect(xMax, fontBaseline, 1, CELL_MARK_SIZE)
+  if (showGlyphWidth) {
+    context.fillRect(xMin - CELL_MARK_SIZE + 1, fontBaseline, CELL_MARK_SIZE, 1)
+    context.fillRect(xMin, fontBaseline, 1, CELL_MARK_SIZE)
+    context.fillRect(xMax, fontBaseline, CELL_MARK_SIZE, 1)
+    context.fillRect(xMax, fontBaseline, 1, CELL_MARK_SIZE)
+  }
 
   // Not using glyph.draw() because the fill color defaults to black
   // https://github.com/opentypejs/opentype.js/issues/421#issuecomment-578496004
@@ -58,11 +66,15 @@ const renderGlyph = (canvas: HTMLCanvasElement, font: Font, glyphIndex: number) 
   path.draw(context)
 }
 
-const GlyphItem = ({ glyph, onClick }: GlyphItemProps): JSX.Element => {
-  const { font } = useContext(FontContext)
+const GlyphItem = ({
+  glyph,
+  onClick,
+  font,
+  showGlyphWidth
+}: GlyphItemProps): JSX.Element => {
   const setCanvasRef = useRefWithCallback<HTMLCanvasElement>(canvas => {
     enableHighDPICanvas(canvas, CELL_WIDTH, CELL_HEIGHT)
-    renderGlyph(canvas, font, glyph.index)
+    renderGlyph(canvas, font, glyph.index, showGlyphWidth)
   })
 
   return (

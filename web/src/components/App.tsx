@@ -131,7 +131,7 @@ const App = (): JSX.Element | null => {
     )
   }
 
-  if (!font) {
+  if (!font || !config) {
     return null
   }
 
@@ -152,7 +152,7 @@ const App = (): JSX.Element | null => {
           <Features />
         </Tab>
         <Tab title="Glyphs" id="Glyphs" visible={isFontSupported}>
-          <Glyphs />
+          <Glyphs config={config} />
         </Tab>
         <Tab title="Waterfall" id="Waterfall">
           <Waterfall />

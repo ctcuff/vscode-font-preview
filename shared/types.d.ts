@@ -10,9 +10,6 @@ export type FontExtension = 'otf' | 'ttc' | 'ttf' | 'woff' | 'woff2'
  * package.json
  */
 export type Config = {
-  /**
-   * Controls the starting tab of the preview.
-   */
   defaultTab:
     | 'Preview'
     | 'Features'
@@ -20,7 +17,8 @@ export type Config = {
     | 'Waterfall'
     | 'Type Yourself'
     | 'License'
-  useWorker: boolean
+  useWorker: boolean,
+  showGlyphWidth: boolean
 }
 
 /**

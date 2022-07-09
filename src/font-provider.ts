@@ -3,7 +3,7 @@ import * as path from 'path'
 import html from './index.html'
 import { template } from './util'
 import FontDocument from './font-document'
-import { WebviewMessage } from '../shared/types'
+import { Config, WebviewMessage } from '../shared/types'
 import { ExtensionConfiguration, TypedWebviewPanel } from './types/overrides'
 
 // https://chromium.googlesource.com/chromium/blink/+/refs/heads/main/Source/platform/fonts/opentype/OpenTypeSanitizer.cpp#70
@@ -41,9 +41,6 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
 
     const fileUri = panel.webview.asWebviewUri(document.uri)
     const fileSize = await document.size()
-    const config = vscode.workspace.getConfiguration(
-      'font-preview'
-    ) as ExtensionConfiguration
 
     let fileContent: number[] = []
 
@@ -96,10 +93,7 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
         fileUrl: `${fileUri.scheme}://${fileUri.authority}${fileUri.path}`,
         fileName: document.fileName,
         fileExtension: document.extension,
-        config: {
-          defaultTab: config.get('defaultTab'),
-          useWorker: config.get('useWorker')
-        }
+        config: this.getAllConfig()
       }
     })
   }
@@ -115,26 +109,30 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
       case 'INFO':
         vscode.window.showInformationMessage(message.payload)
         break
-      case 'GET_CONFIG': {
-        const config = vscode.workspace.getConfiguration(
-          'font-preview'
-        ) as ExtensionConfiguration
-
+      case 'GET_CONFIG':
         panel.webview.postMessage({
           type: 'CONFIG_LOADED',
-          payload: {
-            defaultTab: config.get('defaultTab'),
-            useWorker: config.get('useWorker')
-          }
+          payload: this.getAllConfig()
         })
         break
-      }
       case 'PROGRESS_START':
         this.showProgressNotification(panel)
         break
       case 'PROGRESS_STOP':
         this.shouldShowProgressNotification = false
         break
+    }
+  }
+
+  private getAllConfig(): Config {
+    const config = vscode.workspace.getConfiguration(
+      'font-preview'
+    ) as ExtensionConfiguration
+
+    return {
+      defaultTab: config.get('defaultTab'),
+      useWorker: config.get('useWorker'),
+      showGlyphWidth: config.get('showGlyphWidth')
     }
   }
 
