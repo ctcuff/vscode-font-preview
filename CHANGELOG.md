@@ -9,13 +9,13 @@ This version requires VS Code 1.56.0+
 - There's now an option to use a worker when lading a font. If enabled, VS Code will use a worker to create a base64 version of the font that can be rendered using `@font-face`. This setting can be enabled in the settings UI or in JSON with:
   ```js
   {
-    "font-preview.useWorker": <boolean> // false by default
+    "font-preview.useWorker": <boolean> // true by default
   }
   ```
 - The glyph inspector now has toggles that can enable/disable certain rendering options
 
     <div align="center">
-        <img width="800" alt="Screen Shot 2022-07-09 at 4 33 47 PM" src="https://user-images.githubusercontent.com/7400747/178122503-eb35290f-bec8-494b-8583-67f9ecc5b632.png">
+      <img width="800" alt="Screen Shot 2022-07-09 at 4 33 47 PM" src="https://user-images.githubusercontent.com/7400747/178122503-eb35290f-bec8-494b-8583-67f9ecc5b632.png">
     </div>
 
 ## Enhancements

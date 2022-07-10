@@ -74,7 +74,7 @@
         "font-preview.useWorker": {
           "description": "If enabled, VS Code will try to use a worker when loading the font. Fonts may load faster, but you may also see a small shift while the font loads. Disable this setting if you notice any weird behavior.",
           "type": "boolean",
-          "default": false
+          "default": true
         },
         "font-preview.showGlyphWidth": {
           "description": "Show the glyph's width in the cell.",
