@@ -7,12 +7,16 @@ import FontNameHeader from '../FontNameHeader'
 import GlyphInspectorModal from '../GlyphInspectorModal'
 import Chip from '../Chip'
 import GlyphItem from '../GlyphItem'
-import { WebviewMessage } from '../../../../shared/types'
+import { WorkspaceConfig, WebviewMessage } from '../../../../shared/types'
 import useRefWithCallback from '../../hooks/ref-with-callback'
+
+type GlyphProps = {
+  config: WorkspaceConfig
+}
 
 const GLYPHS_PER_PAGE = 200
 
-const Glyphs = (): JSX.Element => {
+const Glyphs = ({ config }: GlyphProps): JSX.Element => {
   const { font } = useContext(FontContext)
   const [glyphs, setGlyphs] = useState<Glyph[]>([])
   const [isModalOpen, setModalOpen] = useState(false)
@@ -104,7 +108,13 @@ const Glyphs = (): JSX.Element => {
   const glyphComponent = useMemo(
     () =>
       glyphs.map(glyph => (
-        <GlyphItem glyph={glyph} key={glyph.index} onClick={onSelectGlyph} />
+        <GlyphItem
+          glyph={glyph}
+          key={glyph.index}
+          onClick={onSelectGlyph}
+          font={font}
+          config={config}
+        />
       )),
     [glyphs]
   )

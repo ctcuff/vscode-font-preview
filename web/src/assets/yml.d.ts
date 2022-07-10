@@ -5,7 +5,7 @@ declare module '*sample.yml' {
      */
     id: string
     /**
-     * Where sample text came from
+     * Where the sample text came from
      */
     source: string
     /**

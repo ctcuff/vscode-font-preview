@@ -1,4 +1,4 @@
-import type { Config, WebviewMessage } from '../../shared/types'
+import type { WorkspaceConfig, WebviewMessage } from '../../shared/types'
 import type { Webview, WebviewPanel, WorkspaceConfiguration } from 'vscode'
 
 /**
@@ -13,6 +13,6 @@ export interface TypedWebviewPanel extends WebviewPanel {
   webview: TypedWebview
 }
 
-export interface ExtensionConfiguration extends WorkspaceConfiguration {
-  get<T extends keyof Config>(section: T): Config[T]
+export interface TypedWorkspaceConfiguration extends WorkspaceConfiguration {
+  get<T extends keyof WorkspaceConfig>(section: T): WorkspaceConfig[T]
 }

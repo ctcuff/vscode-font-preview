@@ -1,9 +1,5 @@
-/* eslint-disable */
-// @ts-ignore
-// Ignored because TypeScript doesn't have type definitions
-// for webpack's inline loader (maybe fix this???)
+// eslint-disable-next-line import/no-webpack-loader-syntax, import/no-unresolved
 import workerUrl from 'worker-plugin/loader!./font-worker'
-/* eslint-enable */
 import opentype, { Font } from 'opentype.js'
 import { FontExtension, FontLoadEvent } from '../../shared/types'
 import FontLoadError from './font-load-error'
@@ -12,6 +8,7 @@ import { base64ArrayBuffer, getCSSVar } from './util'
 type FontLoaderOptions = FontLoadEvent['payload'] & {
   /**
    * Dispatched when the <style> element was successfully added to the DOM
+   * and the font face has been loaded
    */
   onStyleCreated: () => void
   /**
@@ -55,6 +52,7 @@ class FontLoader {
   constructor(opts: FontLoaderOptions) {
     this.opts = opts
     this.isSupported = supportedExtensions.has(this.opts.fileExtension)
+    document.fonts.onloadingdone = this.opts.onStyleCreated
   }
 
   public getFontMimeType(): string {
@@ -97,6 +95,8 @@ class FontLoader {
 
     const { fileExtension } = this.opts
 
+    // Because Chromium won't load a font if it's too large, there's
+    // no point in dispatching the event if a font exceeds that size
     if (this.opts.fileSize <= MAX_WEB_FONT_SIZE) {
       this.opts.onBeforeCreateStyle()
     }
@@ -208,8 +208,6 @@ class FontLoader {
         }`
 
     document.head.insertAdjacentElement('beforeend', style)
-
-    this.opts.onStyleCreated()
   }
 }
 

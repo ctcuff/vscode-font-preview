@@ -1,7 +1,7 @@
 import '../scss/tab-view.scss'
 import React from 'react'
 import { Tabs, TabList, TabPanel, Tab as ReactTab } from 'react-tabs'
-import { Config } from '../../../shared/types'
+import { WorkspaceConfig } from '../../../shared/types'
 
 type TabProps = {
   // These props are accessed in the TabView component
@@ -15,7 +15,7 @@ type TabViewProps = {
   children: React.ReactElement<TabProps>[]
   className?: string
   panelClassName?: string
-  defaultTabId: Config['defaultTab'] | null
+  defaultTabId: WorkspaceConfig['defaultTab'] | null
 }
 
 /**

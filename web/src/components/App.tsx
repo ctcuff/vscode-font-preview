@@ -7,7 +7,7 @@ import TabView, { Tab } from './TabView'
 import FontPreview from './tabs/FontPreview'
 import Glyphs from './tabs/Glyphs'
 import FontContext from '../contexts/FontContext'
-import { Config, FontLoadEvent, WebviewMessage } from '../../../shared/types'
+import { WorkspaceConfig, FontLoadEvent, WebviewMessage } from '../../../shared/types'
 import VscodeContext from '../contexts/VscodeContext'
 import Features from './tabs/Features'
 import Waterfall from './tabs/Waterfall'
@@ -22,7 +22,7 @@ const App = (): JSX.Element | null => {
   const [isFontSupported, setIsFontSupported] = useState(false)
   const [fontFeatures, setFontFeatures] = useState<string[]>([])
   const [error, setError] = useState<string | null>(null)
-  const [config, setConfig] = useState<Config | null>(null)
+  const [config, setConfig] = useState<WorkspaceConfig | null>(null)
   const vscode = useContext(VscodeContext)
   const savedState = vscode.getState()
 
@@ -43,6 +43,7 @@ const App = (): JSX.Element | null => {
     } catch (err: unknown) {
       // eslint-disable-next-line no-console
       console.error(err)
+      vscode.postMessage({ type: 'PROGRESS_STOP' })
       setError(`An error occurred while parsing this font: ${(err as Error).message}`)
     }
   }
@@ -131,7 +132,7 @@ const App = (): JSX.Element | null => {
     )
   }
 
-  if (!font) {
+  if (!font || !config) {
     return null
   }
 
@@ -152,7 +153,7 @@ const App = (): JSX.Element | null => {
           <Features />
         </Tab>
         <Tab title="Glyphs" id="Glyphs" visible={isFontSupported}>
-          <Glyphs />
+          <Glyphs config={config} />
         </Tab>
         <Tab title="Waterfall" id="Waterfall">
           <Waterfall />
