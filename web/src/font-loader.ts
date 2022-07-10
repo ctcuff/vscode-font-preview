@@ -1,9 +1,5 @@
-/* eslint-disable */
-// @ts-ignore
-// Ignored because TypeScript doesn't have type definitions
-// for webpack's inline loader (maybe fix this???)
+// eslint-disable-next-line import/no-webpack-loader-syntax, import/no-unresolved
 import workerUrl from 'worker-plugin/loader!./font-worker'
-/* eslint-enable */
 import opentype, { Font } from 'opentype.js'
 import { FontExtension, FontLoadEvent } from '../../shared/types'
 import FontLoadError from './font-load-error'
