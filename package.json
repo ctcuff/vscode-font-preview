@@ -80,6 +80,11 @@
           "description": "Show the glyph's width in the cell.",
           "type": "boolean",
           "default": true
+        },
+        "font-preview.showGlyphIndex": {
+          "description": "Show the index of the glyph in the left corner of the cell",
+          "type": "boolean",
+          "default": true
         }
       }
     }
@@ -88,11 +93,11 @@
     "build": "(rm -rf ./dist || true) && npm-run-all -p build:*",
     "build:extension": "webpack --mode production --devtool eval",
     "build:web": "cd ./web && yarn build",
-    "format": "prettier --write './src/**/*{.js,.ts}' './web/**/*{.js,.jsx,.ts,.tsx,.scss}'",
+    "format": "prettier --write './shared/**/*{.js,.ts}' './src/**/*{.js,.ts}' './web/**/*{.js,.jsx,.ts,.tsx,.scss}'",
     "lint": "yarn lint:web && yarn lint:extension",
     "lint:web": "cd ./web && yarn lint",
     "lint:extension": "eslint './src/**/*{.js,.ts}'",
-    "package": "vsce package",
+    "package": "vsce package --no-update-package-json",
     "postinstall": "cd web && yarn",
     "precommit": "lint-staged",
     "prepare": "husky install",

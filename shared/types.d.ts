@@ -7,9 +7,10 @@ export type FontExtension = 'otf' | 'ttc' | 'ttf' | 'woff' | 'woff2'
 
 /**
  * Represents settings taken from `Configuration` object in
- * package.json
+ * package.json. The keys of this object should always match
+ * the ID of the setting
  */
-export type Config = {
+export type WorkspaceConfig = {
   defaultTab:
     | 'Preview'
     | 'Features'
@@ -17,8 +18,9 @@ export type Config = {
     | 'Waterfall'
     | 'Type Yourself'
     | 'License'
-  useWorker: boolean,
+  useWorker: boolean
   showGlyphWidth: boolean
+  showGlyphIndex: boolean
 }
 
 /**
@@ -27,7 +29,7 @@ export type Config = {
 export type FontLoadEvent = {
   type: 'FONT_LOADED'
   payload: {
-    config: Config
+    config: WorkspaceConfig
     fileSize: number
     fileExtension: FontExtension
     fileName: string
@@ -58,11 +60,11 @@ export type ConfigRequestEvent = {
 
 /**
  * Dispatched by the extension to the webview. Contains the current
- * extension settings as a {@link Config} object
+ * extension settings as a {@link WorkspaceConfig} object
  */
 export type ConfigLoadEvent = {
   type: 'CONFIG_LOADED'
-  payload: Config
+  payload: WorkspaceConfig
 }
 
 /**

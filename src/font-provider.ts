@@ -3,8 +3,8 @@ import * as path from 'path'
 import html from './index.html'
 import { template } from './util'
 import FontDocument from './font-document'
-import { Config, WebviewMessage } from '../shared/types'
-import { ExtensionConfiguration, TypedWebviewPanel } from './types/overrides'
+import { WorkspaceConfig, WebviewMessage } from '../shared/types'
+import { TypedWorkspaceConfiguration, TypedWebviewPanel } from './types/overrides'
 
 // https://chromium.googlesource.com/chromium/blink/+/refs/heads/main/Source/platform/fonts/opentype/OpenTypeSanitizer.cpp#70
 const MAX_WEB_FONT_SIZE = 30 * 1024 * 1024 // MB
@@ -124,15 +124,16 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
     }
   }
 
-  private getAllConfig(): Config {
+  private getAllConfig(): WorkspaceConfig {
     const config = vscode.workspace.getConfiguration(
       'font-preview'
-    ) as ExtensionConfiguration
+    ) as TypedWorkspaceConfiguration
 
     return {
       defaultTab: config.get('defaultTab'),
       useWorker: config.get('useWorker'),
-      showGlyphWidth: config.get('showGlyphWidth')
+      showGlyphWidth: config.get('showGlyphWidth'),
+      showGlyphIndex: config.get('showGlyphIndex')
     }
   }
 

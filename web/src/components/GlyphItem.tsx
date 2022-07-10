@@ -1,9 +1,10 @@
 import '../scss/glyph-item.scss'
 import React from 'react'
-import { Font, Glyph } from 'opentype.js'
+import type { Font, Glyph } from 'opentype.js'
 import useRefWithCallback from '../hooks/ref-with-callback'
 import { enableHighDPICanvas } from '../glyph-util'
 import { getCSSVar } from '../util'
+import type { WorkspaceConfig } from '../../../shared/types'
 
 const CELL_WIDTH = 120
 const CELL_HEIGHT = 120
@@ -17,14 +18,14 @@ type GlyphItemProps = {
   glyph: Glyph
   onClick: (glyph: Glyph) => void
   font: Font
-  showGlyphWidth: boolean
+  config: WorkspaceConfig
 }
 
 const renderGlyph = (
   canvas: HTMLCanvasElement,
   font: Font,
   glyphIndex: number,
-  showGlyphWidth: boolean
+  config: WorkspaceConfig
 ) => {
   const context = canvas.getContext('2d')
 
@@ -33,11 +34,12 @@ const renderGlyph = (
   }
 
   context.clearRect(0, 0, CELL_WIDTH, CELL_HEIGHT)
-
   context.fillStyle = getCSSVar('--vscode-editor-foreground', '--theme-foreground')
-  context.font = `12px ${getCSSVar('--vscode-font-family', '--theme-font-family')}`
 
-  context.fillText(`${glyphIndex}`, 0, CELL_HEIGHT)
+  if (config.showGlyphIndex) {
+    context.font = `12px ${getCSSVar('--vscode-font-family', '--theme-font-family')}`
+    context.fillText(`${glyphIndex}`, 0, CELL_HEIGHT)
+  }
 
   const width = CELL_WIDTH - CELL_MARGIN_LEFT_RIGHT * 2
   const height = CELL_HEIGHT - CELL_MARGIN_TOP - CELL_MARGIN_BOTTOM
@@ -51,7 +53,7 @@ const renderGlyph = (
   const xMin = (CELL_WIDTH - glyphWidth) / 2
   const xMax = (CELL_WIDTH + glyphWidth) / 2
 
-  if (showGlyphWidth) {
+  if (config.showGlyphWidth) {
     context.fillRect(xMin - CELL_MARK_SIZE + 1, fontBaseline, CELL_MARK_SIZE, 1)
     context.fillRect(xMin, fontBaseline, 1, CELL_MARK_SIZE)
     context.fillRect(xMax, fontBaseline, CELL_MARK_SIZE, 1)
@@ -66,15 +68,10 @@ const renderGlyph = (
   path.draw(context)
 }
 
-const GlyphItem = ({
-  glyph,
-  onClick,
-  font,
-  showGlyphWidth
-}: GlyphItemProps): JSX.Element => {
+const GlyphItem = ({ glyph, onClick, font, config }: GlyphItemProps): JSX.Element => {
   const setCanvasRef = useRefWithCallback<HTMLCanvasElement>(canvas => {
     enableHighDPICanvas(canvas, CELL_WIDTH, CELL_HEIGHT)
-    renderGlyph(canvas, font, glyph.index, showGlyphWidth)
+    renderGlyph(canvas, font, glyph.index, config)
   })
 
   return (

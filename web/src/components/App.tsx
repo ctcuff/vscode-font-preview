@@ -7,7 +7,7 @@ import TabView, { Tab } from './TabView'
 import FontPreview from './tabs/FontPreview'
 import Glyphs from './tabs/Glyphs'
 import FontContext from '../contexts/FontContext'
-import { Config, FontLoadEvent, WebviewMessage } from '../../../shared/types'
+import { WorkspaceConfig, FontLoadEvent, WebviewMessage } from '../../../shared/types'
 import VscodeContext from '../contexts/VscodeContext'
 import Features from './tabs/Features'
 import Waterfall from './tabs/Waterfall'
@@ -22,7 +22,7 @@ const App = (): JSX.Element | null => {
   const [isFontSupported, setIsFontSupported] = useState(false)
   const [fontFeatures, setFontFeatures] = useState<string[]>([])
   const [error, setError] = useState<string | null>(null)
-  const [config, setConfig] = useState<Config | null>(null)
+  const [config, setConfig] = useState<WorkspaceConfig | null>(null)
   const vscode = useContext(VscodeContext)
   const savedState = vscode.getState()
 

@@ -7,11 +7,11 @@ import FontNameHeader from '../FontNameHeader'
 import GlyphInspectorModal from '../GlyphInspectorModal'
 import Chip from '../Chip'
 import GlyphItem from '../GlyphItem'
-import { Config, WebviewMessage } from '../../../../shared/types'
+import { WorkspaceConfig, WebviewMessage } from '../../../../shared/types'
 import useRefWithCallback from '../../hooks/ref-with-callback'
 
 type GlyphProps = {
-  config: Config
+  config: WorkspaceConfig
 }
 
 const GLYPHS_PER_PAGE = 200
@@ -113,7 +113,7 @@ const Glyphs = ({ config }: GlyphProps): JSX.Element => {
           key={glyph.index}
           onClick={onSelectGlyph}
           font={font}
-          showGlyphWidth={config.showGlyphWidth}
+          config={config}
         />
       )),
     [glyphs]
