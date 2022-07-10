@@ -12,6 +12,8 @@ export type RenderField =
   | 'fill'
   | 'points'
   | 'stroke'
+  | 'typoAscender'
+  | 'typoDescender'
   | 'width'
   | 'yMax'
   | 'yMin'
@@ -92,8 +94,8 @@ const renderTableInfo = (
     const glyphBaseline = GLYPH_MARGIN + (glyphHeight * head.yMax) / maxHeight
     const ypx = glyphBaseline - yUnits * glyphScale
 
-    context.fillText(text, 2, ypx + 3)
-    context.fillRect(80, ypx, width, 1)
+    context.fillText(text, 0, ypx + 3)
+    context.fillRect(100, ypx, width, 1)
   }
 
   context.clearRect(0, 0, width, height)
@@ -119,6 +121,14 @@ const renderTableInfo = (
 
   if (renderFields.includes('yMax')) {
     hLine('yMax', font.tables.head.yMax)
+  }
+
+  if (renderFields.includes('typoAscender') && font.tables.os2?.sTypoAscender) {
+    hLine('typo ascender', font.tables.os2.sTypoAscender)
+  }
+
+  if (renderFields.includes('typoDescender') && font.tables.os2?.sTypoDescender) {
+    hLine('typo descender', font.tables.os2.sTypoDescender)
   }
 }
 

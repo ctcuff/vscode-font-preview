@@ -62,7 +62,6 @@ const pathToSVG = (path: Path): string => {
 function renderTableRow<T>(
   object: T,
   property: keyof T,
-  displayName?: string,
   numberPrecision = 2
 ): JSX.Element {
   const objectProperty = object[property]
@@ -74,7 +73,7 @@ function renderTableRow<T>(
 
   return (
     <tr>
-      <td>{displayName || property}</td>
+      <td>{property}</td>
       <td>{displayProperty ?? '(null)'}</td>
     </tr>
   )
@@ -112,8 +111,10 @@ const copyGlyphToClipboard = (asSvg: boolean, glyph: Glyph, glyphPath: Path): vo
 
 const allRenderFields: RenderField[] = [
   'ascender',
-  'baseline',
   'descender',
+  'baseline',
+  'typoAscender',
+  'typoDescender',
   'fill',
   'points',
   'stroke',
@@ -194,7 +195,11 @@ const GlyphInspectorModal = ({
                 <td>unicode</td>
                 <td>{formatUnicode(glyph.unicode)}</td>
               </tr>
-              {renderTableRow(glyph, 'index', undefined, 0)}
+              {renderTableRow(glyph, 'index', 0)}
+              {renderTableRow(font, 'ascender')}
+              {renderTableRow(font.tables.os2, 'sTypoAscender')}
+              {renderTableRow(font, 'descender')}
+              {renderTableRow(font.tables.os2, 'sTypoDescender')}
               {renderTableRow(glyphMetrics, 'xMin')}
               {renderTableRow(glyphMetrics, 'xMax')}
               {renderTableRow(glyphMetrics, 'yMin')}
@@ -202,8 +207,6 @@ const GlyphInspectorModal = ({
               {renderTableRow(glyph, 'advanceWidth')}
               {renderTableRow(glyphMetrics, 'leftSideBearing')}
               {renderTableRow(glyphMetrics, 'rightSideBearing')}
-              {renderTableRow(font, 'ascender')}
-              {renderTableRow(font, 'descender')}
               <tr>
                 <td>contourPoints</td>
                 <td>{numPoints}</td>
