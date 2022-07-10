@@ -1,5 +1,5 @@
-import opentype, { Glyph, Font } from 'opentype.js'
 import React, { useContext } from 'react'
+import type { Glyph, Font, Path } from 'opentype.js'
 import FontContext from '../contexts/FontContext'
 import useRefWithCallback from '../hooks/ref-with-callback'
 import { enableHighDPICanvas } from '../glyph-util'
@@ -25,98 +25,45 @@ type GlyphCanvasProps = {
 
 const GLYPH_MARGIN = 16
 const MARK_SIZE = 15
-const ARROW_LENGTH = 10
-const ARROW_APERTURE = 6
 
-const drawArrow = (
-  ctx: CanvasRenderingContext2D,
-  x1: number,
-  y1: number,
-  x2: number,
-  y2: number
-) => {
-  const dx = x2 - x1
-  const dy = y2 - y1
-  const segmentLength = Math.sqrt(dx * dx + dy * dy)
-  const unitX = dx / segmentLength
-  const unitY = dy / segmentLength
-  const baseX = x2 - ARROW_LENGTH * unitX
-  const baseY = y2 - ARROW_LENGTH * unitY
-  const normalX = ARROW_APERTURE * unitY
-  const normalY = -ARROW_APERTURE * unitX
+const drawGlyphPath = (context: CanvasRenderingContext2D, path: Path) => {
+  context.beginPath()
 
-  ctx.beginPath()
-  ctx.moveTo(x2, y2)
-  ctx.lineTo(baseX + normalX, baseY + normalY)
-  ctx.lineTo(baseX - normalX, baseY - normalY)
-  ctx.lineTo(x2, y2)
-  ctx.closePath()
-  ctx.fill()
-}
-
-const drawPathWithArrows = (
-  ctx: CanvasRenderingContext2D,
-  path: opentype.Path,
-  renderFields: RenderField[]
-) => {
-  let i: number
-  let cmd: opentype.PathCommand
-  let x1: number | undefined
-  let y1: number | undefined
-  let x2: number | undefined
-  let y2: number | undefined
-  const arrows: [CanvasRenderingContext2D, number, number, number, number][] = []
-
-  ctx.beginPath()
-
-  for (i = 0; i < path.commands.length; i += 1) {
-    cmd = path.commands[i]
-    if (cmd.type === 'M') {
-      if (x1 !== undefined && y1 !== undefined && x2 !== undefined && y2 !== undefined) {
-        arrows.push([ctx, x1, y1, x2, y2])
-      }
-      ctx.moveTo(cmd.x, cmd.y)
-    } else if (cmd.type === 'L') {
-      ctx.lineTo(cmd.x, cmd.y)
-      x1 = x2
-      y1 = y2
-    } else if (cmd.type === 'C') {
-      ctx.bezierCurveTo(cmd.x1, cmd.y1, cmd.x2, cmd.y2, cmd.x, cmd.y)
-      x1 = cmd.x2
-      y1 = cmd.y2
-    } else if (cmd.type === 'Q') {
-      ctx.quadraticCurveTo(cmd.x1, cmd.y1, cmd.x, cmd.y)
-      x1 = cmd.x1
-      y1 = cmd.y1
-    } else if (cmd.type === 'Z') {
-      if (x1 !== undefined && y1 !== undefined && x2 !== undefined && y2 !== undefined) {
-        arrows.push([ctx, x1, y1, x2, y2])
-      }
-      ctx.closePath()
+  for (let i = 0; i < path.commands.length; i++) {
+    const cmd = path.commands[i]
+    switch (cmd.type) {
+      case 'M':
+        context.moveTo(cmd.x, cmd.y)
+        break
+      case 'L':
+        context.lineTo(cmd.x, cmd.y)
+        break
+      case 'C':
+        context.bezierCurveTo(cmd.x1, cmd.y1, cmd.x2, cmd.y2, cmd.x, cmd.y)
+        break
+      case 'Q':
+        context.quadraticCurveTo(cmd.x1, cmd.y1, cmd.x, cmd.y)
+        break
+      case 'Z':
+        context.closePath()
+        break
+      default:
+        break
     }
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    x2 = (cmd as any).x
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    y2 = (cmd as any).y
   }
 
   if (path.fill) {
-    ctx.fillStyle = path.fill
-    ctx.fill()
+    context.fillStyle = path.fill
+    context.fill()
   }
 
   if (path.stroke) {
-    ctx.strokeStyle = path.stroke
-    ctx.lineWidth = path.strokeWidth
-    ctx.stroke()
+    context.strokeStyle = path.stroke
+    context.lineWidth = path.strokeWidth
+    context.stroke()
   }
 
-  ctx.fillStyle = '#00FF00'
-
-  if (renderFields.includes('points')) {
-    arrows.forEach(arrow => drawArrow(...arrow))
-  }
+  context.fillStyle = '#00FF00'
 }
 
 const renderTableInfo = (
@@ -177,7 +124,7 @@ const renderTableInfo = (
 
 const renderGlyph = (
   canvas: HTMLCanvasElement,
-  font: opentype.Font,
+  font: Font,
   glyph: Glyph,
   renderFields: RenderField[]
 ) => {
@@ -232,7 +179,7 @@ const renderGlyph = (
     ? getCSSVar('--vscode-editor-foreground', '--theme-foreground')
     : 'transparent'
 
-  drawPathWithArrows(context, path, renderFields)
+  drawGlyphPath(context, path)
 
   if (renderFields.includes('points')) {
     glyph.drawPoints(context, xMin, glyphBaseline, glyphSize)

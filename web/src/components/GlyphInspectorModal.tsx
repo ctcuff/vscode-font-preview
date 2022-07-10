@@ -34,8 +34,15 @@ const formatUnicode = (unicode: number | undefined): string => {
 
 const pathToSVG = (path: Path): string => {
   const { x1, y1, x2, y2 } = path.getBoundingBox()
-  const w = (x2 - x1).toFixed(0)
-  const h = (y2 - y1).toFixed(0)
+
+  // Need to offset the svg a bit so it doesn't clip out of the view box
+  const offset = 2
+  const w = (x2 - x1 + offset).toFixed(0)
+  const h = (y2 - y1 + offset).toFixed(0)
+
+  // Centers the path withing the SVG
+  const viewBoxX = (x1 - offset / 2).toFixed(0)
+  const viewBoxY = (y1 - offset / 2).toFixed(0)
 
   // prettier-ignore
   return (
@@ -43,7 +50,7 @@ const pathToSVG = (path: Path): string => {
     '<svg ' +
       `width="${w}" ` +
       `height="${h}" ` +
-      `viewBox="${x1.toFixed(0)} ${y1.toFixed(0)} ${w} ${h}" ` +
+      `viewBox="${viewBoxX} ${viewBoxY} ${w} ${h}" ` +
       'fill="#808080" ' +
       'xmlns="http://www.w3.org/2000/svg"' +
     '>' +
@@ -124,6 +131,15 @@ const GlyphInspectorModal = ({
 }: GlyphInspectorModalProps): JSX.Element => {
   const glyphMetrics = useMemo(() => glyph.getMetrics(), [glyph])
   const glyphPath = useMemo(() => glyph.getPath(), [glyph])
+
+  const numPoints = useMemo(() => {
+    const contours = glyph.getContours().flat()
+
+    return contours.length > 0
+      ? contours.length
+      : glyphPath.commands.filter(({ type }) => type.toLowerCase() !== 'z').length
+  }, [glyph])
+
   const { font } = useContext(FontContext)
   const [renderFields, setRenderFields] = useState<RenderField[]>([
     'width',
@@ -188,6 +204,10 @@ const GlyphInspectorModal = ({
               {renderTableRow(glyphMetrics, 'rightSideBearing')}
               {renderTableRow(font, 'ascender')}
               {renderTableRow(font, 'descender')}
+              <tr>
+                <td>contourPoints</td>
+                <td>{numPoints}</td>
+              </tr>
               {renderTableRow(font, 'unitsPerEm')}
             </tbody>
           </table>

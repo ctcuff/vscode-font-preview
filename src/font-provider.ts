@@ -45,9 +45,9 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
     let fileContent: number[] = []
 
     if (fileSize > MAX_WEB_FONT_SIZE) {
-      vscode.window.showErrorMessage(
-        `This font exceeds than the maximum web font size (30 MB)
-        and cannot be rendered correctly.`
+      vscode.window.showWarningMessage(
+        `${document.fileName}.${document.extension} exceeds than the maximum
+        web font size (30 MB) and cannot be rendered correctly.`
       )
     }
 

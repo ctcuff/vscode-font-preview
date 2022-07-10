@@ -43,6 +43,7 @@ const App = (): JSX.Element | null => {
     } catch (err: unknown) {
       // eslint-disable-next-line no-console
       console.error(err)
+      vscode.postMessage({ type: 'PROGRESS_STOP' })
       setError(`An error occurred while parsing this font: ${(err as Error).message}`)
     }
   }
