@@ -143,13 +143,23 @@ $borderRadius: 6px;
 
   .toggle-list {
     margin: 2em 0 1em 0;
+    padding-left: 1em;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+
+    @include breakpoint() {
+      display: block;
+    }
   }
 
   .feature-toggle {
     margin-right: 42px;
     margin-bottom: 32px;
-    display: inline-flex;
-    flex-wrap: wrap;
+
+    @include breakpoint() {
+      display: inline-flex;
+      flex-wrap: wrap;
+    }
   }
 
   .feature-toggle .title {
