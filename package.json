@@ -30,8 +30,7 @@
     "Programming Languages"
   ],
   "activationEvents": [
-    "onCustomEditor:font.detail.preview",
-    "onStartupFinished"
+    "onCustomEditor:font.detail.preview"
   ],
   "main": "./dist/extension.js",
   "contributes": {
