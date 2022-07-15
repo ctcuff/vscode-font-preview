@@ -124,11 +124,11 @@ const renderTableInfo = (
   }
 
   if (renderFields.includes('typoAscender') && font.tables.os2?.sTypoAscender) {
-    hLine('typo ascender', font.tables.os2.sTypoAscender)
+    hLine('sTypoAscender', font.tables.os2.sTypoAscender)
   }
 
   if (renderFields.includes('typoDescender') && font.tables.os2?.sTypoDescender) {
-    hLine('typo descender', font.tables.os2.sTypoDescender)
+    hLine('sTypoDescender', font.tables.os2.sTypoDescender)
   }
 }
 
