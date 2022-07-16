@@ -9,7 +9,7 @@ export type RenderField =
   | 'ascender'
   | 'baseline'
   | 'descender'
-  | 'capHeight'
+  | 'sCapHeight'
   | 'fill'
   | 'points'
   | 'stroke'
@@ -133,8 +133,8 @@ const renderTableInfo = (
     hLine('sTypoDescender', font.tables.os2.sTypoDescender)
   }
 
-  if (renderFields.includes('capHeight') && font.tables.os2?.sCapHeight) {
-    hLine('capHeight', font.tables.os2.sCapHeight)
+  if (renderFields.includes('sCapHeight') && font.tables.os2?.sCapHeight) {
+    hLine('sCapHeight', font.tables.os2.sCapHeight)
   }
 
   if (renderFields.includes('sxHeight') && font.tables.os2?.sxHeight) {

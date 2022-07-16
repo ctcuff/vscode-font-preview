@@ -121,7 +121,7 @@ const allRenderFields: RenderField[] = [
   'sTypoAscender',
   'sTypoDescender',
   'fill',
-  'capHeight',
+  'sCapHeight',
   'points',
   'stroke',
   'sxHeight',
@@ -171,7 +171,7 @@ const GlyphInspectorModal = ({
       // table before rendering switches that can toggle these features
       case 'sTypoAscender':
       case 'sTypoDescender':
-      case 'capHeight':
+      case 'sCapHeight':
       case 'sxHeight':
         if (!font.tables.os2[field]) {
           return null
