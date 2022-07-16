@@ -1,5 +1,30 @@
 # Change Log
 
+# 2.2.0 - 2022/7/16
+
+This version requires VS Code 1.56.0+
+
+## Features
+- The glyph inspector has 4 new toggles: `sxHeight`, `capHeight`, `sTypoAscender`, and `sTypoDescender` (_these toggles may not be available for every font_)
+- The glyph inspector can now show the number of points for a glyph
+- Added 2 new settings: `font-preview.showGlyphWidth` (this toggles the lines in the glyph's cell that shows the width of the character) and `font-preview.showGlyphIndex` (this toggles the glyph index that shows in the bottom left corner of the cell). Both can be disabled/enabled with:
+
+  ```js
+  {
+    "font-preview.showGlyphWidth": <boolean>, // true by default
+    "font-preview.showGlyphIndex": <boolean>, // true by default
+  }
+  ```
+
+## Enhancements
+
+- The loading indicator in the status bar is a little more accurate and stops when the font has loaded and rendered completely
+- An error notification now displays if an [OTS parsing](https://chromium.googlesource.com/external/github.com/khaledhosny/ots/+/HEAD/docs/DesignDoc.md) error occurs
+
+## Bug Fixes
+- Fixed a bug causing the `Type Yourself` tab to scroll to the bottom immediately after the tab was loaded
+- Removed unnecessary extension activation event ([#5](https://github.com/ctcuff/vscode-font-preview/issues/5))
+
 # 2.1.0 - 2022/7/9
 
 This version requires VS Code 1.56.0+
@@ -38,7 +63,7 @@ This version requires VS Code 1.56.0+
 ## Features
 
 - Fonts can now be copied as an SVG
-- Fonts as large as 25MB can now be loaded ([#3](https://github.com/ctcuff/vscode-font-preview/issues/3)) (_**NOTE**: Web fonts larger than 30MB can be parsed but cannot be rendered as a displayable font face_ [Chromium source here](https://chromium.googlesource.com/chromium/blink/+/refs/heads/main/Source/platform/fonts/opentype/OpenTypeSanitizer.cpp#70))
+- Fonts as large as 30MB can now be loaded ([#3](https://github.com/ctcuff/vscode-font-preview/issues/3)) (_**NOTE**: Web fonts larger than 30MB can be parsed but cannot be rendered as a displayable font face_ [Chromium source here](https://chromium.googlesource.com/chromium/blink/+/refs/heads/main/Source/platform/fonts/opentype/OpenTypeSanitizer.cpp#70))
 - Added a modal that displays ascender, descender, baseline, and other information about a glyph from the `hhea` and `head` tables ([#4](https://github.com/ctcuff/vscode-font-preview/issues/4))
 - The `Glyph`, `Features`, and `License` tabs now work for WOFF2 fonts
 

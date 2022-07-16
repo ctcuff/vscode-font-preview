@@ -3,7 +3,7 @@
   "displayName": "Font Preview",
   "description": "Preview fonts in VS Code",
   "license": "MIT",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "publisher": "ctcuff",
   "icon": "icon.png",
   "repository": {
@@ -81,7 +81,7 @@
           "default": true
         },
         "font-preview.showGlyphIndex": {
-          "description": "Show the index of the glyph in the left corner of the cell",
+          "description": "Show the index of the glyph in the left corner of the cell.",
           "type": "boolean",
           "default": true
         }
