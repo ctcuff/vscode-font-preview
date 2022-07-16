@@ -31,7 +31,13 @@ const App = (): JSX.Element | null => {
       const fontLoader = new FontLoader({
         ...payload,
         onBeforeCreateStyle: () => vscode.postMessage({ type: 'PROGRESS_START' }),
-        onStyleCreated: () => vscode.postMessage({ type: 'PROGRESS_STOP' })
+        onStyleCreated: () => vscode.postMessage({ type: 'PROGRESS_STOP' }),
+        onLoadError: () => {
+          vscode.postMessage({
+            type: 'ERROR',
+            payload: "Parsing Error: Couldn't render font."
+          })
+        }
       })
 
       const { font: fontData, features } = await fontLoader.loadFont()

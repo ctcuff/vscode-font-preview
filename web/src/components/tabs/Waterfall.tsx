@@ -7,10 +7,14 @@ import Chip from '../Chip'
 // https://www.gutenberg.org/files/32522/32522-h/32522-h.htm
 const defaultDisplayText =
   'The ship was coasting evenly, in the hands of its invisible pilot.'
-const startingSize = 96
+const startingSize = 128
 const endSize = 8
 const decrementAmount = 8
 const sizes: number[] = []
+
+if (startingSize % 8 !== 0) {
+  throw new Error('startingSize must be a multiple of 8')
+}
 
 for (let i = startingSize; i >= endSize; i -= decrementAmount) {
   sizes.push(i)

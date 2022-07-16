@@ -17,6 +17,7 @@ type FontLoaderOptions = FontLoadEvent['payload'] & {
    * loaded is less than the maximum web font size (30 MB)
    */
   onBeforeCreateStyle: () => void
+  onLoadError: () => void
 }
 
 type FontFeature = {
@@ -52,7 +53,9 @@ class FontLoader {
   constructor(opts: FontLoaderOptions) {
     this.opts = opts
     this.isSupported = supportedExtensions.has(this.opts.fileExtension)
+
     document.fonts.onloadingdone = this.opts.onStyleCreated
+    document.fonts.onloadingerror = this.opts.onLoadError
   }
 
   public getFontMimeType(): string {
