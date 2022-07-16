@@ -9,11 +9,13 @@ export type RenderField =
   | 'ascender'
   | 'baseline'
   | 'descender'
+  | 'capHeight'
   | 'fill'
   | 'points'
   | 'stroke'
-  | 'typoAscender'
-  | 'typoDescender'
+  | 'sxHeight'
+  | 'sTypoAscender'
+  | 'sTypoDescender'
   | 'width'
   | 'yMax'
   | 'yMin'
@@ -123,12 +125,20 @@ const renderTableInfo = (
     hLine('yMax', font.tables.head.yMax)
   }
 
-  if (renderFields.includes('typoAscender') && font.tables.os2?.sTypoAscender) {
+  if (renderFields.includes('sTypoAscender') && font.tables.os2?.sTypoAscender) {
     hLine('sTypoAscender', font.tables.os2.sTypoAscender)
   }
 
-  if (renderFields.includes('typoDescender') && font.tables.os2?.sTypoDescender) {
+  if (renderFields.includes('sTypoDescender') && font.tables.os2?.sTypoDescender) {
     hLine('sTypoDescender', font.tables.os2.sTypoDescender)
+  }
+
+  if (renderFields.includes('capHeight') && font.tables.os2?.sCapHeight) {
+    hLine('capHeight', font.tables.os2.sCapHeight)
+  }
+
+  if (renderFields.includes('sxHeight') && font.tables.os2?.sxHeight) {
+    hLine('sxHeight', font.tables.os2.sxHeight)
   }
 }
 
@@ -177,6 +187,7 @@ const renderGlyph = (
 
   context.fillStyle = '#808080'
 
+  // Using getPath instead of drawPath so we can change the color of the fill
   const path = glyph.getPath(xMin, glyphBaseline, glyphSize)
 
   if (renderFields.includes('stroke')) {

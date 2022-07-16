@@ -63,8 +63,13 @@ function renderTableRow<T>(
   object: T,
   property: keyof T,
   numberPrecision = 2
-): JSX.Element {
+): JSX.Element | null {
   const objectProperty = object[property]
+
+  if (!objectProperty) {
+    return null
+  }
+
   let displayProperty: T[keyof T] | string = objectProperty
 
   if (typeof displayProperty === 'number') {
@@ -111,13 +116,15 @@ const copyGlyphToClipboard = (asSvg: boolean, glyph: Glyph, glyphPath: Path): vo
 
 const allRenderFields: RenderField[] = [
   'ascender',
-  'descender',
   'baseline',
-  'typoAscender',
-  'typoDescender',
+  'descender',
+  'sTypoAscender',
+  'sTypoDescender',
   'fill',
+  'capHeight',
   'points',
   'stroke',
+  'sxHeight',
   'yMax',
   'yMin',
   'width'
@@ -156,6 +163,42 @@ const GlyphInspectorModal = ({
     } else {
       setRenderFields(fields => fields.filter(value => value !== field))
     }
+  }
+
+  const renderSwitch = (field: RenderField) => {
+    switch (field) {
+      // These fields may not exist on ever font so we need to check the os2
+      // table before rendering switches that can toggle these features
+      case 'sTypoAscender':
+      case 'sTypoDescender':
+      case 'capHeight':
+      case 'sxHeight':
+        if (!font.tables.os2[field]) {
+          return null
+        }
+        break
+      default:
+        break
+    }
+
+    let switchTitle: string = field
+
+    if (field === 'sTypoAscender') {
+      switchTitle = 'sTypoAsc'
+    } else if (field === 'sTypoDescender') {
+      switchTitle = 'sTypoDesc'
+    }
+
+    return (
+      <Switch
+        key={field}
+        defaultChecked={renderFields.includes(field)}
+        htmlTitle={field}
+        title={switchTitle}
+        className="feature-toggle"
+        onChange={checked => toggleTableField(field, checked)}
+      />
+    )
   }
 
   return (
@@ -200,6 +243,8 @@ const GlyphInspectorModal = ({
               {renderTableRow(font.tables.os2, 'sTypoAscender')}
               {renderTableRow(font, 'descender')}
               {renderTableRow(font.tables.os2, 'sTypoDescender')}
+              {renderTableRow(font.tables.os2, 'sCapHeight')}
+              {renderTableRow(font.tables.os2, 'sxHeight')}
               {renderTableRow(glyphMetrics, 'xMin')}
               {renderTableRow(glyphMetrics, 'xMax')}
               {renderTableRow(glyphMetrics, 'yMin')}
@@ -214,17 +259,7 @@ const GlyphInspectorModal = ({
               {renderTableRow(font, 'unitsPerEm')}
             </tbody>
           </table>
-          <div className="toggle-list">
-            {allRenderFields.map(field => (
-              <Switch
-                key={field}
-                defaultChecked={renderFields.includes(field)}
-                title={field}
-                className="feature-toggle"
-                onChange={checked => toggleTableField(field, checked)}
-              />
-            ))}
-          </div>
+          <div className="toggle-list">{allRenderFields.map(renderSwitch)}</div>
           <div className="chip-actions">
             {glyph.unicode !== undefined && (
               <Chip
