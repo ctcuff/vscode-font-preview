@@ -16,7 +16,7 @@
   },
   "abvs": {
      "friendlyName": "Above-base Substitutions",
-     "description": "Substitutes a ligature for a base glyph and mark that’s above it.",
+     "description": "Substitutes a ligature for a base glyph and mark that's above it.",
      "href": "https://docs.microsoft.com/en-us/typography/opentype/spec/features_ae#tag-abvs"
   },
   "afrc": {
@@ -121,7 +121,7 @@
   },
   "dlig": {
      "friendlyName": "Discretionary Ligatures",
-     "description": "Replaces a sequence of glyphs with a single glyph which is preferred for typographic purposes. This feature covers those ligatures which may be used for special effect, at the user’s preference.",
+     "description": "Replaces a sequence of glyphs with a single glyph which is preferred for typographic purposes. This feature covers those ligatures which may be used for special effect, at the user's preference.",
      "href": "https://docs.microsoft.com/en-us/typography/opentype/spec/features_ae#tag-dlig"
   },
   "dnom": {
@@ -156,7 +156,7 @@
   },
   "fina": {
      "friendlyName": "Terminal Forms",
-     "description": "Replaces glyphs for characters that have applicable joining properties with an alternate form when occurring in a final context. This applies to characters that have one of the following Unicode Joining_Type property values:",
+     "description": "Replaces glyphs for characters that have applicable joining properties with an alternate form when occurring in a final context. This applies to characters that have one of the following Unicode Joining_Type property values: Right_Joining, if the characters are from a right-to-left script, Left_Joining, if the characters are from a left-to-right script, Dual_Joining. Unicode Joining_Type property values are obtained from the Unicode Character Database (UCD). Specifically, Joining_Type property values are documented in the UCD file, ArabicShaping.txt, the current version of which is available at http://www.unicode.org/Public/UCD/latest/ucd/ArabicShaping.txt.",
      "href": "https://docs.microsoft.com/en-us/typography/opentype/spec/features_fj#tag-fina"
   },
   "flac": {
@@ -221,17 +221,17 @@
   },
   "init": {
      "friendlyName": "Initial Forms",
-     "description": "Replaces glyphs for characters that have applicable joining properties with an alternate form when occurring in an initial context. This applies to characters that have one of the following Unicode Joining_Type property values:",
+     "description": "Replaces glyphs for characters that have applicable joining properties with an alternate form when occurring in an initial context. This applies to characters that have one of the following Unicode Joining_Type property values: Right_Joining, if the characters are from a left-to-right script, Left_Joining, if the characters are from a right-to-left script, Dual_Joining. Unicode Joining_Type property values are obtained from the Unicode Character Database (UCD). Specifically, Joining_Type property values are documented in the UCD file, ArabicShaping.txt, the current version of which is available at http://www.unicode.org/Public/UCD/latest/ucd/ArabicShaping.txt.",
      "href": "https://docs.microsoft.com/en-us/typography/opentype/spec/features_fj#tag-init"
   },
   "isol": {
      "friendlyName": "Isolated Forms",
-     "description": "Replaces glyphs for characters that have applicable joining properties with an alternate form when occurring in a isolate (non-joining) context. This applies to characters that have one of the following Unicode Joining_Type property values:",
+     "description": "Replaces glyphs for characters that have applicable joining properties with an alternate form when occurring in a isolate (non-joining) context. This applies to characters that have one of the following Unicode Joining_Type property values: Right_Joining, Left_Joining, Dual_Joining, Non_Joining, if the characters are from a script with joining behavior. Unicode Joining_Type property values are obtained from the Unicode Character Database (UCD). Specifically, Joining_Type property values are documented in the UCD file, ArabicShaping.txt, the current version of which is available at http://www.unicode.org/Public/UCD/latest/ucd/ArabicShaping.txt. Scripts that have joining behavior are those scripts with character properties given explicitly in ArabicShaping.txt. Note that, in many fonts that support the relevant scripts, this feature may not be implemented since the default forms of the relevant characters are the isolated forms. In some fonts, this feature may involve contextual substitution based on the specific, isolated context.",
      "href": "https://docs.microsoft.com/en-us/typography/opentype/spec/features_fj#tag-isol"
   },
   "ital": {
      "friendlyName": "Italics",
-     "description": "Some fonts (such as Adobe’s Pro Japanese fonts) will have both Roman and Italic forms of some characters in a single font. This feature replaces the Roman glyphs with the corresponding Italic glyphs.",
+     "description": "Some fonts (such as Adobe's Pro Japanese fonts) will have both Roman and Italic forms of some characters in a single font. This feature replaces the Roman glyphs with the corresponding Italic glyphs.",
      "href": "https://docs.microsoft.com/en-us/typography/opentype/spec/features_fj#tag-ital"
   },
   "jalt": {
@@ -471,7 +471,7 @@
   },
   "salt": {
      "friendlyName": "Stylistic Alternates",
-     "description": "Many fonts contain alternate glyph designs for a purely esthetic effect; these don’t always fit into a clear category like swash or historical. As in the case of swash glyphs, there may be more than one alternate form. This feature replaces the default forms with the stylistic alternates.",
+     "description": "Many fonts contain alternate glyph designs for a purely esthetic effect; these don't always fit into a clear category like swash or historical. As in the case of swash glyphs, there may be more than one alternate form. This feature replaces the default forms with the stylistic alternates.",
      "href": "https://docs.microsoft.com/en-us/typography/opentype/spec/features_pt#tag-salt"
   },
   "sinf": {
@@ -496,7 +496,7 @@
   },
   "ss01 - ss20": {
      "friendlyName": "Stylistic Set 1 - Stylistic Set 20",
-     "description": "In addition to, or instead of, stylistic alternatives of individual glyphs (see 'salt' feature), some fonts may contain sets of stylistic variant glyphs corresponding to portions of the character set, e.g. multiple variants for lowercase letters in a Latin font. Glyphs in stylistic sets may be designed to harmonise visually, interract in particular ways, or otherwise work together. Examples of fonts including stylistic sets are Zapfino Linotype and Adobe’s Poetica. Individual features numbered sequentially with the tag name convention 'ss01', 'ss02', 'ss03'… 'ss20' provide a mechanism for glyphs in these sets to be associated via GSUB lookup indices to default forms and to each other, and for users to select from available stylistic sets.",
+     "description": "In addition to, or instead of, stylistic alternatives of individual glyphs (see 'salt' feature), some fonts may contain sets of stylistic variant glyphs corresponding to portions of the character set, e.g. multiple variants for lowercase letters in a Latin font. Glyphs in stylistic sets may be designed to harmonise visually, interract in particular ways, or otherwise work together. Examples of fonts including stylistic sets are Zapfino Linotype and Adobe's Poetica. Individual features numbered sequentially with the tag name convention 'ss01', 'ss02', 'ss03'… 'ss20' provide a mechanism for glyphs in these sets to be associated via GSUB lookup indices to default forms and to each other, and for users to select from available stylistic sets.",
      "href": "https://docs.microsoft.com/en-us/typography/opentype/spec/features_pt#tag-ss01---ss20"
   },
   "ssty": {
@@ -596,7 +596,7 @@
   },
   "vkrn": {
      "friendlyName": "Vertical Kerning",
-     "description": "Adjusts amount of space between glyphs, generally to provide optically consistent spacing between glyphs. Although a well-designed typeface has consistent inter-glyph spacing overall, some glyph combinations require adjustment for improved legibility. Besides standard adjustment in the vertical direction, this feature can supply size-dependent kerning data via device tables, “cross-stream” kerning in the X text direction, and adjustment of glyph placement independent of the advance adjustment. Note that this feature may apply to runs of more than two glyphs, and would not be used in monospaced fonts. Also note that this feature applies only to text set vertically.",
+     "description": "Adjusts amount of space between glyphs, generally to provide optically consistent spacing between glyphs. Although a well-designed typeface has consistent inter-glyph spacing overall, some glyph combinations require adjustment for improved legibility. Besides standard adjustment in the vertical direction, this feature can supply size-dependent kerning data via device tables, \"cross-stream\" kerning in the X text direction, and adjustment of glyph placement independent of the advance adjustment. Note that this feature may apply to runs of more than two glyphs, and would not be used in monospaced fonts. Also note that this feature applies only to text set vertically.",
      "href": "https://docs.microsoft.com/en-us/typography/opentype/spec/features_uz#tag-vkrn"
   },
   "vpal": {
