@@ -3,12 +3,13 @@ import React from 'react'
 import { Tabs, TabList, TabPanel, Tab as ReactTab } from 'react-tabs'
 import { WorkspaceConfig } from '../../../shared/types'
 
+// These props are accessed in the TabView component
 type TabProps = {
-  // These props are accessed in the TabView component
   title: string // eslint-disable-line react/no-unused-prop-types
   visible?: boolean // eslint-disable-line react/no-unused-prop-types
   id: string // eslint-disable-line react/no-unused-prop-types
   children: React.ReactNode
+  forceRender?: boolean // eslint-disable-line react/no-unused-prop-types
 }
 
 type TabViewProps = {
@@ -54,6 +55,7 @@ const TabView = ({
 
       {tabs.map((tab, index) => (
         <TabPanel
+          forceRender={tab.props.forceRender}
           className={`tab-panel ${panelClassName}`}
           selectedClassName="tab-panel--selected"
           key={index}

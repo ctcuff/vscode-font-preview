@@ -1,4 +1,5 @@
 @import './variables';
+@import './mixins';
 
 .typing-preview {
   padding-bottom: 80vh;
@@ -34,6 +35,7 @@
   }
 
   .text-preview {
+    margin-top: 0;
     width: 100%;
     font-family: $fontFamilyName, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
       Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
@@ -55,5 +57,19 @@
   section {
     margin-bottom: 3em;
     background-color: var(--vscode-editor-background);
+  }
+}
+
+@include vscode-light('.typing-preview') {
+  .text-preview:hover {
+    outline: 1px solid #cccccc;
+    outline-offset: 4px;
+  }
+}
+
+@include vscode-dark('.typing-preview') {
+  .text-preview:hover {
+    outline: 1px solid #555555;
+    outline-offset: 4px;
   }
 }

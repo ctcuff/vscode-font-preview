@@ -146,7 +146,7 @@ const TypingPreview = (): JSX.Element => {
         />
         <Slider
           className="attribute-slider"
-          min={1}
+          min={0}
           max={5}
           step={0.01}
           value={lineHeight}

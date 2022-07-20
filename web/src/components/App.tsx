@@ -161,10 +161,10 @@ const App = (): JSX.Element | null => {
         <Tab title="Glyphs" id="Glyphs" visible={isFontSupported}>
           <Glyphs config={config} />
         </Tab>
-        <Tab title="Waterfall" id="Waterfall">
+        <Tab title="Waterfall" id="Waterfall" forceRender>
           <Waterfall />
         </Tab>
-        <Tab title="Type Yourself" id="Type Yourself">
+        <Tab title="Type Yourself" id="Type Yourself" forceRender>
           <TypingPreview />
         </Tab>
         <Tab title="License" id="License" visible={isFontSupported}>
