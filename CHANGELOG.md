@@ -1,5 +1,15 @@
 # Change Log
 
+# 2.2.1 - 2022/7/20
+
+This version requires VS Code 1.56.0+
+
+## Enhancements
+- The `Type Yourself` and `Waterfall` tabs retain their text when switching between tabs of the same font
+
+## Bug Fixes
+- Added missing descriptions for `fina`, `init`, and `isol` font features
+
 # 2.2.0 - 2022/7/16
 
 This version requires VS Code 1.56.0+
