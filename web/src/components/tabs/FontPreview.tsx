@@ -6,8 +6,9 @@ import sampleLA from '../../assets/sample-text/la.sample.yml'
 import sampleZH from '../../assets/sample-text/zh.sample.yml'
 import sampleJA from '../../assets/sample-text/ja.sample.yml'
 import sampleAR from '../../assets/sample-text/ar.sample.yml'
+import sampleKR from '../../assets/sample-text/kr.sample.yml'
 
-const languages = [sampleLA, sampleZH, sampleJA, sampleAR].sort((first, second) => {
+const languages = [sampleLA, sampleZH, sampleJA, sampleAR, sampleKR].sort((first, second) => {
   return first.id.localeCompare(second.id)
 })
 
