@@ -7,7 +7,7 @@
       "es6"
     ],
     "sourceMap": true,
-    "rootDir": "src",
+    "rootDir": "extension",
     "resolveJsonModule": true,
     "strict": true,
     "noImplicitReturns": true,
@@ -20,7 +20,6 @@
     "./web/**",
     "./dist/**/*",
     "./*.js",
-    "./extension/**/*",
     "./vsix/**/*",
   ]
 }
