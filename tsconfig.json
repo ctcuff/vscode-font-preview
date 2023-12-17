@@ -17,8 +17,10 @@
   "exclude": [
     "node_modules",
     ".vscode-test",
-    "web/**",
+    "./web/**",
     "./dist/**/*",
-    "./*.js"
+    "./*.js",
+    "./extension/**/*",
+    "./vsix/**/*",
   ]
 }

@@ -11,6 +11,9 @@ export type FontExtension = 'otf' | 'ttc' | 'ttf' | 'woff' | 'woff2'
  * the ID of the setting
  */
 export type WorkspaceConfig = {
+  /**
+   * Controls the starting tab of the preview.
+   */
   defaultTab:
     | 'Preview'
     | 'Features'
@@ -18,8 +21,17 @@ export type WorkspaceConfig = {
     | 'Waterfall'
     | 'Type Yourself'
     | 'License'
+  /**
+   * If enabled, VS Code will try to use a worker when loading the font.
+   */
   useWorker: boolean
+  /**
+   * Show the glyph's width in the cell.
+   */
   showGlyphWidth: boolean
+  /**
+   * Show the index of the glyph in the left corner of the cell.
+   */
   showGlyphIndex: boolean
 }
 
