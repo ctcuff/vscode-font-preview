@@ -1,6 +1,7 @@
 import { useRef, useCallback, DependencyList } from 'react'
 
 type MountCallback<T> = (node: T) => void
+type UseRefWithCallback<T> = (node: T | null) => void
 
 /**
  * A utility hook that allows you to create a ref for a React Element and
@@ -9,7 +10,7 @@ type MountCallback<T> = (node: T) => void
 function useRefWithCallback<T>(
   onMount: MountCallback<T>,
   dependencyList?: DependencyList[]
-): (ref: T | null) => void {
+): UseRefWithCallback<T> {
   const ref = useRef<T | null>(null)
 
   const setRef = useCallback((node: T | null) => {

@@ -8,6 +8,7 @@ import GlyphCanvas, { RenderField } from './GlyphCanvas'
 import FontContext from '../contexts/FontContext'
 import Chip from './Chip'
 import Switch from './Switch'
+import useLogger from '../hooks/use-logger'
 
 type GlyphInspectorModalProps = {
   isOpen: boolean
@@ -19,6 +20,7 @@ type GlyphInspectorModalProps = {
 
 const GLYPH_CANVAS_SIZE = 500
 const CANVAS_PADDING = 16
+const LOG_TAG = 'GlyphInspectorModal'
 
 const formatUnicode = (unicode: number | undefined): string => {
   if (unicode === undefined) {
@@ -86,34 +88,6 @@ function renderTableRow<T>(
 
 const entityTextArea = document.createElement('textarea')
 
-const copyGlyphToClipboard = (asSvg: boolean, glyph: Glyph, glyphPath: Path): void => {
-  // The glyph will be encoded (for example F => &#70;) so we need
-  // to put the glyph in a text area in order to copy the decoded version
-  entityTextArea.innerHTML = asSvg ? pathToSVG(glyphPath) : `&#${glyph.unicode};`
-
-  navigator.clipboard
-    .writeText(entityTextArea.value)
-    .then(() => {
-      toast(`${asSvg ? 'SVG' : 'Glyph'} copied to clipboard`, {
-        position: 'bottom-right',
-        className: 'react-toast',
-        autoClose: 3000,
-        hideProgressBar: true,
-        closeOnClick: true,
-        pauseOnFocusLoss: false,
-        pauseOnHover: false,
-        draggable: true,
-        progress: undefined,
-        transition: cssTransition({
-          enter: 'react-toast__enter',
-          exit: 'react-toast__exit'
-        })
-      })
-    })
-    // eslint-disable-next-line no-console
-    .catch(err => console.error(err))
-}
-
 const allRenderFields: RenderField[] = [
   'ascender',
   'baseline',
@@ -139,6 +113,7 @@ const GlyphInspectorModal = ({
 }: GlyphInspectorModalProps): JSX.Element => {
   const glyphMetrics = useMemo(() => glyph.getMetrics(), [glyph])
   const glyphPath = useMemo(() => glyph.getPath(), [glyph])
+  const logger = useLogger()
 
   const numPoints = useMemo(() => {
     const contours = glyph.getContours().flat()
@@ -163,6 +138,33 @@ const GlyphInspectorModal = ({
     } else {
       setRenderFields(fields => fields.filter(value => value !== field))
     }
+  }
+
+  const copyGlyphToClipboard = (asSvg: boolean): void => {
+    // The glyph will be encoded (for example F => &#70;) so we need
+    // to put the glyph in a text area in order to copy the decoded version
+    entityTextArea.innerHTML = asSvg ? pathToSVG(glyphPath) : `&#${glyph.unicode};`
+
+    navigator.clipboard
+      .writeText(entityTextArea.value)
+      .then(() => {
+        toast(`${asSvg ? 'SVG' : 'Glyph'} copied to clipboard`, {
+          position: 'bottom-right',
+          className: 'react-toast',
+          autoClose: 3000,
+          hideProgressBar: true,
+          closeOnClick: true,
+          pauseOnFocusLoss: false,
+          pauseOnHover: false,
+          draggable: true,
+          progress: undefined,
+          transition: cssTransition({
+            enter: 'react-toast__enter',
+            exit: 'react-toast__exit'
+          })
+        })
+      })
+      .catch(err => logger.error("Couldn't copy to clipboard", LOG_TAG, err))
   }
 
   const renderSwitch = (field: RenderField) => {
@@ -265,14 +267,14 @@ const GlyphInspectorModal = ({
               <Chip
                 title="Copy Text"
                 className="chip-action"
-                onClick={() => copyGlyphToClipboard(false, glyph, glyphPath)}
+                onClick={() => copyGlyphToClipboard(false)}
               />
             )}
             {glyphPath.commands.length > 0 && (
               <Chip
                 title="Copy SVG"
                 className="chip-action"
-                onClick={() => copyGlyphToClipboard(true, glyph, glyphPath)}
+                onClick={() => copyGlyphToClipboard(true)}
               />
             )}
           </div>

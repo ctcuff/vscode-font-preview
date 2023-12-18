@@ -4,6 +4,7 @@ import opentype, { Font } from 'opentype.js'
 import { FontExtension, FontLoadEvent } from '../../shared/types'
 import FontLoadError from './font-load-error'
 import { base64ArrayBuffer, getCSSVar } from './util'
+import Logger from './logger'
 
 type FontLoaderOptions = FontLoadEvent['payload'] & {
   /**
@@ -42,20 +43,32 @@ const supportedExtensions: ReadonlySet<FontExtension> = new Set<FontExtension>([
   'woff2'
 ])
 
+const LOG_TAG = 'FontLoader'
+
 class FontLoader {
   private opts: FontLoaderOptions
   private worker: Worker | null = null
+  private readonly logger: Logger
   /**
    * True if the font can be parsed by Opentype, false otherwise
    */
   public isSupported: boolean
 
-  constructor(opts: FontLoaderOptions) {
+  constructor(logger: Logger, opts: FontLoaderOptions) {
+    this.logger = logger
     this.opts = opts
     this.isSupported = supportedExtensions.has(this.opts.fileExtension)
 
-    document.fonts.onloadingdone = this.opts.onStyleCreated
-    document.fonts.onloadingerror = this.opts.onLoadError
+    document.fonts.onloading = () => this.logger.startTimer(LOG_TAG)
+    document.fonts.onloadingdone = () => {
+      const elapsed = this.logger.endTimer(LOG_TAG)
+      logger.info(`Font loaded in ${elapsed.toFixed(2)}ms`, LOG_TAG)
+      this.opts.onStyleCreated()
+    }
+    document.fonts.onloadingerror = () => {
+      this.opts.onLoadError()
+      logger.error('Error in document.fonts', LOG_TAG)
+    }
   }
 
   public getFontMimeType(): string {
@@ -71,8 +84,7 @@ class FontLoader {
       case 'woff2':
         return 'woff'
       default:
-        // eslint-disable-next-line no-console
-        console.warn(`Unsupported extension: ${fileExtension}`)
+        this.logger.warn(`Unsupported extension: ${fileExtension}`, LOG_TAG)
         return ''
     }
   }
@@ -172,8 +184,7 @@ class FontLoader {
 
       return worker
     } catch (err: unknown) {
-      // eslint-disable-next-line no-console
-      console.error(`Failed to initialize worker: ${err}`)
+      this.logger.error('Failed to initialize worker', LOG_TAG, err)
       return null
     }
   }

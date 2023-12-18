@@ -90,7 +90,7 @@
   },
   "scripts": {
     "build": "(rm -rf ./dist || true) && npm-run-all -p build:*",
-    "build:extension": "webpack --mode production --devtool eval",
+    "build:extension": "webpack --mode production --devtool eval --env debug=false",
     "build:web": "cd ./web && yarn build",
     "format": "prettier --write './shared/**/*{.js,.ts}' './src/**/*{.js,.ts}' './web/**/*{.js,.jsx,.ts,.tsx,.scss}'",
     "lint": "yarn lint:web && yarn lint:extension",
@@ -106,7 +106,7 @@
     "test:watch": "tsc -watch -p ./",
     "vscode:prepublish": "yarn run build",
     "watch": "npm-run-all -p watch:*",
-    "watch:extension": "webpack --watch --mode development",
+    "watch:extension": "webpack --watch --mode development --env debug=true",
     "watch:web": "cd ./web && yarn watch"
   },
   "devDependencies": {

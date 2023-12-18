@@ -2,10 +2,13 @@ import '../scss/feature-table.scss'
 import React, { useContext } from 'react'
 import FontContext from '../contexts/FontContext'
 import featureTable from '../assets/feature-tags.json'
+import useLogger from '../hooks/use-logger'
 
 type FeatureTableProps = {
   activeFeatures: string[]
 }
+
+const LOG_TAG = 'FeatureTable'
 
 /**
  * Matches cv00 - cv99
@@ -18,6 +21,7 @@ const stylisticVariantRegex = /^[s]{2}\d{2}/
 
 const FeatureTable = ({ activeFeatures }: FeatureTableProps): JSX.Element => {
   const { fontFeatures } = useContext(FontContext)
+  const logger = useLogger()
 
   // Keep track of whether we've seen "cv01" to "cv99" or
   // "ss01" to "ss20" so that it's only included once in the table
@@ -55,8 +59,7 @@ const FeatureTable = ({ activeFeatures }: FeatureTableProps): JSX.Element => {
     }
 
     if (!featureTable[key]) {
-      // eslint-disable-next-line no-console
-      console.warn(`Feature: ${key} not found in table`)
+      logger.warn(`Feature: ${key} not found in table`, LOG_TAG)
       return null
     }
 

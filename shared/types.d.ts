@@ -130,6 +130,18 @@ export type StopProgressNotificationEvent = {
   type: 'PROGRESS_STOP'
 }
 
+/**
+ * Dispatched from the webview in order to log events to VS Code's output channel
+ */
+export type LogEvent = {
+  type: 'LOG'
+  payload: {
+    level: LogLevel
+    message: string
+    tag?: string
+  }
+}
+
 export type WebviewMessage =
   | FontLoadEvent
   | ConfigLoadEvent
@@ -140,3 +152,6 @@ export type WebviewMessage =
   | ColorThemeChangeEvent
   | StartProgressNotificationEvent
   | StopProgressNotificationEvent
+  | LogEvent
+
+export type LogLevel = 'INFO' | 'WARN' | 'ERROR'

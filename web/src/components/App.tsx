@@ -15,6 +15,9 @@ import License from './tabs/License'
 import TypingPreview from './tabs/TypingPreview'
 import { isTableEmpty } from '../util'
 import FontLoader from '../font-loader'
+import useLogger from '../hooks/use-logger'
+
+const LOG_TAG = 'App'
 
 const App = (): JSX.Element | null => {
   const [font, setFont] = useState<Font | null>(null)
@@ -24,18 +27,20 @@ const App = (): JSX.Element | null => {
   const [error, setError] = useState<string | null>(null)
   const [config, setConfig] = useState<WorkspaceConfig | null>(null)
   const vscode = useContext(VscodeContext)
+  const logger = useLogger()
   const savedState = vscode.getState()
 
   const loadFont = async (payload: FontLoadEvent['payload']) => {
     try {
-      const fontLoader = new FontLoader({
+      const fontLoader = new FontLoader(logger, {
         ...payload,
         onBeforeCreateStyle: () => vscode.postMessage({ type: 'PROGRESS_START' }),
         onStyleCreated: () => vscode.postMessage({ type: 'PROGRESS_STOP' }),
         onLoadError: () => {
           vscode.postMessage({
             type: 'ERROR',
-            payload: "Parsing Error: Couldn't render font."
+            payload: `Parsing Error: Couldn't render font preview.
+              Font information will still be available.`
           })
         }
       })
@@ -47,8 +52,7 @@ const App = (): JSX.Element | null => {
       setFontFeatures(features)
       setFileName(payload.fileName)
     } catch (err: unknown) {
-      // eslint-disable-next-line no-console
-      console.error(err)
+      logger.error('Failed to load font', LOG_TAG, err)
       vscode.postMessage({ type: 'PROGRESS_STOP' })
       setError(`An error occurred while parsing this font: ${(err as Error).message}`)
     }
@@ -59,8 +63,11 @@ const App = (): JSX.Element | null => {
     // causes vscode to read in the saved state but also fire the FONT_LOADED
     // event. Returning here prevents the font from being loaded twice.
     if (savedState?.fileUrl && message.data.type === 'FONT_LOADED') {
+      logger.info('Loading from saved state', LOG_TAG)
       return
     }
+
+    logger.info(`Received message from extension: ${message.data.type}`, LOG_TAG)
 
     switch (message.data.type) {
       case 'FONT_LOADED': {
@@ -71,6 +78,7 @@ const App = (): JSX.Element | null => {
         break
       }
       case 'CONFIG_LOADED': {
+        // If the config changed, we'll need to load the font again
         const { payload } = message.data
 
         setConfig(payload)
@@ -116,6 +124,7 @@ const App = (): JSX.Element | null => {
   }
 
   useEffect(() => {
+    logger.info('Webview initialized', LOG_TAG)
     window.addEventListener('message', onMessage)
 
     // If we're loading from the saved state, we need to fetch the config

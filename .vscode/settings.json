@@ -17,5 +17,7 @@
     "opentype",
     "truetype",
     "wawoff"
-  ]
+  ],
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode"
 }

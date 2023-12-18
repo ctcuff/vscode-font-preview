@@ -3,17 +3,20 @@ import * as path from 'path'
 import html from './index.html'
 import { template } from './util'
 import FontDocument from './font-document'
-import { WorkspaceConfig, WebviewMessage } from '../shared/types'
+import { WorkspaceConfig, WebviewMessage, LogLevel } from '../shared/types'
 import { TypedWorkspaceConfiguration, TypedWebviewPanel } from './types/overrides'
+import Logger from './logger'
 
 // https://chromium.googlesource.com/chromium/blink/+/refs/heads/main/Source/platform/fonts/opentype/OpenTypeSanitizer.cpp#70
 const MAX_WEB_FONT_SIZE = 30 * 1024 * 1024 // MB
+const LOG_TAG = 'FontProvider'
 
 const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
 class FontProvider implements vscode.CustomReadonlyEditorProvider {
   public static readonly viewType = 'font.detail.preview'
   private shouldShowProgressNotification: boolean = true
+  private logger = Logger.getInstance()
 
   constructor(private readonly context: vscode.ExtensionContext) {}
 
@@ -42,19 +45,22 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
     const fileUri = panel.webview.asWebviewUri(document.uri)
     const fileSize = await document.size()
 
+    this.logger.info(`Loading font of size ${(fileSize / 1024).toFixed(2)}kb`, LOG_TAG)
+
     let fileContent: number[] = []
 
     if (fileSize > MAX_WEB_FONT_SIZE) {
       vscode.window.showWarningMessage(
         `${document.fileName}.${document.extension} exceeds than the maximum
-        web font size (30 MB) and cannot be rendered.`
+        web font size (30 MB) and cannot be rendered. Font information will
+        still be available.`
       )
     }
 
-    // We only need to read the file if it's a WOFF2 font. This is because
-    // it can't be decompressed in the webview.
+    // We need to decompress the file on the extension side because doing so in
+    // the webview would likely cause the webview to crash due to memory consumption
     if (document.extension === 'woff2') {
-      fileContent = Array.from((await document.read()) || [])
+      fileContent = Array.from((await document.decompress()) || [])
     }
 
     if (fileSize <= MAX_WEB_FONT_SIZE) {
@@ -85,17 +91,30 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
       colorThemeListener.dispose()
     })
 
-    panel.webview.postMessage({
-      type: 'FONT_LOADED',
-      payload: {
-        fileContent,
-        fileSize,
-        fileUrl: `${fileUri.scheme}://${fileUri.authority}${fileUri.path}`,
-        fileName: document.fileName,
-        fileExtension: document.extension,
-        config: this.getAllConfig()
-      }
-    })
+    panel.webview
+      .postMessage({
+        type: 'FONT_LOADED',
+        payload: {
+          // TODO: if the vscode engine is updated to 1.57+, maybe we can use an ArrayBuffer or Uint8Array?
+          fileContent,
+          fileSize,
+          fileUrl: `${fileUri.scheme}://${fileUri.authority}${fileUri.path}`,
+          fileName: document.fileName,
+          fileExtension: document.extension,
+          config: this.getAllConfig()
+        }
+      })
+      .then(
+        value => {
+          this.logger.info(
+            `Font load message sent to webview. Fulfilled ${value}}`,
+            LOG_TAG
+          )
+        },
+        err => {
+          this.logger.error('Error sending load message to webview', LOG_TAG, err)
+        }
+      )
   }
 
   private onDidReceiveMessage(panel: TypedWebviewPanel, message: WebviewMessage): void {
@@ -121,6 +140,22 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
       case 'PROGRESS_STOP':
         this.shouldShowProgressNotification = false
         break
+      case 'LOG': {
+        this.logMessageFromWebview(
+          message.payload.level,
+          message.payload.message,
+          message.payload.tag
+        )
+        break
+      }
+    }
+  }
+
+  private logMessageFromWebview(level: LogLevel, message: string, tag?: string) {
+    try {
+      this.logger[level.toLowerCase() as keyof typeof this.logger](message, tag)
+    } catch (err) {
+      this.logger.warn(`Error logging message from [${tag}]: ${err}`, LOG_TAG)
     }
   }
 
