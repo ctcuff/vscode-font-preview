@@ -3,7 +3,7 @@ import * as path from 'path'
 import html from './index.html'
 import { template } from './util'
 import FontDocument from './font-document'
-import { WorkspaceConfig, WebviewMessage, LogLevel } from '../shared/types'
+import { WorkspaceConfig, WebviewMessage, LogLevel, PreviewSample } from '../shared/types'
 import { TypedWorkspaceConfiguration, TypedWebviewPanel } from './types/overrides'
 import Logger from './logger'
 
@@ -17,11 +17,21 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
   public static readonly viewType = 'font.detail.preview'
   private shouldShowProgressNotification: boolean = true
   private logger = Logger.getInstance()
+  // TODO: Update sample texts when the config changes
+  private sampleTexts: PreviewSample[]
 
-  constructor(private readonly context: vscode.ExtensionContext) {}
+  constructor(
+    private readonly context: vscode.ExtensionContext,
+    sampleTexts: PreviewSample[]
+  ) {
+    this.sampleTexts = sampleTexts
+  }
 
-  public static register(context: vscode.ExtensionContext): vscode.Disposable {
-    const provider = new FontProvider(context)
+  public static register(
+    context: vscode.ExtensionContext,
+    sampleTexts: PreviewSample[]
+  ): vscode.Disposable {
+    const provider = new FontProvider(context, sampleTexts)
     return vscode.window.registerCustomEditorProvider(FontProvider.viewType, provider)
   }
 
@@ -91,30 +101,19 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
       colorThemeListener.dispose()
     })
 
-    panel.webview
-      .postMessage({
-        type: 'FONT_LOADED',
-        payload: {
-          // TODO: if the vscode engine is updated to 1.57+, maybe we can use an ArrayBuffer or Uint8Array?
-          fileContent,
-          fileSize,
-          fileUrl: `${fileUri.scheme}://${fileUri.authority}${fileUri.path}`,
-          fileName: document.fileName,
-          fileExtension: document.extension,
-          config: this.getAllConfig()
-        }
-      })
-      .then(
-        value => {
-          this.logger.info(
-            `Font load message sent to webview. Fulfilled ${value}}`,
-            LOG_TAG
-          )
-        },
-        err => {
-          this.logger.error('Error sending load message to webview', LOG_TAG, err)
-        }
-      )
+    panel.webview.postMessage({
+      type: 'FONT_LOADED',
+      payload: {
+        // TODO: if the vscode engine is updated to 1.57+, maybe we can use an ArrayBuffer or Uint8Array?
+        fileContent,
+        fileSize,
+        fileUrl: `${fileUri.scheme}://${fileUri.authority}${fileUri.path}`,
+        fileName: document.fileName,
+        fileExtension: document.extension,
+        // TODO: Move config out of font load event
+        config: this.getAllConfig()
+      }
+    })
   }
 
   private onDidReceiveMessage(panel: TypedWebviewPanel, message: WebviewMessage): void {
@@ -148,12 +147,25 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
         )
         break
       }
+      case 'GET_SAMPLE_TEXT':
+        panel.webview.postMessage({
+          type: 'LOAD_SAMPLE_TEXT',
+          payload: this.sampleTexts
+        })
+        break
     }
   }
 
   private logMessageFromWebview(level: LogLevel, message: string, tag?: string) {
     try {
-      this.logger[level.toLowerCase() as keyof typeof this.logger](message, tag)
+      const key = level.toLowerCase() as keyof typeof this.logger
+
+      switch (key) {
+        case 'info':
+        case 'warn':
+        case 'error':
+          this.logger[key](message, tag)
+      }
     } catch (err) {
       this.logger.warn(`Error logging message from [${tag}]: ${err}`, LOG_TAG)
     }
@@ -165,10 +177,12 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
     ) as TypedWorkspaceConfiguration
 
     return {
+      // TODO: Move this to a class
       defaultTab: config.get('defaultTab'),
       useWorker: config.get('useWorker'),
       showGlyphWidth: config.get('showGlyphWidth'),
-      showGlyphIndex: config.get('showGlyphIndex')
+      showGlyphIndex: config.get('showGlyphIndex'),
+      sampleTextPaths: config.get('sampleTextPaths')
     }
   }
 

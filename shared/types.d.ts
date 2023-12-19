@@ -33,6 +33,10 @@ export type WorkspaceConfig = {
    * Show the index of the glyph in the left corner of the cell.
    */
   showGlyphIndex: boolean
+  /**
+   * A list of paths to custom example text files. Each file **must** be yaml file.
+   */
+   sampleTextPaths: string[]
 }
 
 /**
@@ -131,6 +135,23 @@ export type StopProgressNotificationEvent = {
 }
 
 /**
+ * Sent from the webview to the extension to request the user-defined sample text.
+ * The sample text was loaded once during extension activation
+ */
+export type SampleTextRequestEvent = {
+  type: 'GET_SAMPLE_TEXT'
+}
+
+/**
+ * Sent from the extension to the webview so the webview can display the sample texts
+ * that were loaded from the extension side
+ */
+export type SampleTextLoadEvent = {
+  type: 'LOAD_SAMPLE_TEXT'
+  payload: PreviewSample[]
+}
+
+/**
  * Dispatched from the webview in order to log events to VS Code's output channel
  */
 export type LogEvent = {
@@ -153,5 +174,29 @@ export type WebviewMessage =
   | StartProgressNotificationEvent
   | StopProgressNotificationEvent
   | LogEvent
+  | SampleTextRequestEvent
+  | SampleTextLoadEvent
 
 export type LogLevel = 'INFO' | 'WARN' | 'ERROR'
+
+/**
+ * Represents the structure of the YAML file used to display preview text
+ */
+export type PreviewSample = {
+  /**
+   * The name of the sample
+   */
+  id: string
+  /**
+   * An array of strings to display. Each item will be displayed as a paragraph element
+   */
+  paragraphs: string[]
+  /**
+   * Where the sample text came from
+   */
+  source?: string
+  /**
+   * (Optional) `true` if this is sample is written right-to-left
+   */
+  rtl?: boolean
+}

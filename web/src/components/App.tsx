@@ -7,7 +7,12 @@ import TabView, { Tab } from './TabView'
 import FontPreview from './tabs/FontPreview'
 import Glyphs from './tabs/Glyphs'
 import FontContext from '../contexts/FontContext'
-import { WorkspaceConfig, FontLoadEvent, WebviewMessage } from '../../../shared/types'
+import {
+  WorkspaceConfig,
+  FontLoadEvent,
+  WebviewMessage,
+  PreviewSample
+} from '../../../shared/types'
 import VscodeContext from '../contexts/VscodeContext'
 import Features from './tabs/Features'
 import Waterfall from './tabs/Waterfall'
@@ -26,6 +31,7 @@ const App = (): JSX.Element | null => {
   const [fontFeatures, setFontFeatures] = useState<string[]>([])
   const [error, setError] = useState<string | null>(null)
   const [config, setConfig] = useState<WorkspaceConfig | null>(null)
+  const [sampleTexts, setSampleTexts] = useState<PreviewSample[]>([])
   const vscode = useContext(VscodeContext)
   const logger = useLogger()
   const savedState = vscode.getState()
@@ -59,18 +65,17 @@ const App = (): JSX.Element | null => {
   }
 
   const onMessage = (message: MessageEvent<WebviewMessage>): void => {
-    // Reopening the the most recently closed tab (CMD/CTRL + Shift + T )
-    // causes vscode to read in the saved state but also fire the FONT_LOADED
-    // event. Returning here prevents the font from being loaded twice.
-    if (savedState?.fileUrl && message.data.type === 'FONT_LOADED') {
-      logger.info('Loading from saved state', LOG_TAG)
-      return
-    }
-
     logger.info(`Received message from extension: ${message.data.type}`, LOG_TAG)
 
     switch (message.data.type) {
       case 'FONT_LOADED': {
+        if (savedState?.fileUrl) {
+          // Reopening the the most recently closed tab (CMD/CTRL + Shift + T )
+          // causes vscode to read in the saved state but also fire the FONT_LOADED
+          // event. Returning here prevents the font from being loaded twice.
+          // TLDR: Ignore the FONT_LOADED event if there's a saved state
+          break
+        }
         const { payload } = message.data
         loadFont(payload)
         setConfig(payload.config)
@@ -94,6 +99,9 @@ const App = (): JSX.Element | null => {
         }
         break
       }
+      case 'LOAD_SAMPLE_TEXT':
+        setSampleTexts(message.data.payload)
+        break
       default:
         break
     }
@@ -130,7 +138,9 @@ const App = (): JSX.Element | null => {
     // If we're loading from the saved state, we need to fetch the config
     // again just in case it changed while the webview was hidden
     if (savedState?.fileUrl) {
+      logger.info('Loading from saved state', LOG_TAG)
       vscode.postMessage({ type: 'GET_CONFIG' })
+      vscode.postMessage({ type: 'GET_SAMPLE_TEXT' })
     }
 
     return () => {
@@ -155,8 +165,8 @@ const App = (): JSX.Element | null => {
     <FontContext.Provider value={{ font, fileName, fontFeatures }}>
       <ToastContainer limit={1} />
       <TabView panelClassName="app" defaultTabId={config?.defaultTab || 'Preview'}>
-        <Tab title="Preview" id="Preview">
-          <FontPreview />
+        <Tab title="Preview" id="Preview" forceRender>
+          <FontPreview sampleTexts={sampleTexts} />
         </Tab>
         <Tab
           // Hide this tab if the current font doesn't have

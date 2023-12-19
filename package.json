@@ -84,6 +84,21 @@
           "description": "Show the index of the glyph in the left corner of the cell.",
           "type": "boolean",
           "default": true
+        },
+        "font-preview.sampleTextPaths": {
+          "title": "Sample Text Paths",
+          "markdownDescription": "Define custom sample texts to be added in the \"Preview\" tab. Provide the path to a YML file for the sample to be loaded (must restart VS COde after adding/removing a path). See [this link](https://github.com/ctcuff/vscode-font-preview) for an explanation on how the yaml should be structured.",
+          "type": "array",
+          "default": [],
+          "items": {
+            "type": "string"
+          }
+        },
+        "font-preview.defaultSampleTextId": {
+          "$comment": "// TODO: Update this when it's possible to add examples programmatically",
+          "description": "The name of the default sample text to load. This comes from the 'id' property of the defined YAML schema",
+          "type": "string",
+          "default": "English"
         }
       }
     }
@@ -111,6 +126,7 @@
   },
   "devDependencies": {
     "@types/glob": "^7.1.3",
+    "@types/js-yaml": "^4.0.9",
     "@types/mocha": "^8.0.4",
     "@types/node": "^12.11.7",
     "@types/vscode": "^1.56.0",
@@ -133,6 +149,8 @@
     "webpack-cli": "^4.7.0"
   },
   "dependencies": {
-    "wawoff2": "^2.0.1"
+    "js-yaml": "^4.1.0",
+    "wawoff2": "^2.0.1",
+    "zod": "^3.22.4"
   }
 }

@@ -5,7 +5,7 @@ import { LogLevel } from '../shared/types'
 class Logger {
   private static instance: Logger | null = null
   private timers: Record<string, number> = {}
-  private outputChannel = window.createOutputChannel('Font Preview')
+  public readonly outputChannel = window.createOutputChannel('Font Preview')
 
   private constructor() {}
 
@@ -50,10 +50,11 @@ class Logger {
     if (error instanceof Error) {
       if (error?.message) {
         this.log('ERROR', `${message} ${error.message}`, tag)
-      }
-      if (error?.stack) {
+      } else if (error?.stack) {
         this.log('ERROR', error.stack, tag)
       }
+    } else if (error) {
+      this.log('ERROR', `${message} ${error}`, tag)
     } else {
       this.log('ERROR', message, tag)
     }

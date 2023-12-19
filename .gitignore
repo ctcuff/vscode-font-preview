@@ -10,3 +10,4 @@ yarn-error.log
 .env
 .vscode-test-web
 *.zip
+/samples

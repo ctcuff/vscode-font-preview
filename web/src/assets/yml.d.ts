@@ -1,19 +1,19 @@
 declare module '*sample.yml' {
   const content: {
     /**
-     * The name of the language
+     * The name of the sample
      */
     id: string
     /**
-     * Where the sample text came from
+     * Where the sample came from
      */
-    source: string
+    source?: string
     /**
-     * An array of sample text
+     * An array of strings to display. Each item will be displayed as a paragraph element
      */
     paragraphs: string[]
     /**
-     * (Optional) `true` if this is language is written right-to-left
+     * (Optional) `true` if this is sample is written right-to-left
      */
     rtl?: boolean
   }
