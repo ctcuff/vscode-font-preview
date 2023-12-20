@@ -2,7 +2,7 @@ import '../scss/glyph-item.scss'
 import React from 'react'
 import type { Font, Glyph } from 'opentype.js'
 import useRefWithCallback from '../hooks/ref-with-callback'
-import { enableHighDPICanvas } from '../glyph-util'
+import { enableHighDPICanvas } from '../util/glyph-util'
 import { getCSSVar } from '../util'
 import type { WorkspaceConfig } from '../../../shared/types'
 

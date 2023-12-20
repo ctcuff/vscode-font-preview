@@ -36,7 +36,15 @@ export type WorkspaceConfig = {
   /**
    * A list of paths to custom example text files. Each file **must** be yaml file.
    */
-   sampleTextPaths: string[]
+  sampleTextPaths: string[]
+}
+
+// TODO: See if we can load the font before the webview requests it
+/**
+ * Dispatched from the webview in order to load the font
+ */
+export type RequestFontEvent = {
+  type: 'GET_FONT'
 }
 
 /**
@@ -45,7 +53,7 @@ export type WorkspaceConfig = {
 export type FontLoadEvent = {
   type: 'FONT_LOADED'
   payload: {
-    config: WorkspaceConfig
+    // config: WorkspaceConfig
     fileSize: number
     fileExtension: FontExtension
     fileName: string
@@ -64,6 +72,10 @@ export type FontLoadEvent = {
      * will just be an empty array
      */
     fileContent: number[]
+    /**
+     * Whether to use a worker when loading the font. This values comes from the user's settings
+     */
+    useWorker: boolean
   }
 }
 
@@ -147,7 +159,7 @@ export type SampleTextRequestEvent = {
  * that were loaded from the extension side
  */
 export type SampleTextLoadEvent = {
-  type: 'LOAD_SAMPLE_TEXT'
+  type: 'SAMPLE_TEXT_LOADED'
   payload: PreviewSample[]
 }
 
@@ -164,6 +176,7 @@ export type LogEvent = {
 }
 
 export type WebviewMessage =
+  | RequestFontEvent
   | FontLoadEvent
   | ConfigLoadEvent
   | ErrorEvent
@@ -177,7 +190,7 @@ export type WebviewMessage =
   | SampleTextRequestEvent
   | SampleTextLoadEvent
 
-export type LogLevel = 'INFO' | 'WARN' | 'ERROR'
+export type LogLevel = 'DEBUG' | 'INFO' | 'WARN' | 'ERROR'
 
 /**
  * Represents the structure of the YAML file used to display preview text

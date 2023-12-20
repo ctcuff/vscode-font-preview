@@ -3,9 +3,11 @@ import * as path from 'path'
 import html from './index.html'
 import { template } from './util'
 import FontDocument from './font-document'
-import { WorkspaceConfig, WebviewMessage, LogLevel, PreviewSample } from '../shared/types'
+import { WorkspaceConfig, WebviewMessage, LogLevel } from '../shared/types'
 import { TypedWorkspaceConfiguration, TypedWebviewPanel } from './types/overrides'
 import Logger from './logger'
+import * as yamlLoader from './yaml-loader'
+import YAMLValidationError from './yaml-validation-error'
 
 // https://chromium.googlesource.com/chromium/blink/+/refs/heads/main/Source/platform/fonts/opentype/OpenTypeSanitizer.cpp#70
 const MAX_WEB_FONT_SIZE = 30 * 1024 * 1024 // MB
@@ -15,23 +17,13 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
 class FontProvider implements vscode.CustomReadonlyEditorProvider {
   public static readonly viewType = 'font.detail.preview'
-  private shouldShowProgressNotification: boolean = true
+  private shouldShowProgressNotification: boolean = false
   private logger = Logger.getInstance()
-  // TODO: Update sample texts when the config changes
-  private sampleTexts: PreviewSample[]
 
-  constructor(
-    private readonly context: vscode.ExtensionContext,
-    sampleTexts: PreviewSample[]
-  ) {
-    this.sampleTexts = sampleTexts
-  }
+  constructor(private readonly context: vscode.ExtensionContext) {}
 
-  public static register(
-    context: vscode.ExtensionContext,
-    sampleTexts: PreviewSample[]
-  ): vscode.Disposable {
-    const provider = new FontProvider(context, sampleTexts)
+  public static register(context: vscode.ExtensionContext): vscode.Disposable {
+    const provider = new FontProvider(context)
     return vscode.window.registerCustomEditorProvider(FontProvider.viewType, provider)
   }
 
@@ -52,8 +44,43 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
       ]
     }
 
+    panel.webview.html = this.getWebviewContent()
+
+    const eventListeners: vscode.Disposable[] = []
+
+    eventListeners.push(
+      vscode.window.onDidChangeActiveColorTheme(event => {
+        panel.webview.postMessage({
+          type: 'COLOR_THEME_CHANGE',
+          payload: event.kind
+        })
+      })
+    )
+
+    eventListeners.push(
+      panel.webview.onDidReceiveMessage((message: WebviewMessage) => {
+        this.onDidReceiveMessage(panel, message, document)
+      })
+    )
+
+    eventListeners.push(
+      panel.onDidChangeViewState(event => {
+        if (!event.webviewPanel.visible) {
+          this.shouldShowProgressNotification = false
+        }
+      })
+    )
+
+    panel.onDidDispose(() => {
+      this.shouldShowProgressNotification = false
+      eventListeners.forEach(event => event.dispose())
+    })
+  }
+
+  private async loadFont(panel: TypedWebviewPanel, document: FontDocument) {
     const fileUri = panel.webview.asWebviewUri(document.uri)
     const fileSize = await document.size()
+    const { useWorker } = this.getAllConfig()
 
     this.logger.info(`Loading font of size ${(fileSize / 1024).toFixed(2)}kb`, LOG_TAG)
 
@@ -73,50 +100,33 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
       fileContent = Array.from((await document.decompress()) || [])
     }
 
+    // Skip showing the progress notification since the font is too large to be parsed
     if (fileSize <= MAX_WEB_FONT_SIZE) {
       this.showProgressNotification(panel)
     }
-
-    panel.webview.html = this.getWebviewContent()
-
-    const colorThemeListener = vscode.window.onDidChangeActiveColorTheme(event => {
-      panel.webview.postMessage({
-        type: 'COLOR_THEME_CHANGE',
-        payload: event.kind
-      })
-    })
-
-    panel.webview.onDidReceiveMessage((message: WebviewMessage) => {
-      this.onDidReceiveMessage(panel, message)
-    })
-
-    panel.onDidChangeViewState(event => {
-      if (!event.webviewPanel.visible) {
-        this.shouldShowProgressNotification = false
-      }
-    })
-
-    panel.onDidDispose(() => {
-      this.shouldShowProgressNotification = false
-      colorThemeListener.dispose()
-    })
 
     panel.webview.postMessage({
       type: 'FONT_LOADED',
       payload: {
         // TODO: if the vscode engine is updated to 1.57+, maybe we can use an ArrayBuffer or Uint8Array?
+        // Still might not be faster though...
         fileContent,
         fileSize,
         fileUrl: `${fileUri.scheme}://${fileUri.authority}${fileUri.path}`,
         fileName: document.fileName,
         fileExtension: document.extension,
-        // TODO: Move config out of font load event
-        config: this.getAllConfig()
+        useWorker
       }
     })
   }
 
-  private onDidReceiveMessage(panel: TypedWebviewPanel, message: WebviewMessage): void {
+  private onDidReceiveMessage(
+    panel: TypedWebviewPanel,
+    message: WebviewMessage,
+    document: FontDocument
+  ): void {
+    this.logger.info(`Received message from webview: ${message.type}`, LOG_TAG)
+
     switch (message.type) {
       case 'ERROR':
         vscode.window.showErrorMessage(message.payload)
@@ -126,6 +136,9 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
         break
       case 'INFO':
         vscode.window.showInformationMessage(message.payload)
+        break
+      case 'GET_FONT':
+        this.loadFont(panel, document)
         break
       case 'GET_CONFIG':
         panel.webview.postMessage({
@@ -148,26 +161,27 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
         break
       }
       case 'GET_SAMPLE_TEXT':
-        panel.webview.postMessage({
-          type: 'LOAD_SAMPLE_TEXT',
-          payload: this.sampleTexts
-        })
+        this.loadSampleText(panel)
         break
     }
   }
 
   private logMessageFromWebview(level: LogLevel, message: string, tag?: string) {
-    try {
-      const key = level.toLowerCase() as keyof typeof this.logger
-
-      switch (key) {
-        case 'info':
-        case 'warn':
-        case 'error':
-          this.logger[key](message, tag)
-      }
-    } catch (err) {
-      this.logger.warn(`Error logging message from [${tag}]: ${err}`, LOG_TAG)
+    switch (level.toLowerCase()) {
+      case 'debug':
+        this.logger.debug(message, tag)
+        break
+      case 'info':
+        this.logger.info(message, tag)
+        break
+      case 'warn':
+        this.logger.warn(message, tag)
+        break
+      case 'error':
+        this.logger.error(message, tag)
+        break
+      default:
+        this.logger.warn(`Invalid log level received from tag [${tag}]`, LOG_TAG)
     }
   }
 
@@ -177,7 +191,6 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
     ) as TypedWorkspaceConfiguration
 
     return {
-      // TODO: Move this to a class
       defaultTab: config.get('defaultTab'),
       useWorker: config.get('useWorker'),
       showGlyphWidth: config.get('showGlyphWidth'),
@@ -214,6 +227,32 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
         }
       }
     )
+  }
+
+  /**
+   * Loads all sample text files form the config `font-preview.sampleTextPaths`
+   * and posts a message to the panel when complete
+   */
+  private async loadSampleText(panel: TypedWebviewPanel) {
+    const { sampleTexts, errors } = await yamlLoader.loadSampleTexts()
+
+    panel.webview.postMessage({
+      type: 'SAMPLE_TEXT_LOADED',
+      payload: sampleTexts
+    })
+
+    errors.forEach(error => {
+      const actions: string[] =
+        error.reason instanceof YAMLValidationError ? ['Show Logs'] : []
+
+      if (error.reason.message) {
+        vscode.window.showErrorMessage(error.reason.message, ...actions).then(action => {
+          if (action === 'Show Logs') {
+            this.logger.outputChannel.show()
+          }
+        })
+      }
+    })
   }
 }
 

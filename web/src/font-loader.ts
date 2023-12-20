@@ -4,7 +4,7 @@ import opentype, { Font } from 'opentype.js'
 import { FontExtension, FontLoadEvent } from '../../shared/types'
 import FontLoadError from './font-load-error'
 import { base64ArrayBuffer, getCSSVar } from './util'
-import Logger from './logger'
+import Logger from './util/logger'
 
 type FontLoaderOptions = FontLoadEvent['payload'] & {
   /**
@@ -18,6 +18,9 @@ type FontLoaderOptions = FontLoadEvent['payload'] & {
    * loaded is less than the maximum web font size (30 MB)
    */
   onBeforeCreateStyle: () => void
+  /**
+   * Dispatched when `document.fonts` fails to load the font
+   */
   onLoadError: () => void
 }
 
@@ -60,11 +63,13 @@ class FontLoader {
     this.isSupported = supportedExtensions.has(this.opts.fileExtension)
 
     document.fonts.onloading = () => this.logger.startTimer(LOG_TAG)
+
     document.fonts.onloadingdone = () => {
       const elapsed = this.logger.endTimer(LOG_TAG)
       logger.info(`Font loaded in ${elapsed.toFixed(2)}ms`, LOG_TAG)
       this.opts.onStyleCreated()
     }
+
     document.fonts.onloadingerror = () => {
       this.opts.onLoadError()
       logger.error('Error in document.fonts', LOG_TAG)
@@ -96,7 +101,7 @@ class FontLoader {
    * Otherwise, this will be done synchronously
    */
   public insertStyle(buffer: ArrayBuffer): void {
-    if (this.worker && this.opts.config.useWorker) {
+    if (this.worker && this.opts.useWorker) {
       this.insertStyleWithWorker(buffer)
     } else {
       this.insertStyleSync(buffer)

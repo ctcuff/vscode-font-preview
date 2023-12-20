@@ -2,7 +2,7 @@ import React, { useContext } from 'react'
 import type { Glyph, Font, Path } from 'opentype.js'
 import FontContext from '../contexts/FontContext'
 import useRefWithCallback from '../hooks/ref-with-callback'
-import { enableHighDPICanvas } from '../glyph-util'
+import { enableHighDPICanvas } from '../util/glyph-util'
 import { getCSSVar } from '../util'
 
 export type RenderField =

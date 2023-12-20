@@ -15,18 +15,17 @@ type FontPreviewProps = {
 
 const sortAscending = (a: PreviewSample, b: PreviewSample) => a.id.localeCompare(b.id)
 
+const hardCodedSamples = [sampleEN, sampleZH, sampleJA, sampleAR, sampleKR].sort(
+  sortAscending
+) as PreviewSample[]
+
 const FontPreview = (props: FontPreviewProps): JSX.Element => {
   const [preview, setPreview] = useState<PreviewSample>(sampleEN)
 
   const samples = useMemo(() => {
-    const hardCodedSamples = [sampleEN, sampleZH, sampleJA, sampleAR, sampleKR].sort(
-      sortAscending
-    ) as PreviewSample[]
-
     props.sampleTexts.sort(sortAscending)
-
     return hardCodedSamples.concat(props.sampleTexts)
-  }, [])
+  }, [props.sampleTexts])
 
   return (
     <div className="font-preview">

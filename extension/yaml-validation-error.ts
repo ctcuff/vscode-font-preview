@@ -1,5 +1,5 @@
 class YAMLValidationError extends Error {
-	name = 'YAMLValidationError'
+  name = 'YAMLValidationError'
 }
 
 export default YAMLValidationError

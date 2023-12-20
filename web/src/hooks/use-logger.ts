@@ -1,5 +1,5 @@
 import { useContext, useRef } from 'react'
-import Logger from '../logger'
+import Logger from '../util/logger'
 import VscodeContext from '../contexts/VscodeContext'
 
 const useLogger = (): Logger => {

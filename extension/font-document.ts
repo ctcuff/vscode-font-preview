@@ -46,6 +46,8 @@ class FontDocument implements vscode.CustomDocument {
   /**
    * WOFF2 fonts are compressed and can't be parsed by opentype.js so
    * we need to decompress it and send the file contents using postMessage
+   *
+   * @returns The decompressed TTF content represented as a Uint8Array
    */
   public async decompress(): Promise<Uint8Array | null> {
     if (this.extension !== 'woff2') {

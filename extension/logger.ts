@@ -38,6 +38,10 @@ class Logger {
     return totalTime
   }
 
+  public debug(message: string, tag?: string): void {
+    this.log('DEBUG', message, tag)
+  }
+
   public info(message: string, tag?: string): void {
     this.log('INFO', message, tag)
   }

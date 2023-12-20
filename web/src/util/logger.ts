@@ -1,5 +1,5 @@
-import { LogLevel } from '../../shared/types'
-import { TypedWebviewApi } from './types'
+import { LogLevel } from '../../../shared/types'
+import { TypedWebviewApi } from '../types'
 
 class Logger {
   private static instance: Logger | null = null
@@ -42,6 +42,10 @@ class Logger {
     return totalTime
   }
 
+  public debug(message: string, tag?: string): void {
+    this.log('DEBUG', message, tag)
+  }
+
   public info(message: string, tag?: string): void {
     this.log('INFO', message, tag)
   }
@@ -53,11 +57,12 @@ class Logger {
   public error(message: string, tag?: string, error?: unknown): void {
     if (error instanceof Error) {
       if (error?.message) {
-        this.log('ERROR', `${message}: ${error.message}`, tag)
-      }
-      if (error?.stack) {
+        this.log('ERROR', `${message} ${error.message}`, tag)
+      } else if (error?.stack) {
         this.log('ERROR', error.stack, tag)
       }
+    } else if (error) {
+      this.log('ERROR', `${message} ${error}`, tag)
     } else {
       this.log('ERROR', message, tag)
     }

@@ -34,7 +34,6 @@ const App = (): JSX.Element | null => {
   const [sampleTexts, setSampleTexts] = useState<PreviewSample[]>([])
   const vscode = useContext(VscodeContext)
   const logger = useLogger()
-  const savedState = vscode.getState()
 
   const loadFont = async (payload: FontLoadEvent['payload']) => {
     try {
@@ -43,6 +42,7 @@ const App = (): JSX.Element | null => {
         onBeforeCreateStyle: () => vscode.postMessage({ type: 'PROGRESS_START' }),
         onStyleCreated: () => vscode.postMessage({ type: 'PROGRESS_STOP' }),
         onLoadError: () => {
+          vscode.postMessage({ type: 'PROGRESS_STOP' })
           vscode.postMessage({
             type: 'ERROR',
             payload: `Parsing Error: Couldn't render font preview.
@@ -69,37 +69,14 @@ const App = (): JSX.Element | null => {
 
     switch (message.data.type) {
       case 'FONT_LOADED': {
-        if (savedState?.fileUrl) {
-          // Reopening the the most recently closed tab (CMD/CTRL + Shift + T )
-          // causes vscode to read in the saved state but also fire the FONT_LOADED
-          // event. Returning here prevents the font from being loaded twice.
-          // TLDR: Ignore the FONT_LOADED event if there's a saved state
-          break
-        }
-        const { payload } = message.data
-        loadFont(payload)
-        setConfig(payload.config)
-        vscode.setState(payload)
+        loadFont(message.data.payload)
         break
       }
       case 'CONFIG_LOADED': {
-        // If the config changed, we'll need to load the font again
-        const { payload } = message.data
-
-        setConfig(payload)
-
-        if (savedState) {
-          const updatedState = {
-            ...savedState,
-            config: payload
-          }
-
-          loadFont(updatedState)
-          vscode.setState(updatedState)
-        }
+        setConfig(message.data.payload)
         break
       }
-      case 'LOAD_SAMPLE_TEXT':
+      case 'SAMPLE_TEXT_LOADED':
         setSampleTexts(message.data.payload)
         break
       default:
@@ -132,16 +109,12 @@ const App = (): JSX.Element | null => {
   }
 
   useEffect(() => {
-    logger.info('Webview initialized', LOG_TAG)
+    logger.debug('Webview initialized', LOG_TAG)
     window.addEventListener('message', onMessage)
 
-    // If we're loading from the saved state, we need to fetch the config
-    // again just in case it changed while the webview was hidden
-    if (savedState?.fileUrl) {
-      logger.info('Loading from saved state', LOG_TAG)
-      vscode.postMessage({ type: 'GET_CONFIG' })
-      vscode.postMessage({ type: 'GET_SAMPLE_TEXT' })
-    }
+    vscode.postMessage({ type: 'GET_FONT' })
+    vscode.postMessage({ type: 'GET_CONFIG' })
+    vscode.postMessage({ type: 'GET_SAMPLE_TEXT' })
 
     return () => {
       window.removeEventListener('message', onMessage)
@@ -164,7 +137,7 @@ const App = (): JSX.Element | null => {
   return (
     <FontContext.Provider value={{ font, fileName, fontFeatures }}>
       <ToastContainer limit={1} />
-      <TabView panelClassName="app" defaultTabId={config?.defaultTab || 'Preview'}>
+      <TabView panelClassName="app" defaultTabId={config.defaultTab || 'Preview'}>
         <Tab title="Preview" id="Preview" forceRender>
           <FontPreview sampleTexts={sampleTexts} />
         </Tab>

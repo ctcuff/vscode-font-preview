@@ -3,27 +3,12 @@ import { PreviewSample } from '../shared/types'
 import * as fs from 'fs'
 import * as yaml from 'js-yaml'
 import Logger from './logger'
-import { ErrorMapCtx, z, ZodError, ZodErrorMap, ZodIssueOptionalMessage } from 'zod'
+import { z, ZodError } from 'zod'
 import { TypedWorkspaceConfiguration } from './types/overrides'
 import YAMLValidationError from './yaml-validation-error'
 
 const LOG_TAG = 'yaml-loader'
 const logger = Logger.getInstance()
-
-const errorMap = (
-  issue: ZodIssueOptionalMessage,
-  context: ErrorMapCtx
-): ReturnType<ZodErrorMap> => {
-  let message = context.defaultError
-
-  if (issue.code === 'invalid_type') {
-    message =
-      `Error validating '${issue.path[0]}'. ` +
-      `Expected ${issue.expected} but got ${issue.received} instead`
-  }
-
-  return { message }
-}
 
 const schema = z.object({
   id: z.string(),
@@ -36,21 +21,32 @@ const loadYamlFile = async (path: string): Promise<PreviewSample | null> => {
   try {
     const content = await fs.promises.readFile(path, { encoding: 'utf8' })
     const sample = yaml.load(content) as PreviewSample
-    schema.parse(sample, { errorMap })
+    schema.parse(sample)
     return sample
   } catch (e) {
+    // The errors in the catch statement are still thrown so that they can
+    // propagate upwards and be handled by the calling function
     if (e instanceof ZodError) {
       e.errors.forEach(error => {
         logger.error(
           'Error during YAML validation',
           LOG_TAG,
-          JSON.stringify({ message: error.message, file: path }, null, 4)
+          JSON.stringify(
+            {
+              parameter: error.path[0],
+              message: error.message,
+              file: path
+            },
+            null,
+            4
+          )
         )
       })
-      throw new YAMLValidationError(`Error validating YAML file: ${path}`)
-    } else {
-      logger.error('Error reading YML file', LOG_TAG, e)
+      throw new YAMLValidationError(`Invalid YAML file: ${path}`)
     }
+
+    logger.error('Error reading YML file', LOG_TAG, e)
+
     throw e
   }
 }
