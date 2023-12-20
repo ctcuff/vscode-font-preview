@@ -1,5 +1,8 @@
-const baseConfig = require('@font-preview/eslint-base-config/eslint.base')
+const baseConfig = require('@font-preview/eslint-base-config')
 
+/**
+ * @type {import('eslint').Linter.Config}
+ */
 module.exports = {
   root: true,
   extends: [
@@ -34,7 +37,7 @@ module.exports = {
       }
     }
   },
-  ignorePatterns: [...baseConfig.ignorePatterns, 'src/lib/**/*', 'src/brotli/**/*'],
+  ignorePatterns: [...baseConfig.ignorePatterns],
   rules: {
     ...baseConfig.rules,
     'no-alert': 'error',

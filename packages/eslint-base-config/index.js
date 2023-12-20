@@ -1,6 +1,8 @@
-// Shared eslint config used in the extension and the webview
+/**
+ * @type {import('eslint').Linter.Config}
+ */
 module.exports = {
-  ignorePatterns: ['.eslintrc.js', 'webpack.config.js'],
+  ignorePatterns: ['webpack.config.js'],
   rules: {
     'arrow-parens': ['error', 'as-needed'],
     'arrow-body-style': 'off',
@@ -8,6 +10,7 @@ module.exports = {
     'semi-style': 'off',
     'no-continue': 'off',
     'no-console': 'error',
+    quotes: ['error', 'single', { avoidEscape: true }],
     'comma-dangle': ['error', 'never'],
     'operator-linebreak': 'off',
     'class-methods-use-this': 'off',
@@ -20,8 +23,7 @@ module.exports = {
     'lines-between-class-members': 'off',
     'prefer-destructuring': 'off',
     // Disabled to let TypeScript handle unused variable checking.
-    //  ESLint would report unused variables in a type's
-    // function callback declaration
+    // ESLint would report unused variables in a type's function callback declaration
     'no-unused-vars': 'off',
     // Disabled to allow types to be defined at the end of a file
     'no-use-before-define': 'off',

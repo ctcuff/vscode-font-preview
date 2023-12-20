@@ -42,7 +42,7 @@ const loadYamlFile = async (path: string): Promise<PreviewSample | null> => {
           )
         )
       })
-      throw new YAMLValidationError(`Invalid YAML file: ${path}`)
+      throw new YAMLValidationError(`Invalid YAML file: ${path}`, path)
     }
 
     logger.error('Error reading YML file', LOG_TAG, e)

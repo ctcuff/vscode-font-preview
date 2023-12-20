@@ -1,10 +1,10 @@
 import * as vscode from 'vscode'
 import * as path from 'path'
 import html from './index.html'
-import { template } from './util'
+import { getConfig, template } from './util'
 import FontDocument from './font-document'
-import { WorkspaceConfig, WebviewMessage, LogLevel } from '@font-preview/shared'
-import { TypedWorkspaceConfiguration, TypedWebviewPanel } from './types/overrides'
+import { WebviewMessage, LogLevel } from '@font-preview/shared'
+import { TypedWebviewPanel } from './types/overrides'
 import Logger from './logger'
 import * as yamlLoader from './yaml-loader'
 import YAMLValidationError from './yaml-validation-error'
@@ -80,7 +80,7 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
   private async loadFont(panel: TypedWebviewPanel, document: FontDocument) {
     const fileUri = panel.webview.asWebviewUri(document.uri)
     const fileSize = await document.size()
-    const { useWorker } = this.getAllConfig()
+    const { useWorker } = getConfig()
 
     this.logger.info(`Loading font of size ${(fileSize / 1024).toFixed(2)}kb`, LOG_TAG)
 
@@ -143,7 +143,7 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
       case 'GET_CONFIG':
         panel.webview.postMessage({
           type: 'CONFIG_LOADED',
-          payload: this.getAllConfig()
+          payload: getConfig()
         })
         break
       case 'PROGRESS_START':
@@ -182,20 +182,6 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
         break
       default:
         this.logger.warn(`Invalid log level received from tag [${tag}]`, LOG_TAG)
-    }
-  }
-
-  private getAllConfig(): WorkspaceConfig {
-    const config = vscode.workspace.getConfiguration(
-      'font-preview'
-    ) as TypedWorkspaceConfiguration
-
-    return {
-      defaultTab: config.get('defaultTab'),
-      useWorker: config.get('useWorker'),
-      showGlyphWidth: config.get('showGlyphWidth'),
-      showGlyphIndex: config.get('showGlyphIndex'),
-      sampleTextPaths: config.get('sampleTextPaths')
     }
   }
 
@@ -243,16 +229,30 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
 
     errors.forEach(error => {
       const actions: string[] =
-        error.reason instanceof YAMLValidationError ? ['Show Logs'] : []
+        error.reason instanceof YAMLValidationError ? ['Show Logs', 'Open File'] : []
 
       if (error.reason.message) {
         vscode.window.showErrorMessage(error.reason.message, ...actions).then(action => {
-          if (action === 'Show Logs') {
-            this.logger.outputChannel.show()
+          switch (action) {
+            case 'Show Logs':
+              this.logger.outputChannel.show()
+              break
+            case 'Open File':
+              this.openYAMLFile((error.reason as YAMLValidationError).filePath)
+              break
           }
         })
       }
     })
+  }
+
+  private async openYAMLFile(filePath: string) {
+    try {
+      const document = await vscode.workspace.openTextDocument(filePath)
+      vscode.window.showTextDocument(document, { preview: false })
+    } catch (err) {
+      this.logger.error('Error opening document', LOG_TAG, err)
+    }
   }
 }
 
