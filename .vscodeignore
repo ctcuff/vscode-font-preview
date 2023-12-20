@@ -5,16 +5,12 @@ node_modules/**
 src/**
 .gitignore
 .yarnrc
-vsc-extension-quickstart.md
 **/tsconfig.json
 **/.eslintrc.json
 **/*.map
 **/*.ts
-web/**
-web-dist/**
 fonts/**
 .husky/**
-.idea/**
 .prettierrc.json
 .prettierignore
 .env
@@ -24,3 +20,5 @@ yarn-error.log
 *.vsix
 scripts/**
 samples
+packages/**/*
+.yarn

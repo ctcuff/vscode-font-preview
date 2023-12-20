@@ -1,7 +1,9 @@
-import { LogLevel } from './types'
+import type { LogLevel } from './types'
 
 export abstract class BaseLogger {
   protected timers: Record<string, number> = {}
+
+  protected abstract log(level: LogLevel, message: string, tag?: string): void
 
   public startTimer(id: string): void {
     if (this.timers[id]) {
@@ -52,6 +54,4 @@ export abstract class BaseLogger {
       this.log('ERROR', message, tag)
     }
   }
-
-  protected abstract log(level: LogLevel, message: string, tag?: string): void
 }

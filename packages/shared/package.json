@@ -8,6 +8,7 @@
     "format": "prettier --write './**/*.ts'",
     "lint": "DEBUG=eslint:cli-engine eslint './**/*.ts'",
     "test:compile": "tsc -p ./tsconfig.json --noEmit",
+    "watch": "webpack --watch --mode development",
     "precommit": "lint-staged"
   },
   "devDependencies": {

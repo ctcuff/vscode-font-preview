@@ -11,16 +11,16 @@
   ],
   "private": true,
   "scripts": {
-    "build": "yarn prebuild && yarn workspaces foreach  --include '@font-preview/{extension,web}' --interlaced -v run build",
+    "build": "yarn build:shared && yarn workspaces foreach  --include '@font-preview/{extension,web}' --interlaced -v run build",
+    "build:shared": "yarn workspace @font-preview/shared run build",
     "format": "yarn workspaces foreach --exclude @font-preview/eslint-base-config --interlaced -v run format",
     "lint": "yarn workspaces foreach --exclude @font-preview/eslint-base-config --interlaced -v run lint",
     "package": "vsce package --no-update-package-json --no-dependencies",
-    "prebuild": "yarn workspace @font-preview/shared run build",
     "precommit": "yarn workspaces foreach --exclude @font-preview/eslint-base-config --interlaced -v run precommit",
-    "postinstall": "husky install",
+    "postinstall": "yarn build:shared && husky install",
     "test:compile": "yarn workspaces foreach --exclude @font-preview/eslint-base-config --interlaced -v run test:compile",
     "vscode:prepublish": "yarn run build",
-    "watch": "yarn workspaces foreach --parallel --include '@font-preview/{extension,web}' --interlaced run watch"
+    "watch": "yarn build:shared && yarn workspaces foreach --parallel --include '@font-preview/{extension,web,shared}' --interlaced run watch"
   },
   "devDependencies": {
     "husky": "^8.0.3",
