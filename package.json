@@ -6,6 +6,28 @@
   "version": "2.2.1",
   "publisher": "ctcuff",
   "icon": "icon.png",
+  "workspaces": [
+    "packages/*"
+  ],
+  "private": true,
+  "scripts": {
+    "build": "yarn workspaces foreach --parallel --include '@font-preview/{extension,web}' --interlaced -v run build",
+    "format": "yarn workspaces foreach --include '@font-preview/{extension,web}' --interlaced -v run lint ",
+    "lint": "yarn workspaces foreach --exclude @font-preview/eslint-base-config --interlaced -v run lint",
+    "package": "vsce package --no-update-package-json",
+    "precommit": "yarn lint",
+    "postinstall": "husky install",
+    "pretest": "yarn run test-compile && yarn run lint",
+    "test": "node ./out/test/runTest.js",
+    "test:compile": "tsc -p ./",
+    "test:watch": "yarn workspaces foreach --exclude @font-preview/eslint-base-config --interlaced -v run test:compile",
+    "vscode:prepublish": "yarn run build",
+    "watch": "yarn workspaces foreach --parallel --include '@font-preview/{extension,web}' --interlaced run watch"
+  },
+  "devDependencies": {
+    "husky": "^8.0.3",
+    "lint-staged": "^14.0.1"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/ctcuff/vscode-font-preview/"
@@ -20,8 +42,10 @@
     "font preview",
     "font viewer"
   ],
+  "packageManager": "yarn@3.6.4",
   "engines": {
-    "vscode": "^1.56.0"
+    "vscode": "^1.56.0",
+    "yarn": "^3.6.4"
   },
   "vsce": {
     "yarn": true
@@ -102,55 +126,5 @@
         }
       }
     }
-  },
-  "scripts": {
-    "build": "(rm -rf ./dist || true) && npm-run-all -p build:*",
-    "build:extension": "webpack --mode production --devtool eval --env debug=false",
-    "build:web": "cd ./web && yarn build",
-    "format": "prettier --write './shared/**/*{.js,.ts}' './extension/**/*{.js,.ts}' './web/**/*{.js,.jsx,.ts,.tsx,.scss}'",
-    "lint": "yarn lint:web && yarn lint:extension",
-    "lint:web": "cd ./web && yarn lint",
-    "lint:extension": "eslint './extension/**/*{.js,.ts}'",
-    "package": "vsce package --no-update-package-json",
-    "postinstall": "cd web && yarn",
-    "precommit": "lint-staged",
-    "prepare": "husky install",
-    "pretest": "yarn run test-compile && yarn run lint",
-    "test": "node ./out/test/runTest.js",
-    "test:compile": "tsc -p ./",
-    "test:watch": "tsc -watch -p ./",
-    "vscode:prepublish": "yarn run build",
-    "watch": "npm-run-all -p watch:*",
-    "watch:extension": "webpack --watch --mode development --env debug=true",
-    "watch:web": "cd ./web && yarn watch"
-  },
-  "devDependencies": {
-    "@types/glob": "^7.1.3",
-    "@types/js-yaml": "^4.0.9",
-    "@types/mocha": "^8.0.4",
-    "@types/node": "^12.11.7",
-    "@types/vscode": "^1.56.0",
-    "@types/vscode-webview": "^1.57.0",
-    "@types/wawoff2": "^1.0.0",
-    "@typescript-eslint/eslint-plugin": "^4.14.1",
-    "@typescript-eslint/parser": "^4.14.1",
-    "eslint": "^7.19.0",
-    "glob": "^7.1.6",
-    "html-loader": "^2.1.2",
-    "husky": "^6.0.0",
-    "lint-staged": "^11.0.0",
-    "mocha": "^10.0.0",
-    "npm-run-all": "^4.1.5",
-    "prettier": "^2.3.0",
-    "ts-loader": "^9.3.1",
-    "typescript": "^4.1.3",
-    "vscode-test": "^1.6.1",
-    "webpack": "^5.19.0",
-    "webpack-cli": "^4.7.0"
-  },
-  "dependencies": {
-    "js-yaml": "^4.1.0",
-    "wawoff2": "^2.0.1",
-    "zod": "^3.22.4"
   }
 }

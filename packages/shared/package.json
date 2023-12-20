@@ -1,0 +1,21 @@
+{
+  "name": "@font-preview/shared",
+  "version": "2.2.1",
+  "main": "index.js",
+  "private": true,
+  "scripts": {
+    "format": "prettier --write './**/*.ts'",
+    "lint": "eslint './**/*.ts'",
+    "test:compile": "tsc -p ./",
+    "precommit": "lint-staged"
+  },
+  "devDependencies": {
+    "@font-preview/eslint-base-config": "*",
+    "@types/vscode": "^1.56.0",
+    "@typescript-eslint/eslint-plugin": "^4.14.1",
+    "@typescript-eslint/parser": "^4.14.1",
+    "eslint": "^7.19.0",
+    "prettier": "^2.3.0",
+    "typescript": "^4.1.3"
+  }
+}

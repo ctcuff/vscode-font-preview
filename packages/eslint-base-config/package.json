@@ -1,0 +1,7 @@
+{
+  "name": "@font-preview/eslint-base-config",
+  "version": "2.2.1",
+  "description": "Base eslint configuration",
+  "license": "MIT",
+  "private": true
+}

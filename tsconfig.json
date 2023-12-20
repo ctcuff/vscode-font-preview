@@ -1,25 +1,16 @@
 {
+  "references": [
+    {
+      "path": "./packages/extension"
+    },
+    {
+      "path": "./packages/shared"
+    },
+    {
+      "path": "./packages/web"
+    },
+  ],
   "compilerOptions": {
-    "module": "commonjs",
-    "target": "ES2020",
-    "outDir": "dist",
-    "lib": [
-      "ES2020"
-    ],
-    "sourceMap": true,
-    "rootDir": "extension",
-    "resolveJsonModule": true,
-    "strict": true,
-    "noImplicitReturns": true,
-    "noUnusedParameters": true,
-    "allowJs": true
-  },
-  "exclude": [
-    "node_modules",
-    ".vscode-test",
-    "./web/**",
-    "./dist/**/*",
-    "./*.js",
-    "./vsix/**/*",
-  ]
+    "composite": true
+  }
 }
