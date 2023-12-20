@@ -14,9 +14,6 @@ module.exports = {
     // both don't conflict with each other
     filename: 'web-view.js'
   },
-  // watchOptions: {
-  //   ignored: './web/**'
-  // },
   devtool: 'nosources-source-map',
   resolve: {
     extensions: ['.ts', '.js', '.tsx', '.json']

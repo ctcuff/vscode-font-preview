@@ -11,10 +11,11 @@
   ],
   "private": true,
   "scripts": {
-    "build": "yarn workspaces foreach --parallel --include '@font-preview/{extension,web}' --interlaced -v run build",
+    "build": "yarn prebuild && yarn workspaces foreach  --include '@font-preview/{extension,web}' --interlaced -v run build",
     "format": "yarn workspaces foreach --exclude @font-preview/eslint-base-config --interlaced -v run format",
     "lint": "yarn workspaces foreach --exclude @font-preview/eslint-base-config --interlaced -v run lint",
     "package": "vsce package --no-update-package-json --no-dependencies",
+    "prebuild": "yarn workspace @font-preview/shared run build",
     "precommit": "yarn workspaces foreach --exclude @font-preview/eslint-base-config --interlaced -v run precommit",
     "postinstall": "husky install",
     "test:compile": "yarn workspaces foreach --exclude @font-preview/eslint-base-config --interlaced -v run test:compile",

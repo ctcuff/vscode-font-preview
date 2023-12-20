@@ -25,7 +25,7 @@ class FontDocument implements vscode.CustomDocument {
     this.uri = uri
     this.fileName = name
     this.fullFileName = `${name}.${ext}`
-    this.extension = ext.replace('.', '') as FontExtension
+    this.extension = ext.replace('.', '').toLowerCase() as FontExtension
   }
 
   dispose(): void {}

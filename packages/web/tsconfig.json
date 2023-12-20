@@ -17,12 +17,13 @@
     "isolatedModules": true,
     "outDir": "../../dist/web",
     "jsx": "react",
-    "rootDir": ".",
+    "rootDir": "./src",
     "module": "es2020",
-    "composite": false
+    "composite": true
   },
   "include": [
-    "./src/**/*"
+    "./src/**/*",
+    "./src/assets/**/*.json"
   ],
   "exclude": [
     "node_modules"

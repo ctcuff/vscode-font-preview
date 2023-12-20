@@ -1,8 +1,5 @@
 const baseConfig = require('@font-preview/eslint-base-config/')
 
-/**
- * @type {import('eslint').Linter.Config}
- */
 module.exports = {
   root: true,
   parser: '@typescript-eslint/parser',
@@ -14,6 +11,6 @@ module.exports = {
   rules: {
     ...baseConfig.rules
   },
-  ignorePatterns: [...baseConfig.ignorePatterns],
+  ignorePatterns: [...baseConfig.ignorePatterns, 'index.js'],
   overrides: [...baseConfig.overrides]
 }

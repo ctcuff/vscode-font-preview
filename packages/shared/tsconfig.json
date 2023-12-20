@@ -6,7 +6,7 @@
     "lib": [
       "ES2020"
     ],
-    "sourceMap": true,
+    "sourceMap": false,
     "rootDir": ".",
     "strict": true,
     "noImplicitReturns": true,
@@ -16,6 +16,10 @@
     "composite": true
   },
   "exclude": [
-    "node_modules",
+    "node_modules"
   ],
+  "include": [
+    "./index.ts",
+    "./src"
+  ]
 }
