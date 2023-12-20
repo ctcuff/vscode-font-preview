@@ -6,7 +6,7 @@
   "scripts": {
     "build": "webpack --mode production --devtool eval",
     "format": "prettier --write './**/*{.js,.jsx,.ts,.tsx,.scss}'",
-    "lint": "eslint './src/**/*{.js,.jsx,.ts,.tsx}' --color",
+    "lint": "DEBUG=eslint:cli-engine eslint './src/**/*{.js,.jsx,.ts,.tsx}'",
     "precommit": "lint-staged",
     "test:compile": "tsc -p ./tsconfig.json --noEmit",
     "watch": "webpack --watch --mode development"

@@ -5,7 +5,7 @@
   "scripts": {
     "build": "webpack --mode production --devtool eval --env debug=false",
     "format": "prettier --write './**/*{.js,.ts}'",
-    "lint": "eslint './**/*{.js,.ts}'",
+    "lint": "DEBUG=eslint:cli-engine eslint './**/*{.js,.ts}'",
     "precommit": "lint-staged",
     "prepare": "husky install",
     "test:compile": "tsc -p ./tsconfig.json --noEmit",

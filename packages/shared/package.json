@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "format": "prettier --write './**/*.ts'",
-    "lint": "eslint './**/*.ts'",
+    "lint": "DEBUG=eslint:cli-engine eslint './**/*.ts'",
     "test:compile": "tsc -p ./tsconfig.json --noEmit",
     "precommit": "lint-staged"
   },
