@@ -49,7 +49,7 @@ const renderGlyph = (
   const fontSize = fontScale * font.unitsPerEm
   const fontBaseline = CELL_MARGIN_TOP + (height * head.yMax) / maxHeight
   const glyph = font.glyphs.get(glyphIndex)
-  const glyphWidth = glyph.advanceWidth * fontScale
+  const glyphWidth = (glyph.advanceWidth ?? 1) * fontScale
   const xMin = (CELL_WIDTH - glyphWidth) / 2
   const xMax = (CELL_WIDTH + glyphWidth) / 2
 

@@ -3,7 +3,8 @@
     "lib": [
       "dom",
       "dom.iterable",
-      "esnext"
+      "esnext",
+      "WebWorker"
     ],
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
@@ -18,10 +19,10 @@
     "jsx": "react",
     "rootDir": ".",
     "module": "es2020",
-    "composite": true
+    "composite": false
   },
   "include": [
-    "."
+    "./src/**/*"
   ],
   "exclude": [
     "node_modules"

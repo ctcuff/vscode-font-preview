@@ -13,10 +13,13 @@
     "noImplicitReturns": true,
     "noUnusedParameters": true,
     "allowJs": true,
-    "composite": true
+    "skipLibCheck": true
   },
   "exclude": [
     "node_modules",
-    "test"
+    "./test/**/*"
+  ],
+  "include": [
+    "./src/**/*"
   ]
 }

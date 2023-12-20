@@ -1520,7 +1520,7 @@ __metadata:
     mocha: ^10.0.0
     prettier: ^2.3.0
     ts-loader: ^9.3.1
-    typescript: ^4.1.3
+    typescript: ~4.1.3
     vscode-test: ^1.6.1
     wawoff2: ^2.0.1
     webpack: ^5.19.0
@@ -1539,7 +1539,7 @@ __metadata:
     "@typescript-eslint/parser": ^4.14.1
     eslint: ^7.19.0
     prettier: ^2.3.0
-    typescript: ^4.1.3
+    typescript: ~4.1.3
   languageName: unknown
   linkType: soft
 
@@ -1554,6 +1554,7 @@ __metadata:
     "@babel/preset-typescript": ^7.18.6
     "@font-preview/eslint-base-config": "*"
     "@font-preview/shared": "*"
+    "@types/css-font-loading-module": ^0.0.12
     "@types/opentype.js": ^1.3.1
     "@types/react-dom": ^17.0.6
     "@types/react-linkify": ^1.0.0
@@ -1585,7 +1586,7 @@ __metadata:
     sass: ^1.53.0
     sass-loader: ^12.0.0
     style-loader: ^2.0.0
-    typescript: ^4.1.3
+    typescript: ~4.1.3
     webpack: ^5.19.0
     worker-plugin: ^5.0.1
     yaml-loader: ^0.6.0
@@ -1736,6 +1737,13 @@ __metadata:
   version: 1.1.2
   resolution: "@tootallnate/once@npm:1.1.2"
   checksum: e1fb1bbbc12089a0cb9433dc290f97bddd062deadb6178ce9bcb93bb7c1aecde5e60184bc7065aec42fe1663622a213493c48bbd4972d931aae48315f18e1be9
+  languageName: node
+  linkType: hard
+
+"@types/css-font-loading-module@npm:^0.0.12":
+  version: 0.0.12
+  resolution: "@types/css-font-loading-module@npm:0.0.12"
+  checksum: 6465e04afb0e396a375d0173b9479910328f81535744e0b9ecbcb00fe414c4ac357ce35293c11840377a499ed8cee55081ca4a0b952e7e739ef36d2c30a0e50b
   languageName: node
   linkType: hard
 
@@ -7291,23 +7299,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:^4.1.3":
-  version: 4.9.5
-  resolution: "typescript@npm:4.9.5"
+"typescript@npm:~4.1.3":
+  version: 4.1.6
+  resolution: "typescript@npm:4.1.6"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: ee000bc26848147ad423b581bd250075662a354d84f0e06eb76d3b892328d8d4440b7487b5a83e851b12b255f55d71835b008a66cbf8f255a11e4400159237db
+  checksum: 54aed909f94b16178c8a8d8911871b4e1c04454a3e6c82166715e28083e7ce6271e4d1df6f82c89544a4759b07aec780785032534e9c93b254e2107a18712c05
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@^4.1.3#~builtin<compat/typescript>":
-  version: 4.9.5
-  resolution: "typescript@patch:typescript@npm%3A4.9.5#~builtin<compat/typescript>::version=4.9.5&hash=289587"
+"typescript@patch:typescript@~4.1.3#~builtin<compat/typescript>":
+  version: 4.1.6
+  resolution: "typescript@patch:typescript@npm%3A4.1.6#~builtin<compat/typescript>::version=4.1.6&hash=4a8eb8"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 1f8f3b6aaea19f0f67cba79057674ba580438a7db55057eb89cc06950483c5d632115c14077f6663ea76fd09fce3c190e6414bb98582ec80aa5a4eaf345d5b68
+  checksum: 3bd9915f236817e4e2d32dd0d90e8902875929f014bb87a478000e32adda91d12f0425931ee6f9d6a2bc7d0c9242588fcee1050ac294497dfabf27d3d73b335c
   languageName: node
   linkType: hard
 

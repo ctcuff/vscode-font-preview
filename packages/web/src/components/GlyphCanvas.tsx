@@ -166,7 +166,7 @@ const renderGlyph = (
   const glyphScale = Math.min(maxWidth / (head.xMax - head.xMin), glyphHeight / maxHeight)
   const glyphSize = glyphScale * font.unitsPerEm
   const glyphBaseline = GLYPH_MARGIN + (glyphHeight * head.yMax) / maxHeight
-  const glyphWidth = glyph.advanceWidth * glyphScale
+  const glyphWidth = (glyph.advanceWidth ?? 1) * glyphScale
   const xMin = (width - glyphWidth) / 2
   const xMax = (width + glyphWidth) / 2
 

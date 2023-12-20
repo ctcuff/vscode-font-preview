@@ -12,6 +12,7 @@
     "noImplicitReturns": true,
     "noUnusedParameters": true,
     "allowJs": true,
+    "skipLibCheck": true,
     "composite": true
   },
   "exclude": [

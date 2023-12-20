@@ -4,5 +4,5 @@ module.exports = {
   // Compiles all TypeScript without emitting JS files to
   // check for type errors. This is specified as a function
   // so that lint-staged doesn't pass any arguments to tsc
-  './**/*.ts?(x)': () => 'tsc -p ./web/tsconfig.json --noEmit'
+  './**/*.ts?(x)': () => 'tsc -p ./tsconfig.json --noEmit'
 }
