@@ -1,35 +1,9 @@
 @import './_variables.scss';
 
 .app {
-  &:not(.error-container) {
+  &:not(.error-overlay) {
     margin: 0 auto 64px auto;
     width: 80%;
-  }
-
-  &.error-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    height: 100vh;
-
-    svg {
-      width: 48px;
-      height: 48px;
-      fill: var(
-        --vscode-notificationsWarningIcon-foreground,
-        var(--vscode-editorWarning-foreground)
-      );
-    }
-
-    .error-msg {
-      word-break: break-word;
-      line-height: 1.4em;
-      font-size: 14px;
-      text-align: center;
-      max-width: 450px;
-      color: var(--vscode-foreground);
-    }
   }
 
   @media screen and (max-width: 980px) {

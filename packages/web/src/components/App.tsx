@@ -8,7 +8,6 @@ import {
   WebviewMessage,
   PreviewSample
 } from '@font-preview/shared/'
-import { VscWarning } from 'react-icons/vsc'
 import TabView, { Tab } from './TabView'
 import FontPreview from './tabs/FontPreview'
 import Glyphs from './tabs/Glyphs'
@@ -21,6 +20,7 @@ import TypingPreview from './tabs/TypingPreview'
 import { isTableEmpty } from '../util'
 import FontLoader from '../font-loader'
 import useLogger from '../hooks/use-logger'
+import ErrorOverlay from './ErrorOverlay'
 
 const LOG_TAG = 'App'
 
@@ -39,14 +39,19 @@ const App = (): JSX.Element | null => {
     try {
       const fontLoader = new FontLoader(logger, {
         ...payload,
-        onBeforeCreateStyle: () => vscode.postMessage({ type: 'PROGRESS_START' }),
-        onStyleCreated: () => vscode.postMessage({ type: 'PROGRESS_STOP' }),
+        onBeforeCreateStyle: () =>
+          vscode.postMessage({ type: 'TOGGLE_PROGRESS', payload: true }),
+        onStyleCreated: () =>
+          vscode.postMessage({ type: 'TOGGLE_PROGRESS', payload: false }),
         onLoadError: () => {
-          vscode.postMessage({ type: 'PROGRESS_STOP' })
+          vscode.postMessage({ type: 'TOGGLE_PROGRESS', payload: false })
           vscode.postMessage({
-            type: 'ERROR',
-            payload:
-              "Couldn't render font preview. Some font information may still be available."
+            type: 'SHOW_MESSAGE',
+            payload: {
+              message:
+                "Couldn't render font preview. Some font information may still be available.",
+              messageType: 'ERROR'
+            }
           })
         }
       })
@@ -59,7 +64,7 @@ const App = (): JSX.Element | null => {
       setFileName(payload.fileName)
     } catch (err: unknown) {
       logger.error('Failed to load font', LOG_TAG, err)
-      vscode.postMessage({ type: 'PROGRESS_STOP' })
+      vscode.postMessage({ type: 'TOGGLE_PROGRESS', payload: true })
       setError(`An error occurred while parsing this font: ${(err as Error).message}`)
     }
   }
@@ -122,12 +127,7 @@ const App = (): JSX.Element | null => {
   }, [])
 
   if (error) {
-    return (
-      <div className="app error-container">
-        <VscWarning />
-        <p className="error-msg">{error}</p>
-      </div>
-    )
+    return <ErrorOverlay errorMessage={error} />
   }
 
   if (!font || !config) {

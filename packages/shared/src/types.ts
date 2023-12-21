@@ -108,32 +108,6 @@ export type ConfigLoadEvent = {
 }
 
 /**
- * Dispatched through the webview to display an error notification
- * in VS Code
- */
-export type ErrorEvent = {
-  type: 'ERROR'
-  payload: string
-}
-/**
- * Dispatched through the webview to display a error warning
- * in VS Code
- */
-export type WarningEvent = {
-  type: 'WARNING'
-  payload: string
-}
-
-/**
- * Dispatched through the webview to display an info notification
- * in VS Code
- */
-export type InfoEvent = {
-  type: 'INFO'
-  payload: string
-}
-
-/**
  * Dispatched by the extension to the webview when the user changes
  * the color scheme of the editor
  */
@@ -143,19 +117,23 @@ export type ColorThemeChangeEvent = {
 }
 
 /**
- * Dispatched from the webview to start the loading notification that appears
- * in VS Code's status bar
+ * Dispatched from the webview to show a message in vscode
  */
-export type StartProgressNotificationEvent = {
-  type: 'PROGRESS_START'
+export type ShowMessageEvent = {
+  type: 'SHOW_MESSAGE'
+  payload: {
+    messageType: 'ERROR' | 'WARNING' | 'INFO'
+    message: string
+  }
 }
 
 /**
- * Dispatched from the webview to dismiss the loading notification that appears
+ * Dispatched from the webview to show or dismiss the loading notification that appears
  * in VS Code's status bar
  */
-export type StopProgressNotificationEvent = {
-  type: 'PROGRESS_STOP'
+export type ToggleProgressNotificationEvent = {
+  type: 'TOGGLE_PROGRESS'
+  payload: boolean
 }
 
 /**
@@ -187,20 +165,21 @@ export type LogEvent = {
   }
 }
 
+/**
+ * Represents an event that's either dispatched from the webview to the extension,
+ * or, from the extension to the webview
+ */
 export type WebviewMessage =
   | RequestFontEvent
   | FontLoadEvent
   | ConfigLoadEvent
-  | ErrorEvent
-  | WarningEvent
-  | InfoEvent
   | ConfigRequestEvent
   | ColorThemeChangeEvent
-  | StartProgressNotificationEvent
-  | StopProgressNotificationEvent
+  | ToggleProgressNotificationEvent
   | LogEvent
   | SampleTextRequestEvent
   | SampleTextLoadEvent
+  | ShowMessageEvent
 
 export enum LogLevel {
   DEBUG = 0,

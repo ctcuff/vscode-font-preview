@@ -3,7 +3,7 @@ import * as path from 'path'
 import html from './index.html'
 import { ConfigKeyMap, getConfig, template, updateConfigValue } from './util'
 import FontDocument from './font-document'
-import { WebviewMessage, LogLevel } from '@font-preview/shared'
+import { WebviewMessage, LogLevel, ShowMessageEvent } from '@font-preview/shared'
 import { TypedWebviewPanel } from './types/overrides'
 import LoggingService from './logging-service'
 import YAMLLoader from './yaml-loader'
@@ -136,14 +136,8 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
     this.logger.debug(`Received message from webview: ${message.type}`, LOG_TAG)
 
     switch (message.type) {
-      case 'ERROR':
-        vscode.window.showErrorMessage(message.payload)
-        break
-      case 'WARNING':
-        vscode.window.showWarningMessage(message.payload)
-        break
-      case 'INFO':
-        vscode.window.showInformationMessage(message.payload)
+      case 'SHOW_MESSAGE':
+        this.showMessage(message.payload.messageType, message.payload.message)
         break
       case 'GET_FONT':
         this.loadFont(panel, document)
@@ -154,11 +148,12 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
           payload: getConfig()
         })
         break
-      case 'PROGRESS_START':
-        this.showProgressNotification(panel)
-        break
-      case 'PROGRESS_STOP':
-        this.shouldShowProgressNotification = false
+      case 'TOGGLE_PROGRESS':
+        if (message.payload) {
+          this.showProgressNotification(panel)
+        } else {
+          this.shouldShowProgressNotification = false
+        }
         break
       case 'LOG': {
         this.logMessageFromWebview(
@@ -171,6 +166,25 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
       case 'GET_SAMPLE_TEXT':
         this.loadSampleText(panel)
         break
+    }
+  }
+
+  private showMessage(
+    messageType: ShowMessageEvent['payload']['messageType'],
+    message: string
+  ) {
+    switch (messageType) {
+      case 'ERROR':
+        vscode.window.showErrorMessage(message)
+        break
+      case 'WARNING':
+        vscode.window.showWarningMessage(message)
+        break
+      case 'INFO':
+        vscode.window.showInformationMessage(message)
+        break
+      default:
+        this.logger.error(`Invalid message type in [showMessage]: ${message}`)
     }
   }
 
