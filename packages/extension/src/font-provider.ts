@@ -5,8 +5,8 @@ import { getConfig, template } from './util'
 import FontDocument from './font-document'
 import { WebviewMessage, LogLevel } from '@font-preview/shared'
 import { TypedWebviewPanel } from './types/overrides'
-import Logger from './logger'
-import * as yamlLoader from './yaml-loader'
+import LoggingService from './logging-service'
+import YAMLLoader from './yaml-loader'
 import YAMLValidationError from './yaml-validation-error'
 
 // https://chromium.googlesource.com/chromium/blink/+/refs/heads/main/Source/platform/fonts/opentype/OpenTypeSanitizer.cpp#70
@@ -18,17 +18,24 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 class FontProvider implements vscode.CustomReadonlyEditorProvider {
   public static readonly viewType = 'font.detail.preview'
   private shouldShowProgressNotification: boolean = false
-  private logger = Logger.getInstance()
+  private readonly logger: LoggingService
+  private readonly yamlLoader: YAMLLoader
 
-  constructor(private readonly context: vscode.ExtensionContext) {}
+  constructor(private readonly context: vscode.ExtensionContext, logger: LoggingService) {
+    this.logger = logger
+    this.yamlLoader = new YAMLLoader(logger)
+  }
 
-  public static register(context: vscode.ExtensionContext): vscode.Disposable {
-    const provider = new FontProvider(context)
+  public static register(
+    context: vscode.ExtensionContext,
+    logger: LoggingService
+  ): vscode.Disposable {
+    const provider = new FontProvider(context, logger)
     return vscode.window.registerCustomEditorProvider(FontProvider.viewType, provider)
   }
 
   public async openCustomDocument(uri: vscode.Uri): Promise<FontDocument> {
-    return new FontDocument(uri)
+    return new FontDocument(uri, this.logger)
   }
 
   public async resolveCustomEditor(
@@ -125,7 +132,7 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
     message: WebviewMessage,
     document: FontDocument
   ): void {
-    this.logger.info(`Received message from webview: ${message.type}`, LOG_TAG)
+    this.logger.debug(`Received message from webview: ${message.type}`, LOG_TAG)
 
     switch (message.type) {
       case 'ERROR':
@@ -167,21 +174,21 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
   }
 
   private logMessageFromWebview(level: LogLevel, message: string, tag?: string) {
-    switch (level.toLowerCase()) {
-      case 'debug':
+    switch (level) {
+      case LogLevel.DEBUG:
         this.logger.debug(message, tag)
         break
-      case 'info':
+      case LogLevel.INFO:
         this.logger.info(message, tag)
         break
-      case 'warn':
+      case LogLevel.WARN:
         this.logger.warn(message, tag)
         break
-      case 'error':
+      case LogLevel.ERROR:
         this.logger.error(message, tag)
         break
       default:
-        this.logger.warn(`Invalid log level received from tag [${tag}]`, LOG_TAG)
+        this.logger.error(`Invalid log level received from tag [${tag}]`, LOG_TAG)
     }
   }
 
@@ -220,7 +227,7 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
    * and posts a message to the panel when complete
    */
   private async loadSampleText(panel: TypedWebviewPanel) {
-    const { sampleTexts, errors } = await yamlLoader.loadSampleTexts()
+    const { sampleTexts, errors } = await this.yamlLoader.loadSampleTextsFromConfig()
 
     panel.webview.postMessage({
       type: 'SAMPLE_TEXT_LOADED',

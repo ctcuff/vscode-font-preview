@@ -37,6 +37,14 @@ export type WorkspaceConfig = {
    * A list of paths to custom example text files. Each file **must** be yaml file.
    */
   sampleTextPaths: string[]
+  /**
+   * The default logging level for the output window
+   */
+  defaultLogLevel: 'Debug' | 'Info' | 'Warn' | 'Error'
+  /**
+   * The ID of the sample text to load by default
+   */
+  defaultSampleTextId: string
 }
 
 // TODO: See if we can load the font before the webview requests it
@@ -190,7 +198,12 @@ export type WebviewMessage =
   | SampleTextRequestEvent
   | SampleTextLoadEvent
 
-export type LogLevel = 'DEBUG' | 'INFO' | 'WARN' | 'ERROR'
+export enum LogLevel {
+  DEBUG = 0,
+  INFO,
+  WARN,
+  ERROR
+}
 
 /**
  * Represents the structure of the YAML file used to display preview text

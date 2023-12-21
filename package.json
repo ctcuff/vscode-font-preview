@@ -121,6 +121,17 @@
           "description": "The name of the default sample text to load. This comes from the 'id' property of the defined YAML schema",
           "type": "string",
           "default": "English"
+        },
+        "font-preview.defaultLogLevel": {
+          "description": "The default logging level for the output window.",
+          "type": "string",
+          "default": "Info",
+          "enum": [
+            "Debug",
+            "Info",
+            "Warn",
+            "Error"
+          ]
         }
       }
     }

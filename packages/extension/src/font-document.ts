@@ -2,7 +2,7 @@ import * as vscode from 'vscode'
 import * as path from 'path'
 import * as wawoff2 from 'wawoff2'
 import { FontExtension } from '@font-preview/shared'
-import Logger from './logger'
+import LoggingService from './logging-service'
 
 const LOG_TAG = 'FontDocument'
 
@@ -17,11 +17,12 @@ class FontDocument implements vscode.CustomDocument {
    */
   public readonly fullFileName: string
   public readonly extension: FontExtension
-  private readonly logger = Logger.getInstance()
+  private readonly logger: LoggingService
 
-  constructor(uri: vscode.Uri) {
+  constructor(uri: vscode.Uri, logger: LoggingService) {
     const { name, ext } = path.parse(uri.fsPath)
 
+    this.logger = logger
     this.uri = uri
     this.fileName = name
     this.fullFileName = `${name}.${ext}`

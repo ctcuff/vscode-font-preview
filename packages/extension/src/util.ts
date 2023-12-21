@@ -1,10 +1,8 @@
 import { WorkspaceConfig } from '@font-preview/shared'
 import { workspace } from 'vscode'
-import Logger from './logger'
 import { TypedWorkspaceConfiguration } from './types/overrides'
 
-const logger = Logger.getInstance()
-const LOG_TAG = 'util'
+export const EXTENSION_ID = 'font-preview'
 
 export type ValueOf<T> = T[keyof T]
 
@@ -26,28 +24,28 @@ export const template = (content: string, data: Record<string, string>): string 
   return html
 }
 
+export const ConfigKeyMap: Readonly<
+  Record<keyof WorkspaceConfig, keyof WorkspaceConfig>
+> = {
+  defaultTab: 'defaultTab',
+  useWorker: 'useWorker',
+  showGlyphWidth: 'showGlyphWidth',
+  showGlyphIndex: 'showGlyphIndex',
+  sampleTextPaths: 'sampleTextPaths',
+  defaultLogLevel: 'defaultLogLevel',
+  defaultSampleTextId: 'defaultSampleTextId'
+}
+
 export const getConfig = (): WorkspaceConfig => {
-  const config = workspace.getConfiguration('font-preview') as TypedWorkspaceConfiguration
+  const config = workspace.getConfiguration(EXTENSION_ID) as TypedWorkspaceConfiguration
 
   return {
     defaultTab: config.get('defaultTab'),
     useWorker: config.get('useWorker'),
     showGlyphWidth: config.get('showGlyphWidth'),
     showGlyphIndex: config.get('showGlyphIndex'),
-    sampleTextPaths: config.get('sampleTextPaths')
-  }
-}
-
-export function updateConfigValue(
-  key: keyof WorkspaceConfig,
-  value: ValueOf<WorkspaceConfig>
-): void {
-  try {
-    const config = workspace.getConfiguration(
-      'font-preview'
-    ) as TypedWorkspaceConfiguration
-    config.update(key, value)
-  } catch (err) {
-    logger.error(`Error updating config, path: ${key}, value: ${value}`, LOG_TAG, err)
+    sampleTextPaths: config.get('sampleTextPaths'),
+    defaultLogLevel: config.get('defaultLogLevel'),
+    defaultSampleTextId: config.get('defaultSampleTextId')
   }
 }

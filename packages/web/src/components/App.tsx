@@ -65,7 +65,7 @@ const App = (): JSX.Element | null => {
   }
 
   const onMessage = (message: MessageEvent<WebviewMessage>): void => {
-    logger.info(`Received message from extension: ${message.data.type}`, LOG_TAG)
+    logger.debug(`Received message from extension: ${message.data.type}`, LOG_TAG)
 
     switch (message.data.type) {
       case 'FONT_LOADED': {
