@@ -45,6 +45,10 @@ export type WorkspaceConfig = {
    * The ID of the sample text to load by default
    */
   defaultSampleTextId: string
+  /**
+   * If true, an error notification will be shown when a sample text file fails validation
+   */
+  showSampleTextErrors: boolean
 }
 
 // TODO: See if we can load the font before the webview requests it

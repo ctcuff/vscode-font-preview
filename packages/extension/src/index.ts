@@ -6,11 +6,10 @@ import { ConfigKeyMap, EXTENSION_ID, getConfig } from './util'
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
   const { defaultLogLevel } = getConfig()
   const logger = new LoggingService(defaultLogLevel)
-
-  logger.startTimer('activate')
-
   const version = context.extension.packageJSON.version
   const id = context.extension.id
+
+  logger.startTimer('activate')
 
   context.subscriptions.push(
     vscode.workspace.onDidChangeConfiguration(event => {

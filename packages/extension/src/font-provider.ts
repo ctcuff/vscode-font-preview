@@ -1,7 +1,7 @@
 import * as vscode from 'vscode'
 import * as path from 'path'
 import html from './index.html'
-import { getConfig, template } from './util'
+import { ConfigKeyMap, getConfig, template, updateConfigValue } from './util'
 import FontDocument from './font-document'
 import { WebviewMessage, LogLevel } from '@font-preview/shared'
 import { TypedWebviewPanel } from './types/overrides'
@@ -18,11 +18,12 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 class FontProvider implements vscode.CustomReadonlyEditorProvider {
   public static readonly viewType = 'font.detail.preview'
   private shouldShowProgressNotification: boolean = false
-  private readonly logger: LoggingService
   private readonly yamlLoader: YAMLLoader
 
-  constructor(private readonly context: vscode.ExtensionContext, logger: LoggingService) {
-    this.logger = logger
+  constructor(
+    private readonly context: vscode.ExtensionContext,
+    private readonly logger: LoggingService
+  ) {
     this.yamlLoader = new YAMLLoader(logger)
   }
 
@@ -228,27 +229,43 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
    */
   private async loadSampleText(panel: TypedWebviewPanel) {
     const { sampleTexts, errors } = await this.yamlLoader.loadSampleTextsFromConfig()
+    const { showSampleTextErrors } = getConfig()
 
     panel.webview.postMessage({
       type: 'SAMPLE_TEXT_LOADED',
       payload: sampleTexts
     })
 
+    if (!showSampleTextErrors) {
+      return
+    }
+
     errors.forEach(error => {
       const actions: string[] =
-        error.reason instanceof YAMLValidationError ? ['Show Logs', 'Open File'] : []
+        error.reason instanceof YAMLValidationError
+          ? ['Show Logs', 'Open File', "Don't Show Again"]
+          : []
 
       if (error.reason.message) {
-        vscode.window.showErrorMessage(error.reason.message, ...actions).then(action => {
-          switch (action) {
-            case 'Show Logs':
-              this.logger.outputChannel.show()
-              break
-            case 'Open File':
-              this.openYAMLFile((error.reason as YAMLValidationError).filePath)
-              break
-          }
-        })
+        vscode.window
+          .showWarningMessage(error.reason.message, ...actions)
+          .then(async action => {
+            switch (action) {
+              case 'Show Logs':
+                this.logger.outputChannel.show()
+                break
+              case 'Open File':
+                this.openYAMLFile((error.reason as YAMLValidationError).filePath)
+                break
+              case "Don't Show Again":
+                try {
+                  await updateConfigValue(ConfigKeyMap.showSampleTextErrors, false)
+                } catch (err) {
+                  this.logger.error('Error setting config value', LOG_TAG, err)
+                }
+                break
+            }
+          })
       }
     })
   }
@@ -256,7 +273,7 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
   private async openYAMLFile(filePath: string) {
     try {
       const document = await vscode.workspace.openTextDocument(filePath)
-      vscode.window.showTextDocument(document, { preview: false })
+      await vscode.window.showTextDocument(document, { preview: false })
     } catch (err) {
       this.logger.error('Error opening document', LOG_TAG, err)
     }

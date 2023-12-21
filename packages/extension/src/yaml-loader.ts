@@ -6,7 +6,7 @@ import { z, ZodError } from 'zod'
 import YAMLValidationError from './yaml-validation-error'
 import { getConfig } from './util'
 
-const LOG_TAG = 'yaml-loader'
+const LOG_TAG = 'YAMLLoader'
 
 const schema = z.object({
   id: z.string(),
@@ -16,17 +16,13 @@ const schema = z.object({
 })
 
 class YAMLLoader {
-  private readonly logger: LoggingService
-
-  constructor(logger: LoggingService) {
-    this.logger = logger
-  }
+  constructor(private readonly logger: LoggingService) {}
 
   public async loadSampleTextsFromConfig(): Promise<SampleTextLoadResult> {
     const { sampleTextPaths } = getConfig()
     const sampleTextFilePaths = Array.from(new Set(sampleTextPaths))
 
-    this.logger.info(`Found ${sampleTextFilePaths.length} example files to load`)
+    this.logger.info(`Found ${sampleTextFilePaths.length} example files to load`, LOG_TAG)
 
     const promises = await Promise.allSettled(
       sampleTextFilePaths.map(filePath => this.loadYamlFile(filePath))

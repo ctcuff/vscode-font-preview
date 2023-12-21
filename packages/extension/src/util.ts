@@ -33,7 +33,8 @@ export const ConfigKeyMap: Readonly<
   showGlyphIndex: 'showGlyphIndex',
   sampleTextPaths: 'sampleTextPaths',
   defaultLogLevel: 'defaultLogLevel',
-  defaultSampleTextId: 'defaultSampleTextId'
+  defaultSampleTextId: 'defaultSampleTextId',
+  showSampleTextErrors: 'showSampleTextErrors'
 }
 
 export const getConfig = (): WorkspaceConfig => {
@@ -46,6 +47,15 @@ export const getConfig = (): WorkspaceConfig => {
     showGlyphIndex: config.get('showGlyphIndex'),
     sampleTextPaths: config.get('sampleTextPaths'),
     defaultLogLevel: config.get('defaultLogLevel'),
-    defaultSampleTextId: config.get('defaultSampleTextId')
+    defaultSampleTextId: config.get('defaultSampleTextId'),
+    showSampleTextErrors: config.get('showSampleTextErrors')
   }
+}
+
+export function updateConfigValue(
+  key: keyof WorkspaceConfig,
+  value: ValueOf<WorkspaceConfig>
+): Thenable<void> {
+  const config = workspace.getConfiguration(EXTENSION_ID) as TypedWorkspaceConfiguration
+  return config.update(key, value)
 }

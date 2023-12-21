@@ -132,6 +132,11 @@
             "Warn",
             "Error"
           ]
+        },
+        "font-preview.showSampleTextErrors": {
+          "description": "Show a warning notification if the extension detects an invalid or missing sample text file. If disabled, errors can still be viewed in the output window.",
+          "type": "boolean",
+          "default": true
         }
       }
     }

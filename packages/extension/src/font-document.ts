@@ -7,7 +7,6 @@ import LoggingService from './logging-service'
 const LOG_TAG = 'FontDocument'
 
 class FontDocument implements vscode.CustomDocument {
-  public readonly uri: vscode.Uri
   /**
    * The file name without the extension
    */
@@ -17,13 +16,10 @@ class FontDocument implements vscode.CustomDocument {
    */
   public readonly fullFileName: string
   public readonly extension: FontExtension
-  private readonly logger: LoggingService
 
-  constructor(uri: vscode.Uri, logger: LoggingService) {
+  constructor(public readonly uri: vscode.Uri, private readonly logger: LoggingService) {
     const { name, ext } = path.parse(uri.fsPath)
 
-    this.logger = logger
-    this.uri = uri
     this.fileName = name
     this.fullFileName = `${name}.${ext}`
     this.extension = ext.replace('.', '').toLowerCase() as FontExtension
