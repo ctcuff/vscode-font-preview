@@ -45,8 +45,8 @@ const App = (): JSX.Element | null => {
           vscode.postMessage({ type: 'PROGRESS_STOP' })
           vscode.postMessage({
             type: 'ERROR',
-            payload: `Parsing Error: Couldn't render font preview.
-              Font information will still be available.`
+            payload:
+              "Couldn't render font preview. Some font information may still be available."
           })
         }
       })
@@ -139,7 +139,10 @@ const App = (): JSX.Element | null => {
       <ToastContainer limit={1} />
       <TabView panelClassName="app" defaultTabId={config.defaultTab || 'Preview'}>
         <Tab title="Preview" id="Preview" forceRender>
-          <FontPreview sampleTexts={sampleTexts} />
+          <FontPreview
+            sampleTexts={sampleTexts}
+            defaultSampleTextId={config.defaultSampleTextId}
+          />
         </Tab>
         <Tab
           // Hide this tab if the current font doesn't have
