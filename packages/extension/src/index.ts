@@ -1,4 +1,5 @@
 import * as vscode from 'vscode'
+import CommandHandler, { Commands } from './command-handler'
 import FontProvider from './font-provider'
 import LoggingService from './logging-service'
 import { ConfigKeyMap, EXTENSION_ID, getConfig } from './util'
@@ -6,6 +7,7 @@ import { ConfigKeyMap, EXTENSION_ID, getConfig } from './util'
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
   const { defaultLogLevel } = getConfig()
   const logger = new LoggingService(defaultLogLevel)
+  const commandHandler = new CommandHandler(logger)
   const version = context.extension.packageJSON.version
   const id = context.extension.id
 
@@ -25,6 +27,16 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   )
 
   context.subscriptions.push(FontProvider.register(context, logger))
+
+  try {
+    context.subscriptions.push(
+      vscode.commands.registerCommand(Commands.createSampleYAMLFile, () => {
+        commandHandler.openTextEditorWithSampleYML()
+      })
+    )
+  } catch (err) {
+    logger.error('Error registering command', undefined, err)
+  }
 }
 
 export function deactivate(): void {}

@@ -52,10 +52,17 @@
     "Programming Languages"
   ],
   "activationEvents": [
-    "onCustomEditor:font.detail.preview"
+    "onCustomEditor:font.detail.preview",
+    "onCommand:font-preview.createSampleYAMLFile"
   ],
   "main": "./dist/extension.js",
   "contributes": {
+    "commands": [
+      {
+        "command": "font-preview.createSampleYAMLFile",
+        "title": "Font Preview: Create sample YAML file"
+      }
+    ],
     "customEditors": [
       {
         "viewType": "font.detail.preview",
