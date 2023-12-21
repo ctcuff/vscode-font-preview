@@ -116,7 +116,7 @@
         },
         "font-preview.sampleTextPaths": {
           "title": "Sample Text Paths",
-          "markdownDescription": "Define custom sample texts to be added in the \"Preview\" tab. Provide the path to a YML file for the sample to be loaded (must restart VS COde after adding/removing a path). See [this link](https://github.com/ctcuff/vscode-font-preview) for an explanation on how the yaml should be structured.",
+          "markdownDescription": "Paths to a custom sample text YAML files. See [this link](https://github.com/ctcuff/vscode-font-preview) for an explanation on how the YAML should be structured.",
           "type": "array",
           "default": [],
           "items": {
