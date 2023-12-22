@@ -4,7 +4,7 @@ import * as yaml from 'js-yaml'
 import LoggingService from './logging-service'
 import { z, ZodError } from 'zod'
 import YAMLValidationError from './yaml-validation-error'
-import { getConfig } from './util'
+import ConfigManager from './config-manager'
 
 const LOG_TAG = 'YAMLLoader'
 
@@ -16,11 +16,15 @@ const schema = z.object({
 })
 
 class YAMLLoader {
-  constructor(private readonly logger: LoggingService) {}
+  constructor(
+    private readonly logger: LoggingService,
+    private readonly workspaceConfig: ConfigManager
+  ) {}
 
   public async loadSampleTextsFromConfig(): Promise<SampleTextLoadResult> {
-    const { sampleTextPaths } = getConfig()
-    const sampleTextFilePaths = Array.from(new Set(sampleTextPaths))
+    const sampleTextFilePaths = Array.from(
+      new Set(this.workspaceConfig.get('sampleTextPaths'))
+    )
 
     this.logger.info(`Found ${sampleTextFilePaths.length} example files to load`, LOG_TAG)
 

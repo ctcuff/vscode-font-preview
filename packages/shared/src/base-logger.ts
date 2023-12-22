@@ -8,11 +8,6 @@ import { LogLevel } from './types'
 export abstract class BaseLogger {
   private timers: Record<string, number> = {}
 
-  /**
-   * Default log level set by the extension configuration
-   */
-  protected abstract logLevel: LogLevel
-
   protected abstract log(level: LogLevel, message: string, tag?: string): void
 
   /**

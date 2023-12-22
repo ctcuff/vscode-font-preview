@@ -4,9 +4,6 @@ import { TypedWebviewApi } from '../types'
 class Logger extends BaseLogger {
   private static instance: Logger | null = null
   private readonly vscode: TypedWebviewApi
-  // Setting this to info by default because this value isn't used on the webview side.
-  // The log level is managed by the logging service on the extension side
-  protected logLevel: LogLevel = LogLevel.INFO
 
   private constructor(vscode: TypedWebviewApi) {
     super()

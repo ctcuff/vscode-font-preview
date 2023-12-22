@@ -8,27 +8,22 @@ type CommandReturnValue = (...args: any[]) => any
 
 export default class CommandHandler {
   public constructor(
+    private readonly context: vscode.ExtensionContext,
     private readonly logger: LoggingService,
     private readonly globalState: GlobalStateManager
   ) {}
 
-  public registerAllCommands(): vscode.Disposable[] {
+  public registerAllCommands(): void {
     const commandMap: Record<string, CommandReturnValue> = {
       'font-preview.createSampleYAMLFile': () => this.openTextEditorWithSampleYML(),
       'font-preview.debug.resetGlobalState': async () => await this.resetGlobalState()
     }
 
-    const disposables: vscode.Disposable[] = []
-
-    Object.entries(commandMap).forEach(([command, callback]) => {
-      try {
-        disposables.push(vscode.commands.registerCommand(command, callback))
-      } catch (err) {
-        this.logger.error(`Error registering command ${command}`, LOG_TAG, err)
-      }
-    })
-
-    return disposables
+    for (const command in commandMap) {
+      this.context.subscriptions.push(
+        vscode.commands.registerCommand(command, commandMap[command])
+      )
+    }
   }
 
   public async openTextEditorWithSampleYML(): Promise<void> {

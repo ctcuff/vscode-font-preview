@@ -1,7 +1,7 @@
 import * as vscode from 'vscode'
 import * as path from 'path'
 import html from './index.html'
-import { ConfigKeyMap, getConfig, template, updateConfigValue } from './util'
+import { template } from './util'
 import FontDocument from './font-document'
 import { WebviewMessage, LogLevel, ShowMessageEvent } from '@font-preview/shared'
 import { TypedWebviewPanel } from './types/overrides'
@@ -9,6 +9,7 @@ import LoggingService from './logging-service'
 import YAMLLoader from './yaml-loader'
 import YAMLValidationError from './yaml-validation-error'
 import GlobalStateManager from './global-state-manager'
+import ConfigManager from './config-manager'
 
 // https://chromium.googlesource.com/chromium/blink/+/refs/heads/main/Source/platform/fonts/opentype/OpenTypeSanitizer.cpp#70
 const MAX_WEB_FONT_SIZE = 30 * 1024 * 1024 // MB
@@ -24,13 +25,16 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
   constructor(
     private readonly context: vscode.ExtensionContext,
     private readonly logger: LoggingService,
-    private readonly globalState: GlobalStateManager
+    private readonly globalState: GlobalStateManager,
+    private readonly workspaceConfig: ConfigManager
   ) {
-    this.yamlLoader = new YAMLLoader(logger)
+    this.yamlLoader = new YAMLLoader(logger, workspaceConfig)
   }
 
-  public register(): vscode.Disposable {
-    return vscode.window.registerCustomEditorProvider(FontProvider.viewType, this)
+  public register(): void {
+    this.context.subscriptions.push(
+      vscode.window.registerCustomEditorProvider(FontProvider.viewType, this)
+    )
   }
 
   public async openCustomDocument(uri: vscode.Uri): Promise<FontDocument> {
@@ -78,7 +82,6 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
   private async loadFont(panel: TypedWebviewPanel, document: FontDocument) {
     const fileUri = panel.webview.asWebviewUri(document.uri)
     const fileSize = await document.size()
-    const { useWorker } = getConfig()
 
     this.logger.info(`Loading font of size ${(fileSize / 1024).toFixed(2)} kb`, LOG_TAG)
 
@@ -113,7 +116,7 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
         fileUrl: `${fileUri.scheme}://${fileUri.authority}${fileUri.path}`,
         fileName: document.fileName,
         fileExtension: document.extension,
-        useWorker
+        useWorker: this.workspaceConfig.get('useWorker')
       }
     })
   }
@@ -133,14 +136,15 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
         this.loadFont(panel, document)
         break
       case 'GET_CONFIG':
-        const config = getConfig()
-        const tab = this.globalState.get('previewTab', config.defaultTab)
+        const config = this.workspaceConfig.all()
+        const { defaultTab, syncTabs } = config
+        const currentPanelTab = this.globalState.get('previewTab', defaultTab)
 
         panel.webview.postMessage({
           type: 'CONFIG_LOADED',
           payload: {
             ...config,
-            defaultTab: config.syncTabs ? tab : config.defaultTab
+            defaultTab: syncTabs ? currentPanelTab : defaultTab
           }
         })
         break
@@ -242,14 +246,13 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
    */
   private async loadSampleText(panel: TypedWebviewPanel) {
     const { sampleTexts, errors } = await this.yamlLoader.loadSampleTextsFromConfig()
-    const { showSampleTextErrors } = getConfig()
 
     panel.webview.postMessage({
       type: 'SAMPLE_TEXT_LOADED',
       payload: sampleTexts
     })
 
-    if (!showSampleTextErrors) {
+    if (!this.workspaceConfig.get('showSampleTextErrors')) {
       return
     }
 
@@ -271,11 +274,7 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
                 this.openYAMLFile((error.reason as YAMLValidationError).filePath)
                 break
               case "Don't Show Again":
-                try {
-                  await updateConfigValue(ConfigKeyMap.showSampleTextErrors, false)
-                } catch (err) {
-                  this.logger.error('Error setting config value', LOG_TAG, err)
-                }
+                await this.workspaceConfig.set('showSampleTextErrors', false)
                 break
             }
           })

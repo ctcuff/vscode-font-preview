@@ -3,12 +3,7 @@ import { LogLevel, BaseLogger, WorkspaceConfig } from '@font-preview/shared'
 
 class LoggingService extends BaseLogger {
   public readonly outputChannel = window.createOutputChannel('Font Preview')
-  protected logLevel: LogLevel
-
-  constructor(level: WorkspaceConfig['defaultLogLevel']) {
-    super()
-    this.logLevel = this.configLevelToEnum(level)
-  }
+  private logLevel: LogLevel = LogLevel.INFO
 
   public setOutputLevel(level: WorkspaceConfig['defaultLogLevel']): void {
     this.logLevel = this.configLevelToEnum(level)

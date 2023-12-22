@@ -121,7 +121,7 @@
         },
         "font-preview.sampleTextPaths": {
           "title": "Sample Text Paths",
-          "markdownDescription": "Paths to a custom sample text YAML files. See [this link](https://github.com/ctcuff/vscode-font-preview) for an explanation on how the YAML should be structured.",
+          "markdownDescription": "Paths to a custom sample text YAML files. See [this link](https://github.com/ctcuff/vscode-font-preview) for an explanation on how the YAML should be structured. **NOTE**: A large number of sample *may* cause performance issues.",
           "type": "array",
           "default": [],
           "items": {
@@ -129,8 +129,7 @@
           }
         },
         "font-preview.defaultSampleTextId": {
-          "$comment": "// TODO: Update this when it's possible to add examples programmatically",
-          "description": "The name of the default sample text to load. This comes from the 'id' property of the defined YAML schema",
+          "markdownDescription": "The name of the default sample text to load. For user defined YAML file samples, this comes from the `id` property.",
           "type": "string",
           "default": "English"
         },
