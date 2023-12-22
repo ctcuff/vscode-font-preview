@@ -4,8 +4,6 @@ import { TypedWorkspaceConfiguration } from './types/overrides'
 
 export const EXTENSION_ID = 'font-preview'
 
-export type ValueOf<T> = T[keyof T]
-
 /**
  * Takes an HTML file as a string and replaces any occurrence of
  * `{{ variable }}` with the value of `data[variable]`
@@ -34,7 +32,8 @@ export const ConfigKeyMap: Readonly<
   sampleTextPaths: 'sampleTextPaths',
   defaultLogLevel: 'defaultLogLevel',
   defaultSampleTextId: 'defaultSampleTextId',
-  showSampleTextErrors: 'showSampleTextErrors'
+  showSampleTextErrors: 'showSampleTextErrors',
+  syncTabs: 'syncTabs'
 }
 
 export const getConfig = (): WorkspaceConfig => {
@@ -48,13 +47,14 @@ export const getConfig = (): WorkspaceConfig => {
     sampleTextPaths: config.get('sampleTextPaths'),
     defaultLogLevel: config.get('defaultLogLevel'),
     defaultSampleTextId: config.get('defaultSampleTextId'),
-    showSampleTextErrors: config.get('showSampleTextErrors')
+    showSampleTextErrors: config.get('showSampleTextErrors'),
+    syncTabs: config.get('syncTabs')
   }
 }
 
-export function updateConfigValue(
-  key: keyof WorkspaceConfig,
-  value: ValueOf<WorkspaceConfig>
+export function updateConfigValue<T extends keyof WorkspaceConfig>(
+  key: T,
+  value: WorkspaceConfig[T]
 ): Thenable<void> {
   const config = workspace.getConfiguration(EXTENSION_ID) as TypedWorkspaceConfiguration
   return config.update(key, value)

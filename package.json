@@ -42,7 +42,7 @@
   ],
   "packageManager": "yarn@3.6.4",
   "engines": {
-    "vscode": "^1.56.0",
+    "vscode": "^1.67.0",
     "yarn": "^3.6.4"
   },
   "vsce": {
@@ -53,7 +53,8 @@
   ],
   "activationEvents": [
     "onCustomEditor:font.detail.preview",
-    "onCommand:font-preview.createSampleYAMLFile"
+    "onCommand:font-preview.createSampleYAMLFile",
+    "onCommand:font-preview.debug.resetGlobalState"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -61,6 +62,10 @@
       {
         "command": "font-preview.createSampleYAMLFile",
         "title": "Font Preview: Create sample YAML file"
+      },
+      {
+        "command": "font-preview.debug.resetGlobalState",
+        "title": "Font Preview (Debug): Reset global state"
       }
     ],
     "customEditors": [
@@ -144,6 +149,11 @@
           "description": "Show a warning notification if the extension detects an invalid or missing sample text file. If disabled, errors can still be viewed in the output window.",
           "type": "boolean",
           "default": true
+        },
+        "font-preview.syncTabs": {
+          "description": "If enabled, newly opened font files will start on the tab of the last active font preview. Note that this setting will override the default tab setting.",
+          "type": "boolean",
+          "default": false
         }
       }
     }

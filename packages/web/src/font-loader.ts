@@ -66,7 +66,7 @@ class FontLoader {
 
     document.fonts.onloadingdone = () => {
       const elapsed = this.logger.endTimer(LOG_TAG)
-      logger.info(`Font loaded in ${elapsed.toFixed(2)}ms`, LOG_TAG)
+      logger.info(`Font loaded in ${elapsed.toFixed(2)} ms`, LOG_TAG)
       this.opts.onStyleCreated()
     }
 

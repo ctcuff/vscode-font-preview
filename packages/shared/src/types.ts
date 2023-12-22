@@ -6,6 +6,17 @@ import type { ColorThemeKind } from 'vscode'
 export type FontExtension = 'otf' | 'ttc' | 'ttf' | 'woff' | 'woff2'
 
 /**
+ * Represents the different tabs of the webview
+ */
+export type PreviewTab =
+  | 'Preview'
+  | 'Features'
+  | 'Glyphs'
+  | 'Waterfall'
+  | 'Type Yourself'
+  | 'License'
+
+/**
  * Represents settings taken from `Configuration` object in
  * package.json. The keys of this object should always match
  * the ID of the setting
@@ -14,13 +25,7 @@ export type WorkspaceConfig = {
   /**
    * Controls the starting tab of the preview.
    */
-  defaultTab:
-    | 'Preview'
-    | 'Features'
-    | 'Glyphs'
-    | 'Waterfall'
-    | 'Type Yourself'
-    | 'License'
+  defaultTab: PreviewTab
   /**
    * If enabled, VS Code will try to use a worker when loading the font.
    */
@@ -49,6 +54,11 @@ export type WorkspaceConfig = {
    * If true, an error notification will be shown when a sample text file fails validation
    */
   showSampleTextErrors: boolean
+  /**
+   * If true, the newly opened font file will start on the same tab in
+   * the webview as the previous active tab
+   */
+  syncTabs: boolean
 }
 
 // TODO: See if we can load the font before the webview requests it
@@ -59,10 +69,10 @@ export type RequestFontEvent = {
   type: 'GET_FONT'
 }
 
-/**
- * Dispatched from the extension when the font has loaded
- */
 export type FontLoadEvent = {
+  /**
+   * Dispatched from the extension when the font has loaded
+   */
   type: 'FONT_LOADED'
   payload: {
     // config: WorkspaceConfig
@@ -91,35 +101,35 @@ export type FontLoadEvent = {
   }
 }
 
-/**
- * Dispatched from the webview to get the user settings for this extension
- */
 export type ConfigRequestEvent = {
+  /**
+   * Dispatched from the webview to get the user settings for this extension
+   */
   type: 'GET_CONFIG'
 }
 
-/**
- * Dispatched by the extension to the webview. Contains the current
- * extension settings as a {@link WorkspaceConfig} object
- */
 export type ConfigLoadEvent = {
+  /**
+   * Dispatched by the extension to the webview. Contains the current
+   * extension settings as a {@link WorkspaceConfig} object
+   */
   type: 'CONFIG_LOADED'
   payload: WorkspaceConfig
 }
 
-/**
- * Dispatched by the extension to the webview when the user changes
- * the color scheme of the editor
- */
 export type ColorThemeChangeEvent = {
+  /**
+   * Dispatched by the extension to the webview when the user changes
+   * the color scheme of the editor
+   */
   type: 'COLOR_THEME_CHANGE'
   payload: ColorThemeKind
 }
 
-/**
- * Dispatched from the webview to show a message in vscode
- */
 export type ShowMessageEvent = {
+  /**
+   * Dispatched from the webview to show a message in vscode
+   */
   type: 'SHOW_MESSAGE'
   payload: {
     messageType: 'ERROR' | 'WARNING' | 'INFO'
@@ -127,41 +137,52 @@ export type ShowMessageEvent = {
   }
 }
 
-/**
- * Dispatched from the webview to show or dismiss the loading notification that appears
- * in VS Code's status bar
- */
 export type ToggleProgressNotificationEvent = {
+  /**
+   * Dispatched from the webview to show or dismiss the loading notification that appears
+   * in VS Code's status bar
+   */
   type: 'TOGGLE_PROGRESS'
   payload: boolean
 }
 
-/**
- * Sent from the webview to the extension to request the user-defined sample text.
- * The sample text was loaded once during extension activation
- */
 export type SampleTextRequestEvent = {
+  /**
+   * Sent from the webview to the extension to request the user-defined sample text.
+   * The sample text was loaded once during extension activation
+   */
   type: 'GET_SAMPLE_TEXT'
 }
 
-/**
- * Sent from the extension to the webview so the webview can display the sample texts
- * that were loaded from the extension side
- */
 export type SampleTextLoadEvent = {
+  /**
+   * Sent from the extension to the webview so the webview can display the sample texts
+   * that were loaded from the extension side
+   */
   type: 'SAMPLE_TEXT_LOADED'
   payload: PreviewSample[]
 }
 
-/**
- * Dispatched from the webview in order to log events to VS Code's output channel
- */
 export type LogEvent = {
+  /**
+   * Dispatched from the webview in order to log events to VS Code's output channel
+   */
   type: 'LOG'
   payload: {
     level: LogLevel
     message: string
     tag?: string
+  }
+}
+
+export type PreviewTabChangeEvent = {
+  /**
+   * Dispatched from the webview when the current tab changes
+   */
+  type: 'PREVIEW_TAB_CHANGE'
+  payload: {
+    tab: PreviewTab
+    previousTab: PreviewTab
   }
 }
 
@@ -180,6 +201,7 @@ export type WebviewMessage =
   | SampleTextRequestEvent
   | SampleTextLoadEvent
   | ShowMessageEvent
+  | PreviewTabChangeEvent
 
 export enum LogLevel {
   DEBUG = 0,

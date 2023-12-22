@@ -8,6 +8,7 @@ import { TypedWebviewPanel } from './types/overrides'
 import LoggingService from './logging-service'
 import YAMLLoader from './yaml-loader'
 import YAMLValidationError from './yaml-validation-error'
+import GlobalStateManager from './global-state-manager'
 
 // https://chromium.googlesource.com/chromium/blink/+/refs/heads/main/Source/platform/fonts/opentype/OpenTypeSanitizer.cpp#70
 const MAX_WEB_FONT_SIZE = 30 * 1024 * 1024 // MB
@@ -22,17 +23,14 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
 
   constructor(
     private readonly context: vscode.ExtensionContext,
-    private readonly logger: LoggingService
+    private readonly logger: LoggingService,
+    private readonly globalState: GlobalStateManager
   ) {
     this.yamlLoader = new YAMLLoader(logger)
   }
 
-  public static register(
-    context: vscode.ExtensionContext,
-    logger: LoggingService
-  ): vscode.Disposable {
-    const provider = new FontProvider(context, logger)
-    return vscode.window.registerCustomEditorProvider(FontProvider.viewType, provider)
+  public register(): vscode.Disposable {
+    return vscode.window.registerCustomEditorProvider(FontProvider.viewType, this)
   }
 
   public async openCustomDocument(uri: vscode.Uri): Promise<FontDocument> {
@@ -54,34 +52,26 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
 
     panel.webview.html = this.getWebviewContent()
 
-    const eventListeners: vscode.Disposable[] = []
-
-    eventListeners.push(
-      vscode.window.onDidChangeActiveColorTheme(event => {
-        panel.webview.postMessage({
-          type: 'COLOR_THEME_CHANGE',
-          payload: event.kind
-        })
+    const colorChangeListener = vscode.window.onDidChangeActiveColorTheme(event => {
+      panel.webview.postMessage({
+        type: 'COLOR_THEME_CHANGE',
+        payload: event.kind
       })
-    )
+    })
 
-    eventListeners.push(
-      panel.webview.onDidReceiveMessage((message: WebviewMessage) => {
-        this.onDidReceiveMessage(panel, message, document)
-      })
-    )
+    panel.webview.onDidReceiveMessage(async (message: WebviewMessage) => {
+      await this.onDidReceiveMessage(panel, message, document)
+    })
 
-    eventListeners.push(
-      panel.onDidChangeViewState(event => {
-        if (!event.webviewPanel.visible) {
-          this.shouldShowProgressNotification = false
-        }
-      })
-    )
+    panel.onDidChangeViewState(event => {
+      if (!event.webviewPanel.visible) {
+        this.shouldShowProgressNotification = false
+      }
+    })
 
     panel.onDidDispose(() => {
+      colorChangeListener.dispose()
       this.shouldShowProgressNotification = false
-      eventListeners.forEach(event => event.dispose())
     })
   }
 
@@ -90,7 +80,7 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
     const fileSize = await document.size()
     const { useWorker } = getConfig()
 
-    this.logger.info(`Loading font of size ${(fileSize / 1024).toFixed(2)}kb`, LOG_TAG)
+    this.logger.info(`Loading font of size ${(fileSize / 1024).toFixed(2)} kb`, LOG_TAG)
 
     let fileContent: number[] = []
 
@@ -128,11 +118,11 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
     })
   }
 
-  private onDidReceiveMessage(
+  private async onDidReceiveMessage(
     panel: TypedWebviewPanel,
     message: WebviewMessage,
     document: FontDocument
-  ): void {
+  ): Promise<void> {
     this.logger.debug(`Received message from webview: ${message.type}`, LOG_TAG)
 
     switch (message.type) {
@@ -143,9 +133,15 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
         this.loadFont(panel, document)
         break
       case 'GET_CONFIG':
+        const config = getConfig()
+        const tab = this.globalState.get('previewTab', config.defaultTab)
+
         panel.webview.postMessage({
           type: 'CONFIG_LOADED',
-          payload: getConfig()
+          payload: {
+            ...config,
+            defaultTab: config.syncTabs ? tab : config.defaultTab
+          }
         })
         break
       case 'TOGGLE_PROGRESS':
@@ -165,6 +161,9 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
       }
       case 'GET_SAMPLE_TEXT':
         this.loadSampleText(panel)
+        break
+      case 'PREVIEW_TAB_CHANGE':
+        await this.globalState.update('previewTab', message.payload.tab)
         break
     }
   }

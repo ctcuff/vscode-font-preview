@@ -71,7 +71,7 @@ class FontDocument implements vscode.CustomDocument {
       content = await wawoff2.decompress(content)
 
       this.logger.info(
-        `Font decompressed in ${this.logger.endTimer(LOG_TAG).toFixed(2)}ms`,
+        `Font decompressed in ${this.logger.endTimer(LOG_TAG).toFixed(2)} ms`,
         LOG_TAG
       )
     } catch (err: unknown) {

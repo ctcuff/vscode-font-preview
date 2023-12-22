@@ -1,18 +1,37 @@
-import { workspace, window, Range } from 'vscode'
+import * as vscode from 'vscode'
+import GlobalStateManager from './global-state-manager'
 import LoggingService from './logging-service'
 
 const LOG_TAG = 'CommandHandler'
 
-export const Commands = {
-  createSampleYAMLFile: 'font-preview.createSampleYAMLFile'
-}
+type CommandReturnValue = (...args: any[]) => any
 
 export default class CommandHandler {
-  public constructor(private readonly logger: LoggingService) {}
+  public constructor(
+    private readonly logger: LoggingService,
+    private readonly globalState: GlobalStateManager
+  ) {}
+
+  public registerAllCommands(): vscode.Disposable[] {
+    const commandMap: Record<string, CommandReturnValue> = {
+      'font-preview.createSampleYAMLFile': () => this.openTextEditorWithSampleYML(),
+      'font-preview.debug.resetGlobalState': async () => await this.resetGlobalState()
+    }
+
+    const disposables: vscode.Disposable[] = []
+
+    Object.entries(commandMap).forEach(([command, callback]) => {
+      try {
+        disposables.push(vscode.commands.registerCommand(command, callback))
+      } catch (err) {
+        this.logger.error(`Error registering command ${command}`, LOG_TAG, err)
+      }
+    })
+
+    return disposables
+  }
 
   public async openTextEditorWithSampleYML(): Promise<void> {
-    this.logger.debug(`Executing command: ${Commands.createSampleYAMLFile}`, LOG_TAG)
-
     const sampleYML = /* yml */ `
 id: Sample
 source: Example Source
@@ -30,19 +49,23 @@ paragraphs:
 `.trim()
 
     try {
-      const document = await workspace.openTextDocument({
+      const document = await vscode.workspace.openTextDocument({
         language: 'yaml',
         content: sampleYML
       })
 
-      await window.showTextDocument(document, {
-        // Highlights the the text after id:
-        selection: new Range(0, 4, 0, 10),
+      await vscode.window.showTextDocument(document, {
+        // Highlights the the text after "id:"
+        selection: new vscode.Range(0, 4, 0, 10),
         preview: true
       })
     } catch (err) {
-      window.showErrorMessage("Couldn't open text document")
-      this.logger.error('Error opening text document', LOG_TAG, err)
+      vscode.window.showErrorMessage("Couldn't open text document")
+      this.logger.error('Error opening YAML file ', LOG_TAG, err)
     }
+  }
+
+  public async resetGlobalState(): Promise<void> {
+    await this.globalState.removeAll()
   }
 }
