@@ -138,7 +138,7 @@ const TypingPreview = (): JSX.Element => {
         <Slider
           className="attribute-slider"
           min={8}
-          max={128}
+          max={300}
           value={fontSize}
           title="Font Size"
           unit="px"
