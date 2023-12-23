@@ -20,9 +20,9 @@ const config = env => ({
   // This leaves the source code as close as possible to the
   // original (when packaging we set this to 'production')
   mode: 'none',
-  entry: path.resolve('./src/index.ts'),
+  entry: path.resolve(__dirname, 'src', 'index.ts'),
   output: {
-    path: path.resolve(__dirname, '../../dist'),
+    path: path.resolve(__dirname, '..', '..', 'dist'),
     // Note that the the web directory builds to the same directory as
     // the extension so we need to make sure that the entry points for
     // both don't conflict with each other

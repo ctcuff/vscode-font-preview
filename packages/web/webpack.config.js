@@ -5,7 +5,7 @@ const ESLintPlugin = require('eslint-webpack-plugin')
 /**@type {import('webpack').Configuration}*/
 module.exports = {
   entry: {
-    index: './src/index.tsx'
+    index: path.resolve(__dirname, 'src', 'index.tsx')
   },
   output: {
     path: path.resolve(__dirname, '..', '..', 'dist'),

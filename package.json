@@ -23,8 +23,16 @@
     "watch": "yarn build:shared && yarn workspaces foreach --parallel --include '@font-preview/{extension,web}' --interlaced run watch"
   },
   "devDependencies": {
+    "@types/vscode-webview": "^1.57.0",
+    "@typescript-eslint/eslint-plugin": "^4.14.1",
+    "@typescript-eslint/parser": "^4.14.1",
+    "eslint": "^7.19.0",
+    "eslint-webpack-plugin": "^3.2.0",
     "husky": "^8.0.3",
-    "lint-staged": "^14.0.1"
+    "lint-staged": "^14.0.1",
+    "prettier": "^2.3.0",
+    "typescript": "~4.1.3",
+    "webpack": "^5.19.0"
   },
   "repository": {
     "type": "git",
