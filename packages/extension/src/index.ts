@@ -24,7 +24,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
         logger.setOutputLevel(configManager.get('defaultLogLevel'))
       }
 
-      if (event.affectsConfiguration(`${EXTENSION_ID}.syncTabs`)) {
+      if (event.affectsConfiguration(`${EXTENSION_ID}.retainTabPosition`)) {
         globalState.update('previewTab', undefined)
       }
     })

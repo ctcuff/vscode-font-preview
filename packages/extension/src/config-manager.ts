@@ -27,7 +27,7 @@ class ConfigManager {
       defaultLogLevel: config.get('defaultLogLevel')!,
       defaultSampleTextId: config.get('defaultSampleTextId')!,
       showSampleTextErrors: config.get('showSampleTextErrors')!,
-      syncTabs: config.get('syncTabs')!
+      retainTabPosition: config.get('retainTabPosition')!
     }
   }
 

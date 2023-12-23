@@ -121,7 +121,7 @@
         },
         "font-preview.sampleTextPaths": {
           "title": "Sample Text Paths",
-          "markdownDescription": "Paths to a custom sample text YAML files. See [this link](https://github.com/ctcuff/vscode-font-preview) for an explanation on how the YAML should be structured. **NOTE**: A large number of sample *may* cause performance issues.",
+          "markdownDescription": "Paths to custom sample text YAML files. **NOTE**: A large number of sample _may_ cause performance issues. The YAML file must have the following format:\n\n```yaml\n# The name of the sample text (required)\nid: Sample Title\n# A citation stating where this text came from (optional)\nsource: Sample source\n# Determines if this is a right-to-left language (optional)\nrtl: false\n# The text to display.\n# This must be an array of strings (required)\nparagraphs:\n  - Hello, World!\n```",
           "type": "array",
           "default": [],
           "items": {
@@ -149,8 +149,8 @@
           "type": "boolean",
           "default": true
         },
-        "font-preview.syncTabs": {
-          "description": "If enabled, newly opened font files will start on the tab of the last active font preview. Note that this setting will override the default tab setting.",
+        "font-preview.retainTabPosition": {
+          "markdownDescription": "If enabled, newly opened font files will start on the tab of the last font file. Note that this setting will override the default tab setting `#font-preview.defaultTab#`.",
           "type": "boolean",
           "default": false
         }

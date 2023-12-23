@@ -32,15 +32,7 @@ id: Sample
 source: Example Source
 rtl: false
 paragraphs:
-  - >-
-    Minim ut voluptate sunt labore eu exercitation.
-    Deserunt sint eiusmod in eu. Sit ullamco mollit mollit
-    tempor nostrud anim ut anim quis veniam. Ullamco magna
-    aliqua sint tempor do cillum non ullamco. Excepteur nisi
-    occaecat ad exercitation proident veniam adipisicing aute
-    dolore consectetur cillum Lorem tempor. Esse commodo enim
-    incididunt aliquip. Aute enim ut adipisicing ad deserunt
-    sint anim labore culpa.
+  - Hello, World!
 `.trim()
 
     try {

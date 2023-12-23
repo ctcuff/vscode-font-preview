@@ -137,14 +137,14 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
         break
       case 'GET_CONFIG':
         const config = this.workspaceConfig.all()
-        const { defaultTab, syncTabs } = config
+        const { defaultTab, retainTabPosition } = config
         const currentPanelTab = this.globalState.get('previewTab', defaultTab)
 
         panel.webview.postMessage({
           type: 'CONFIG_LOADED',
           payload: {
             ...config,
-            defaultTab: syncTabs ? currentPanelTab : defaultTab
+            defaultTab: retainTabPosition ? currentPanelTab : defaultTab
           }
         })
         break

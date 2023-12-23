@@ -58,7 +58,7 @@ export type WorkspaceConfig = {
    * If true, the newly opened font file will start on the same tab in
    * the webview as the previous active tab
    */
-  syncTabs: boolean
+  retainTabPosition: boolean
 }
 
 // TODO: See if we can load the font before the webview requests it
