@@ -20,7 +20,7 @@
     "postinstall": "yarn build:shared && husky install",
     "test:compile": "yarn workspaces foreach --exclude @font-preview/eslint-base-config --interlaced -v run test:compile",
     "vscode:prepublish": "yarn run build",
-    "watch": "yarn build:shared && yarn workspaces foreach --parallel --include '@font-preview/{extension,web,shared}' --interlaced run watch"
+    "watch": "yarn build:shared && yarn workspaces foreach --parallel --include '@font-preview/{extension,web}' --interlaced run watch"
   },
   "devDependencies": {
     "husky": "^8.0.3",
