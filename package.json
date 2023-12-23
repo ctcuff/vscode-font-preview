@@ -62,7 +62,8 @@
   "activationEvents": [
     "onCustomEditor:font.detail.preview",
     "onCommand:font-preview.createSampleYAMLFile",
-    "onCommand:font-preview.debug.resetGlobalState"
+    "onCommand:font-preview.debug.resetGlobalState",
+    "onCommand:font-preview.openSampleYAMLFile"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -74,6 +75,10 @@
       {
         "command": "font-preview.debug.resetGlobalState",
         "title": "Font Preview (Debug): Reset global state"
+      },
+      {
+        "command": "font-preview.openSampleYAMLFile",
+        "title": "Font Preview: Open sample YAML file"
       }
     ],
     "customEditors": [

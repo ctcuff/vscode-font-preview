@@ -1,4 +1,5 @@
 import * as vscode from 'vscode'
+import ConfigManager from './config-manager'
 import GlobalStateManager from './global-state-manager'
 import LoggingService from './logging-service'
 
@@ -10,13 +11,15 @@ export default class CommandHandler {
   public constructor(
     private readonly context: vscode.ExtensionContext,
     private readonly logger: LoggingService,
-    private readonly globalState: GlobalStateManager
+    private readonly globalState: GlobalStateManager,
+    private readonly workspaceConfig: ConfigManager
   ) {}
 
   public registerAllCommands(): void {
     const commandMap: Record<string, CommandReturnValue> = {
-      'font-preview.createSampleYAMLFile': () => this.openTextEditorWithSampleYML(),
-      'font-preview.debug.resetGlobalState': async () => await this.resetGlobalState()
+      'font-preview.createSampleYAMLFile': async () => this.openTextEditorWithSampleYML(),
+      'font-preview.debug.resetGlobalState': async () => await this.resetGlobalState(),
+      'font-preview.openSampleYAMLFile': async () => this.showSampleFileQuickPick()
     }
 
     for (const command in commandMap) {
@@ -54,5 +57,24 @@ paragraphs:
 
   public async resetGlobalState(): Promise<void> {
     await this.globalState.removeAll()
+  }
+
+  public async showSampleFileQuickPick(): Promise<void> {
+    const sampleFiles = this.workspaceConfig.get('sampleTextPaths')
+    const filePath = await vscode.window.showQuickPick(sampleFiles, {
+      placeHolder: 'Path to sample YAML file'
+    })
+
+    if (!filePath) {
+      return
+    }
+
+    try {
+      await vscode.window.showTextDocument(vscode.Uri.file(filePath), {
+        preview: false
+      })
+    } catch (err) {
+      this.logger.error('Error opening file', LOG_TAG, err)
+    }
   }
 }
