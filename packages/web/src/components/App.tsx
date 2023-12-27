@@ -11,7 +11,7 @@ import {
 import TabView, { Tab } from './TabView'
 import FontPreview from './tabs/FontPreview'
 import Glyphs from './tabs/Glyphs'
-import FontContext from '../contexts/FontContext'
+import FontContext, { GlyphDataCache } from '../contexts/FontContext'
 import VscodeContext from '../contexts/VscodeContext'
 import Features from './tabs/Features'
 import Waterfall from './tabs/Waterfall'
@@ -21,12 +21,14 @@ import { isTableEmpty } from '../util'
 import FontLoader from '../font-loader'
 import useLogger from '../hooks/use-logger'
 import ErrorOverlay from './ErrorOverlay'
+import { calculateNumPoints } from '../util/glyph-util'
 
 const LOG_TAG = 'App'
 
 const App = (): JSX.Element | null => {
   const [font, setFont] = useState<Font | null>(null)
   const [glyphs, setGlyphs] = useState<Glyph[]>([])
+  const [glyphDataCache, setGlyphDataCache] = useState<GlyphDataCache[]>([])
   const [fileName, setFileName] = useState('')
   const [isFontSupported, setIsFontSupported] = useState(false)
   const [fontFeatures, setFontFeatures] = useState<string[]>([])
@@ -65,11 +67,28 @@ const App = (): JSX.Element | null => {
 
       if (fontData) {
         const allGlyphs: Glyph[] = []
+        const dataCache: GlyphDataCache[] = []
 
         for (let i = 0; i < fontData.glyphs.length; i++) {
-          allGlyphs.push(fontData.glyphs.get(i))
+          const glyph = fontData.glyphs.get(i)
+
+          // Need to call glyph.getPath() before accessing the contours array, otherwise
+          // it will always return an empty array because the points property will be undefined
+          // https://github.com/opentypejs/opentype.js/blob/9225ad6a88927394805d1be04ced66221c899840/src/glyphset.js#L134
+          // https://github.com/opentypejs/opentype.js/blob/9225ad6a88927394805d1be04ced66221c899840/src/tables/glyf.js#L106
+          // https://github.com/opentypejs/opentype.js/blob/9225ad6a88927394805d1be04ced66221c899840/src/glyph.js#L203
+          const path = glyph.getPath()
+
+          allGlyphs.push(glyph)
+          dataCache.push({
+            index: i,
+            contours: glyph.getContours().flat(),
+            metrics: glyph.getMetrics(),
+            numPoints: calculateNumPoints(path)
+          })
         }
 
+        setGlyphDataCache(dataCache)
         setGlyphs(allGlyphs)
       }
 
@@ -147,7 +166,9 @@ const App = (): JSX.Element | null => {
   }
 
   return (
-    <FontContext.Provider value={{ font, fileName, fontFeatures, glyphs }}>
+    <FontContext.Provider
+      value={{ font, fileName, fontFeatures, glyphs, glyphDataCache }}
+    >
       <ToastContainer limit={1} />
       <TabView panelClassName="app" defaultTabId={config.defaultTab || 'Preview'}>
         <Tab title="Preview" id="Preview" forceRender>

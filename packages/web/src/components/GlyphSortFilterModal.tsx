@@ -12,9 +12,11 @@ type GlyphSortFilterModalProps = {
 
 const properties = [
   'advanceWidth',
+  'contours',
   'index',
   'leftSideBearing',
   'name',
+  'points',
   'rightSideBearing',
   'unicode',
   'xMax',

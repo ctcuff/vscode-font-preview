@@ -19,7 +19,7 @@ type GlyphProps = {
 const GLYPHS_PER_PAGE = 200
 
 const Glyphs = ({ config }: GlyphProps): JSX.Element => {
-  const { font, glyphs: allGlyphs } = useContext(FontContext)
+  const { font, glyphs: allGlyphs, glyphDataCache } = useContext(FontContext)
   const [displayedGlyphs, setDisplayedGlyphs] = useState<Glyph[]>([])
   const [selectedGlyph, setSelectedGlyph] = useState<Glyph | null>(null)
   const [currentPage, setCurrentPage] = useState(0)
@@ -82,16 +82,6 @@ const Glyphs = ({ config }: GlyphProps): JSX.Element => {
       glyphList.push(allGlyphs[index])
     }
 
-    // Need to call glyph.getPath() before accessing the contours array, otherwise
-    // it will always return an empty array because the points property will be undefined
-    // https://github.com/opentypejs/opentype.js/blob/9225ad6a88927394805d1be04ced66221c899840/src/glyphset.js#L134
-    // https://github.com/opentypejs/opentype.js/blob/9225ad6a88927394805d1be04ced66221c899840/src/tables/glyf.js#L106
-    // https://github.com/opentypejs/opentype.js/blob/9225ad6a88927394805d1be04ced66221c899840/src/glyph.js#L203
-    // glyphList.forEach(glyph => glyph.getPath())
-    // glyphList.sort(
-    //   (a, b) => a.getContours().flat().length - b.getContours().flat().length
-    // )
-
     setDisplayedGlyphs(glyphList)
   }
 
@@ -105,6 +95,9 @@ const Glyphs = ({ config }: GlyphProps): JSX.Element => {
 
   useEffect(() => {
     switch (sortByProperty) {
+      case null:
+        allGlyphs.sort((a, b) => a.index - b.index)
+        break
       case 'xMin':
       case 'xMax':
       case 'yMin':
@@ -120,8 +113,8 @@ const Glyphs = ({ config }: GlyphProps): JSX.Element => {
         break
       case 'rightSideBearing':
         allGlyphs.sort((a, b) => {
-          const aMetrics = a.getMetrics()
-          const bMetrics = b.getMetrics()
+          const aMetrics = glyphDataCache[a.index].metrics
+          const bMetrics = glyphDataCache[b.index].metrics
 
           // prettier-ignore
           return isAscending
@@ -141,8 +134,21 @@ const Glyphs = ({ config }: GlyphProps): JSX.Element => {
             : (b.name || '').localeCompare(a.name || '')
         )
         break
-      case null:
-        allGlyphs.sort((a, b) => a.index - b.index)
+      case 'contours':
+        allGlyphs.sort((a, b) => {
+          const aContours = glyphDataCache[a.index].contours.length
+          const bContours = glyphDataCache[b.index].contours.length
+
+          return isAscending ? aContours - bContours : bContours - aContours
+        })
+        break
+      case 'points':
+        allGlyphs.sort((a, b) => {
+          const aPoints = glyphDataCache[a.index].numPoints
+          const bPoints = glyphDataCache[b.index].numPoints
+
+          return isAscending ? aPoints - bPoints : bPoints - aPoints
+        })
         break
       default:
         break

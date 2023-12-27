@@ -121,7 +121,7 @@ const GlyphInspectorModal = ({
   const contours = useMemo(() => glyph.getContours().flat().length, [glyph])
   const logger = useLogger()
 
-  const { font } = useContext(FontContext)
+  const { font, glyphDataCache } = useContext(FontContext)
   const [renderFields, setRenderFields] = useState<RenderField[]>([
     'width',
     'ascender',
@@ -244,6 +244,10 @@ const GlyphInspectorModal = ({
               {renderTableRow(glyph, 'index', 0)}
               {renderTableRow(glyphMetrics, 'leftSideBearing')}
               {renderTableRow(glyph, 'name')}
+              <tr>
+                <td>points</td>
+                <td>{glyphDataCache[glyph.index].numPoints}</td>
+              </tr>
               {renderTableRow(glyphMetrics, 'rightSideBearing')}
               {renderTableRow(font.tables.os2, 'sCapHeight')}
               {renderTableRow(font.tables.os2, 'sTypoAscender')}

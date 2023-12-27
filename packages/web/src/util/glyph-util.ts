@@ -130,50 +130,84 @@ export const drawPoints = (
   fontSize: number
 ): void => {
   const scale = (1 / path.unitsPerEm) * fontSize
-  const blueCircles: Point[] = []
-  const redCircles: Point[] = []
-  const seenBlue = new Set<string>()
-  const seenRed = new Set<string>()
+  const circlesOnLine: Point[] = []
+  const circlesOffLine: Point[] = []
+  const seenOnLine = new Set<string>()
+  const seenOffLine = new Set<string>()
 
   path.commands.forEach(cmd => {
     if (cmd.type !== 'Z') {
       const hash = `${cmd.x}:${-cmd.y}`
-      if (!seenBlue.has(hash)) {
-        blueCircles.push({
+      if (!seenOnLine.has(hash)) {
+        circlesOnLine.push({
           x: cmd.x,
           y: -cmd.y
         })
-        seenBlue.add(hash)
+        seenOnLine.add(hash)
       }
     }
 
     if (cmd.type === 'C' || cmd.type === 'Q') {
       const hash = `${cmd.x1}:${-cmd.y1}`
-      if (!seenRed.has(hash)) {
-        redCircles.push({
+      if (!seenOffLine.has(hash)) {
+        circlesOffLine.push({
           x: cmd.x1,
           y: -cmd.y1
         })
-        seenRed.add(hash)
+        seenOffLine.add(hash)
       }
     }
 
     if (cmd.type === 'C') {
       const hash = `${cmd.x2}:${-cmd.y2}`
-      if (!seenRed.has(hash)) {
-        redCircles.push({
+      if (!seenOffLine.has(hash)) {
+        circlesOffLine.push({
           x: cmd.x2,
           y: -cmd.y2
         })
-        seenRed.add(hash)
+        seenOffLine.add(hash)
       }
     }
   })
 
   ctx.fillStyle = getCSSVar('--vscode-textLink-foreground', 'white')
-  drawCircles(ctx, blueCircles, x, y, scale)
+  drawCircles(ctx, circlesOnLine, x, y, scale)
   ctx.fillStyle = 'red'
-  drawCircles(ctx, redCircles, x, y, scale)
+  drawCircles(ctx, circlesOffLine, x, y, scale)
+}
+
+export const calculateNumPoints = (path: Path): number => {
+  let count = 0
+  const seenOnLine = new Set<string>()
+  const seenOffLine = new Set<string>()
+
+  path.commands.forEach(cmd => {
+    if (cmd.type !== 'Z') {
+      const hash = `${cmd.x}:${-cmd.y}`
+      if (!seenOnLine.has(hash)) {
+        count += 1
+        seenOnLine.add(hash)
+      }
+    }
+
+    if (cmd.type === 'C' || cmd.type === 'Q') {
+      const hash = `${cmd.x1}:${-cmd.y1}`
+      if (!seenOffLine.has(hash)) {
+        count += 1
+        seenOffLine.add(hash)
+      }
+    }
+
+    if (cmd.type === 'C') {
+      const hash = `${cmd.x2}:${-cmd.y2}`
+      if (!seenOffLine.has(hash)) {
+        count += 1
+        seenOffLine.add(hash)
+      }
+    }
+  })
+
+  return count
 }
 
 export const drawGlyphPath = (context: CanvasRenderingContext2D, path: Path): void => {
