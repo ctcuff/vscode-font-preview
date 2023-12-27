@@ -48,4 +48,13 @@
       margin-left: 16px;
     }
   }
+
+  .sort-chip-title {
+    display: flex;
+    align-items: center;
+
+    span {
+      margin-right: 4px;
+    }
+  }
 }

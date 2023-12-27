@@ -27,11 +27,13 @@ const properties = [
 
 export type SortProperty = (typeof properties)[number]
 
+const defaultSort: SortProperty = 'index'
+
 const GlyphSortFilterModal = (props: GlyphSortFilterModalProps): JSX.Element => {
   const [ascending, setAscending] = useState(true)
-  const [selectedProperty, setSelectedProperty] = useState<SortProperty>('index')
+  const [selectedProperty, setSelectedProperty] = useState<SortProperty>(defaultSort)
   const [appliedAscending, setAppliedAscending] = useState(true)
-  const [appliedProperty, setAppliedProperty] = useState<SortProperty>('index')
+  const [appliedProperty, setAppliedProperty] = useState<SortProperty>(defaultSort)
 
   const closeAndReset = () => {
     setAscending(appliedAscending)
@@ -41,9 +43,9 @@ const GlyphSortFilterModal = (props: GlyphSortFilterModalProps): JSX.Element => 
 
   const closeAndResetToDefault = () => {
     setAscending(true)
-    setSelectedProperty('index')
+    setSelectedProperty(defaultSort)
     setAppliedAscending(true)
-    setAppliedProperty('index')
+    setAppliedProperty(defaultSort)
     props.onSortApplied(null, true)
     props.onClose()
   }

@@ -1,5 +1,5 @@
 import '../scss/glyph-inspector-modal.scss'
-import React, { useContext, useMemo, useState } from 'react'
+import React, { useContext, useState } from 'react'
 import Modal from 'react-modal'
 import { Glyph, Path } from 'opentype.js'
 import { toast, cssTransition } from 'react-toastify'
@@ -116,12 +116,13 @@ const GlyphInspectorModal = ({
   onAfterOpen,
   onAfterClose
 }: GlyphInspectorModalProps): JSX.Element => {
-  const glyphMetrics = useMemo(() => glyph.getMetrics(), [glyph])
-  const glyphPath = useMemo(() => glyph.getPath(), [glyph])
-  const contours = useMemo(() => glyph.getContours().flat().length, [glyph])
+  const { font, glyphDataCache } = useContext(FontContext)
+
+  const glyphMetrics = glyphDataCache[glyph.index].metrics
+  const glyphPath = glyphDataCache[glyph.index].path
+  const numContours = glyphDataCache[glyph.index].contours.length
   const logger = useLogger()
 
-  const { font, glyphDataCache } = useContext(FontContext)
   const [renderFields, setRenderFields] = useState<RenderField[]>([
     'width',
     'ascender',
@@ -238,7 +239,7 @@ const GlyphInspectorModal = ({
               {renderTableRow(font, 'ascender')}
               <tr>
                 <td>contours</td>
-                <td>{contours}</td>
+                <td>{numContours}</td>
               </tr>
               {renderTableRow(font, 'descender')}
               {renderTableRow(glyph, 'index', 0)}

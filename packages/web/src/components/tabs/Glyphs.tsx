@@ -3,6 +3,7 @@ import 'react-toastify/dist/ReactToastify.css'
 import React, { useContext, useEffect, useMemo, useState } from 'react'
 import { WorkspaceConfig, WebviewMessage } from '@font-preview/shared'
 import { Glyph } from 'opentype.js'
+import { VscArrowUp, VscArrowDown } from 'react-icons/vsc'
 import FontContext from '../../contexts/FontContext'
 import FontNameHeader from '../FontNameHeader'
 import GlyphInspectorModal from '../GlyphInspectorModal'
@@ -92,6 +93,19 @@ const Glyphs = ({ config }: GlyphProps): JSX.Element => {
       loadGlyphs()
     }
   }
+
+  const sortChipTitle = useMemo((): JSX.Element | string => {
+    if (!sortByProperty) {
+      return 'Sort'
+    }
+
+    return (
+      <div className="sort-chip-title">
+        <span>{sortByProperty}</span>
+        {isAscending ? <VscArrowUp size={12} /> : <VscArrowDown size={12} />}
+      </div>
+    )
+  }, [sortByProperty, isAscending])
 
   useEffect(() => {
     switch (sortByProperty) {
@@ -213,7 +227,7 @@ const Glyphs = ({ config }: GlyphProps): JSX.Element => {
       />
       <div className="header-container">
         <FontNameHeader />
-        <Chip title="Sort" onClick={glyphSortFilterModal.open} />
+        <Chip title={sortChipTitle} onClick={glyphSortFilterModal.open} />
       </div>
       {displayedGlyphs.length > 0 && numPages > 1 && (
         <div className="page-button-wrapper">

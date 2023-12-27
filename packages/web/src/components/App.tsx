@@ -59,6 +59,7 @@ const App = (): JSX.Element | null => {
         }
       })
 
+      logger.startTimer('fontLoad')
       const { font: fontData, features } = await fontLoader.loadFont()
 
       setIsFontSupported(fontLoader.isSupported)
@@ -84,12 +85,16 @@ const App = (): JSX.Element | null => {
             index: i,
             contours: glyph.getContours().flat(),
             metrics: glyph.getMetrics(),
-            numPoints: calculateNumPoints(path)
+            numPoints: calculateNumPoints(path),
+            path
           })
         }
 
         setGlyphDataCache(dataCache)
         setGlyphs(allGlyphs)
+
+        const elapsed = logger.endTimer('fontLoad')
+        logger.info(`Font loaded in ${elapsed.toFixed(2)} ms`, LOG_TAG)
       }
 
       setFont(fontData)
@@ -186,7 +191,7 @@ const App = (): JSX.Element | null => {
         >
           <Features />
         </Tab>
-        <Tab title="Glyphs" id="Glyphs" visible={isFontSupported || glyphs.length > 0}>
+        <Tab title="Glyphs" id="Glyphs" visible={isFontSupported}>
           <Glyphs config={config} />
         </Tab>
         <Tab title="Waterfall" id="Waterfall" forceRender>

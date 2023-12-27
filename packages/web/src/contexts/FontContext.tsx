@@ -1,11 +1,12 @@
 import { createContext } from 'react'
-import type { Contour, Font, Metrics, Glyph } from 'opentype.js'
+import type { Contour, Font, Metrics, Glyph, Path } from 'opentype.js'
 
 export type GlyphDataCache = {
   readonly contours: Contour
   readonly numPoints: number
   readonly metrics: Metrics
   readonly index: number
+  readonly path: Path
 }
 
 type FontContextProps = {

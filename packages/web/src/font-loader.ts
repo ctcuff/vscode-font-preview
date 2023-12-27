@@ -62,13 +62,7 @@ class FontLoader {
     this.opts = opts
     this.isSupported = supportedExtensions.has(this.opts.fileExtension)
 
-    document.fonts.onloading = () => this.logger.startTimer(LOG_TAG)
-
-    document.fonts.onloadingdone = () => {
-      const elapsed = this.logger.endTimer(LOG_TAG)
-      logger.info(`Font loaded in ${elapsed.toFixed(2)} ms`, LOG_TAG)
-      this.opts.onStyleCreated()
-    }
+    document.fonts.onloadingdone = () => this.opts.onStyleCreated()
 
     document.fonts.onloadingerror = () => {
       this.opts.onLoadError()
