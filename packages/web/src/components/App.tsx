@@ -1,6 +1,6 @@
 import '../scss/app.scss'
 import React, { useContext, useEffect, useState } from 'react'
-import { Font } from 'opentype.js'
+import { Font, Glyph } from 'opentype.js'
 import { ToastContainer } from 'react-toastify'
 import {
   WorkspaceConfig,
@@ -26,6 +26,7 @@ const LOG_TAG = 'App'
 
 const App = (): JSX.Element | null => {
   const [font, setFont] = useState<Font | null>(null)
+  const [glyphs, setGlyphs] = useState<Glyph[]>([])
   const [fileName, setFileName] = useState('')
   const [isFontSupported, setIsFontSupported] = useState(false)
   const [fontFeatures, setFontFeatures] = useState<string[]>([])
@@ -59,9 +60,20 @@ const App = (): JSX.Element | null => {
       const { font: fontData, features } = await fontLoader.loadFont()
 
       setIsFontSupported(fontLoader.isSupported)
-      setFont(fontData)
       setFontFeatures(features)
       setFileName(payload.fileName)
+
+      if (fontData) {
+        const allGlyphs: Glyph[] = []
+
+        for (let i = 0; i < fontData.glyphs.length; i++) {
+          allGlyphs.push(fontData.glyphs.get(i))
+        }
+
+        setGlyphs(allGlyphs)
+      }
+
+      setFont(fontData)
     } catch (err: unknown) {
       logger.error('Failed to load font', LOG_TAG, err)
       vscode.postMessage({ type: 'TOGGLE_PROGRESS', payload: true })
@@ -135,7 +147,7 @@ const App = (): JSX.Element | null => {
   }
 
   return (
-    <FontContext.Provider value={{ font, fileName, fontFeatures }}>
+    <FontContext.Provider value={{ font, fileName, fontFeatures, glyphs }}>
       <ToastContainer limit={1} />
       <TabView panelClassName="app" defaultTabId={config.defaultTab || 'Preview'}>
         <Tab title="Preview" id="Preview" forceRender>
@@ -153,7 +165,7 @@ const App = (): JSX.Element | null => {
         >
           <Features />
         </Tab>
-        <Tab title="Glyphs" id="Glyphs" visible={isFontSupported}>
+        <Tab title="Glyphs" id="Glyphs" visible={isFontSupported || glyphs.length > 0}>
           <Glyphs config={config} />
         </Tab>
         <Tab title="Waterfall" id="Waterfall" forceRender>

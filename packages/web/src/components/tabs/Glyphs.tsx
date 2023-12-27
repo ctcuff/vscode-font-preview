@@ -9,6 +9,8 @@ import GlyphInspectorModal from '../GlyphInspectorModal'
 import Chip from '../Chip'
 import GlyphItem from '../GlyphItem'
 import useRefWithCallback from '../../hooks/ref-with-callback'
+import useModal from '../../hooks/use-modal'
+import GlyphSortFilterModal, { SortProperty } from '../GlyphSortFilterModal'
 
 type GlyphProps = {
   config: WorkspaceConfig
@@ -17,11 +19,15 @@ type GlyphProps = {
 const GLYPHS_PER_PAGE = 200
 
 const Glyphs = ({ config }: GlyphProps): JSX.Element => {
-  const { font } = useContext(FontContext)
-  const [glyphs, setGlyphs] = useState<Glyph[]>([])
-  const [isModalOpen, setModalOpen] = useState(false)
+  const { font, glyphs: allGlyphs } = useContext(FontContext)
+  const [displayedGlyphs, setDisplayedGlyphs] = useState<Glyph[]>([])
   const [selectedGlyph, setSelectedGlyph] = useState<Glyph | null>(null)
   const [currentPage, setCurrentPage] = useState(0)
+  // TODO: Combine the two properties into one sort object?
+  const [sortByProperty, setSortByProperty] = useState<SortProperty | null>(null)
+  const [isAscending, setIsAscending] = useState(true)
+  const glyphInspectorModal = useModal()
+  const glyphSortFilterModal = useModal()
 
   const buttonRowRef = useRefWithCallback<HTMLDivElement>(element => {
     element.onwheel = event => {
@@ -62,7 +68,7 @@ const Glyphs = ({ config }: GlyphProps): JSX.Element => {
 
   const onSelectGlyph = (glyph: Glyph) => {
     setSelectedGlyph(glyph)
-    setModalOpen(true)
+    glyphInspectorModal.open()
   }
 
   const loadGlyphs = () => {
@@ -70,15 +76,23 @@ const Glyphs = ({ config }: GlyphProps): JSX.Element => {
 
     for (let i = 0; i < GLYPHS_PER_PAGE; i++) {
       const index = i + GLYPHS_PER_PAGE * currentPage
-
-      if (index === font.glyphs.length) {
+      if (index === allGlyphs.length) {
         break
       }
-
-      glyphList.push(font.glyphs.get(index))
+      glyphList.push(allGlyphs[index])
     }
 
-    setGlyphs(glyphList)
+    // Need to call glyph.getPath() before accessing the contours array, otherwise
+    // it will always return an empty array because the points property will be undefined
+    // https://github.com/opentypejs/opentype.js/blob/9225ad6a88927394805d1be04ced66221c899840/src/glyphset.js#L134
+    // https://github.com/opentypejs/opentype.js/blob/9225ad6a88927394805d1be04ced66221c899840/src/tables/glyf.js#L106
+    // https://github.com/opentypejs/opentype.js/blob/9225ad6a88927394805d1be04ced66221c899840/src/glyph.js#L203
+    // glyphList.forEach(glyph => glyph.getPath())
+    // glyphList.sort(
+    //   (a, b) => a.getContours().flat().length - b.getContours().flat().length
+    // )
+
+    setDisplayedGlyphs(glyphList)
   }
 
   const onMessage = (message: MessageEvent<WebviewMessage>) => {
@@ -88,6 +102,54 @@ const Glyphs = ({ config }: GlyphProps): JSX.Element => {
       loadGlyphs()
     }
   }
+
+  useEffect(() => {
+    switch (sortByProperty) {
+      case 'xMin':
+      case 'xMax':
+      case 'yMin':
+      case 'yMax':
+      case 'leftSideBearing':
+      case 'advanceWidth':
+      case 'unicode':
+        allGlyphs.sort((a, b) =>
+          isAscending
+            ? (a[sortByProperty] ?? Infinity) - (b[sortByProperty] ?? Infinity)
+            : (b[sortByProperty] ?? -Infinity) - (a[sortByProperty] ?? -Infinity)
+        )
+        break
+      case 'rightSideBearing':
+        allGlyphs.sort((a, b) => {
+          const aMetrics = a.getMetrics()
+          const bMetrics = b.getMetrics()
+
+          // prettier-ignore
+          return isAscending
+            ? (aMetrics.rightSideBearing ?? Infinity) - (bMetrics.rightSideBearing ?? Infinity)
+            : (bMetrics.rightSideBearing ?? -Infinity) - (aMetrics.rightSideBearing ?? -Infinity)
+        })
+        break
+      case 'index':
+        if (!isAscending) {
+          allGlyphs.sort((a, b) => b.index - a.index)
+        }
+        break
+      case 'name':
+        allGlyphs.sort((a, b) =>
+          isAscending
+            ? (a.name || '').localeCompare(b.name || '')
+            : (b.name || '').localeCompare(a.name || '')
+        )
+        break
+      case null:
+        allGlyphs.sort((a, b) => a.index - b.index)
+        break
+      default:
+        break
+    }
+
+    loadGlyphs()
+  }, [isAscending, sortByProperty])
 
   useEffect(() => {
     loadGlyphs()
@@ -107,7 +169,7 @@ const Glyphs = ({ config }: GlyphProps): JSX.Element => {
   // or the current page changes
   const glyphComponent = useMemo(
     () =>
-      glyphs.map(glyph => (
+      displayedGlyphs.map(glyph => (
         <GlyphItem
           glyph={glyph}
           key={glyph.index}
@@ -116,7 +178,7 @@ const Glyphs = ({ config }: GlyphProps): JSX.Element => {
           config={config}
         />
       )),
-    [glyphs]
+    [displayedGlyphs]
   )
 
   return (
@@ -130,13 +192,24 @@ const Glyphs = ({ config }: GlyphProps): JSX.Element => {
           onAfterClose={() => {
             document.body.style.overflowY = 'overlay'
           }}
-          isOpen={isModalOpen}
-          onClose={() => setModalOpen(false)}
+          isOpen={glyphInspectorModal.isOpen}
+          onClose={glyphInspectorModal.close}
           glyph={selectedGlyph}
         />
       )}
-      <FontNameHeader />
-      {glyphs.length > 0 && numPages > 1 && (
+      <GlyphSortFilterModal
+        onSortApplied={(sortBy, ascending) => {
+          setSortByProperty(sortBy)
+          setIsAscending(ascending)
+        }}
+        isOpen={glyphSortFilterModal.isOpen}
+        onClose={glyphSortFilterModal.close}
+      />
+      <div className="header-container">
+        <FontNameHeader />
+        <Chip title="Sort" onClick={glyphSortFilterModal.open} />
+      </div>
+      {displayedGlyphs.length > 0 && numPages > 1 && (
         <div className="page-button-wrapper">
           <div className="page-button-row" ref={buttonRowRef}>
             {buttonRow}

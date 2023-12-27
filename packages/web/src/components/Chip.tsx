@@ -3,23 +3,18 @@ import React from 'react'
 
 type ChipProps = {
   title: string
-  onClick?: () => void
+  onClick?: (title: string) => void
   className?: string
   selected?: boolean
 }
 
-const Chip = ({
-  title,
-  onClick = () => {},
-  className = '',
-  selected = false
-}: ChipProps): JSX.Element => (
+const Chip = (props: ChipProps): JSX.Element => (
   <button
     type="button"
-    className={`chip ${selected ? 'chip--selected' : ''} ${className}`}
-    onClick={onClick}
+    className={`chip ${props.selected ? 'chip--selected' : ''} ${props.className}`}
+    onClick={() => props.onClick?.(props.title)}
   >
-    {title}
+    {props.title}
   </button>
 )
 

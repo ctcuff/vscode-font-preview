@@ -40,7 +40,11 @@ module.exports = {
   ignorePatterns: [...baseConfig.ignorePatterns],
   rules: {
     ...baseConfig.rules,
+    'no-param-reassign': 'off',
     'no-alert': 'error',
+    'no-confusing-arrow': 'off', // Off because it conflicts with prettier
+    indent: 'off', // Off because it conflicts with prettier
+    'function-paren-newline': 'off', // Off because it conflicts with prettier
     'import/extensions': ['error', 'never'],
     'react-hooks/exhaustive-deps': 'off',
     'react/no-array-index-key': 'off',

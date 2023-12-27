@@ -18,7 +18,8 @@ const getCSSVar = (cssVar: string, fallback = ''): string => {
 
   return (
     computedStyle.getPropertyValue(cssVar).trim() ||
-    computedStyle.getPropertyValue(fallback).trim()
+    computedStyle.getPropertyValue(fallback).trim() ||
+    fallback
   )
 }
 

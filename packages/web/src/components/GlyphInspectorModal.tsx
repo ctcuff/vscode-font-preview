@@ -24,7 +24,7 @@ const LOG_TAG = 'GlyphInspectorModal'
 
 const formatUnicode = (unicode: number | undefined): string => {
   if (unicode === undefined) {
-    return '(null)'
+    return '(undefined)'
   }
 
   const unicodeHex = unicode.toString(16)
@@ -68,8 +68,13 @@ function renderTableRow<T>(
 ): JSX.Element | null {
   const objectProperty = object[property]
 
-  if (!objectProperty) {
-    return null
+  if (objectProperty === null || objectProperty === undefined) {
+    return (
+      <tr>
+        <td>{property as string}</td>
+        <td>(undefined)</td>
+      </tr>
+    )
   }
 
   let displayProperty: T[keyof T] | string = objectProperty
@@ -81,7 +86,7 @@ function renderTableRow<T>(
   return (
     <tr>
       <td>{property as string}</td>
-      <td>{(displayProperty as string) ?? '(null)'}</td>
+      <td>{displayProperty as string}</td>
     </tr>
   )
 }
@@ -113,15 +118,8 @@ const GlyphInspectorModal = ({
 }: GlyphInspectorModalProps): JSX.Element => {
   const glyphMetrics = useMemo(() => glyph.getMetrics(), [glyph])
   const glyphPath = useMemo(() => glyph.getPath(), [glyph])
+  const contours = useMemo(() => glyph.getContours().flat().length, [glyph])
   const logger = useLogger()
-
-  const numPoints = useMemo(() => {
-    const contours = glyph.getContours().flat()
-
-    return contours.length > 0
-      ? contours.length
-      : glyphPath.commands.filter(({ type }) => type.toLowerCase() !== 'z').length
-  }, [glyph])
 
   const { font } = useContext(FontContext)
   const [renderFields, setRenderFields] = useState<RenderField[]>([
@@ -236,30 +234,30 @@ const GlyphInspectorModal = ({
         <div className="glyph-detail">
           <table>
             <tbody>
+              {renderTableRow(glyph, 'advanceWidth')}
+              {renderTableRow(font, 'ascender')}
+              <tr>
+                <td>contours</td>
+                <td>{contours}</td>
+              </tr>
+              {renderTableRow(font, 'descender')}
+              {renderTableRow(glyph, 'index', 0)}
+              {renderTableRow(glyphMetrics, 'leftSideBearing')}
               {renderTableRow(glyph, 'name')}
+              {renderTableRow(glyphMetrics, 'rightSideBearing')}
+              {renderTableRow(font.tables.os2, 'sCapHeight')}
+              {renderTableRow(font.tables.os2, 'sTypoAscender')}
+              {renderTableRow(font.tables.os2, 'sTypoDescender')}
+              {renderTableRow(font.tables.os2, 'sxHeight')}
               <tr>
                 <td>unicode</td>
                 <td>{formatUnicode(glyph.unicode)}</td>
               </tr>
-              {renderTableRow(glyph, 'index', 0)}
-              {renderTableRow(font, 'ascender')}
-              {renderTableRow(font.tables.os2, 'sTypoAscender')}
-              {renderTableRow(font, 'descender')}
-              {renderTableRow(font.tables.os2, 'sTypoDescender')}
-              {renderTableRow(font.tables.os2, 'sCapHeight')}
-              {renderTableRow(font.tables.os2, 'sxHeight')}
-              {renderTableRow(glyphMetrics, 'xMin')}
-              {renderTableRow(glyphMetrics, 'xMax')}
-              {renderTableRow(glyphMetrics, 'yMin')}
-              {renderTableRow(glyphMetrics, 'yMax')}
-              {renderTableRow(glyph, 'advanceWidth')}
-              {renderTableRow(glyphMetrics, 'leftSideBearing')}
-              {renderTableRow(glyphMetrics, 'rightSideBearing')}
-              <tr>
-                <td>contourPoints</td>
-                <td>{numPoints}</td>
-              </tr>
               {renderTableRow(font, 'unitsPerEm')}
+              {renderTableRow(glyphMetrics, 'xMax')}
+              {renderTableRow(glyphMetrics, 'xMin')}
+              {renderTableRow(glyphMetrics, 'yMax')}
+              {renderTableRow(glyphMetrics, 'yMin')}
             </tbody>
           </table>
           <div className="toggle-list">{allRenderFields.map(renderSwitch)}</div>

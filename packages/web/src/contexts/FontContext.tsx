@@ -1,5 +1,5 @@
 import { createContext } from 'react'
-import type { Font } from 'opentype.js'
+import type { Font, Glyph } from 'opentype.js'
 
 type FontContextProps = {
   font: Font
@@ -12,6 +12,7 @@ type FontContextProps = {
    * A list of features for this font from the `gpos` and `gsub` tables
    */
   fontFeatures: string[]
+  glyphs: Glyph[]
 }
 
 const FontContext = createContext<FontContextProps>({
@@ -20,7 +21,8 @@ const FontContext = createContext<FontContextProps>({
   // that, we need a fake Font object so TS doesn't complain
   font: {} as Font,
   fileName: '',
-  fontFeatures: []
+  fontFeatures: [],
+  glyphs: []
 })
 
 export default FontContext
