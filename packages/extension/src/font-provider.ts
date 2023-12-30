@@ -3,7 +3,12 @@ import * as path from 'path'
 import html from './index.html'
 import { template } from './util'
 import FontDocument from './font-document'
-import { WebviewMessage, LogLevel, ShowMessageEvent } from '@font-preview/shared'
+import {
+  WebviewMessage,
+  LogLevel,
+  ShowMessageEvent,
+  WorkspaceConfig
+} from '@font-preview/shared'
 import { TypedWebviewPanel } from './types/overrides'
 import LoggingService from './logging-service'
 import YAMLLoader from './yaml-loader'
@@ -116,7 +121,7 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
         fileUrl: `${fileUri.scheme}://${fileUri.authority}${fileUri.path}`,
         fileName: document.fileName,
         fileExtension: document.extension,
-        useWorker: this.workspaceConfig.get('useWorker')
+        config: this.getConfigForPanel()
       }
     })
   }
@@ -136,16 +141,9 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
         this.loadFont(panel, document)
         break
       case 'GET_CONFIG':
-        const config = this.workspaceConfig.all()
-        const { defaultTab, retainTabPosition } = config
-        const currentPanelTab = this.globalState.get('previewTab', defaultTab)
-
         panel.webview.postMessage({
           type: 'CONFIG_LOADED',
-          payload: {
-            ...config,
-            defaultTab: retainTabPosition ? currentPanelTab : defaultTab
-          }
+          payload: this.getConfigForPanel()
         })
         break
       case 'TOGGLE_PROGRESS':
@@ -288,6 +286,17 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
       await vscode.window.showTextDocument(document, { preview: false })
     } catch (err) {
       this.logger.error('Error opening document', LOG_TAG, err)
+    }
+  }
+
+  private getConfigForPanel(): WorkspaceConfig {
+    const config = this.workspaceConfig.all()
+    const { defaultTab, retainTabPosition } = config
+    const currentPanelTab = this.globalState.get('previewTab', defaultTab)
+
+    return {
+      ...config,
+      defaultTab: retainTabPosition ? currentPanelTab : defaultTab
     }
   }
 }

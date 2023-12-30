@@ -6,6 +6,7 @@ import FontLoadError from './font-load-error'
 import { base64ArrayBuffer, getCSSVar } from './util'
 import Logger from './util/logger'
 
+// TODO: Make this its own type
 type FontLoaderOptions = FontLoadEvent['payload'] & {
   /**
    * Dispatched when the <style> element was successfully added to the DOM
@@ -95,7 +96,7 @@ class FontLoader {
    * Otherwise, this will be done synchronously
    */
   public insertStyle(buffer: ArrayBuffer): void {
-    if (this.worker && this.opts.useWorker) {
+    if (this.worker && this.opts.config.useWorker) {
       this.insertStyleWithWorker(buffer)
     } else {
       this.insertStyleSync(buffer)

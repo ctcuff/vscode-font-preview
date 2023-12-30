@@ -75,7 +75,6 @@ export type FontLoadEvent = {
    */
   type: 'FONT_LOADED'
   payload: {
-    // config: WorkspaceConfig
     fileSize: number
     fileExtension: FontExtension
     fileName: string
@@ -94,10 +93,7 @@ export type FontLoadEvent = {
      * will just be an empty array
      */
     fileContent: number[]
-    /**
-     * Whether to use a worker when loading the font. This values comes from the user's settings
-     */
-    useWorker: boolean
+    config: WorkspaceConfig
   }
 }
 
@@ -143,6 +139,9 @@ export type ToggleProgressNotificationEvent = {
    * in VS Code's status bar
    */
   type: 'TOGGLE_PROGRESS'
+  /**
+   * True to show the loading indicator, false to hide it
+   */
   payload: boolean
 }
 

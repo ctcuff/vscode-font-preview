@@ -12,14 +12,16 @@ import GlyphItem from '../GlyphItem'
 import useRefWithCallback from '../../hooks/ref-with-callback'
 import useModal from '../../hooks/use-modal'
 import GlyphSortFilterModal, { SortProperty } from '../GlyphSortFilterModal'
+import useDidMountEffect from '../../hooks/use-did-mount-effect'
 
 type GlyphProps = {
   config: WorkspaceConfig
+  onRequestGlyphs: () => void
 }
 
 const GLYPHS_PER_PAGE = 200
 
-const Glyphs = ({ config }: GlyphProps): JSX.Element => {
+const Glyphs = (props: GlyphProps): JSX.Element => {
   const { font, glyphs: allGlyphs, glyphDataCache } = useContext(FontContext)
   const [displayedGlyphs, setDisplayedGlyphs] = useState<Glyph[]>([])
   const [selectedGlyph, setSelectedGlyph] = useState<Glyph | null>(null)
@@ -107,7 +109,7 @@ const Glyphs = ({ config }: GlyphProps): JSX.Element => {
     )
   }, [sortByProperty, isAscending])
 
-  useEffect(() => {
+  useDidMountEffect(() => {
     switch (sortByProperty) {
       case null:
         allGlyphs.sort((a, b) => a.index - b.index)
@@ -181,7 +183,17 @@ const Glyphs = ({ config }: GlyphProps): JSX.Element => {
     return () => {
       window.removeEventListener('message', onMessage)
     }
-  }, [currentPage])
+  }, [currentPage, glyphDataCache])
+
+  useEffect(() => {
+    if (glyphDataCache.length > 0) {
+      loadGlyphs()
+    }
+  }, [glyphDataCache])
+
+  useEffect(() => {
+    props.onRequestGlyphs()
+  }, [])
 
   const buttonRow = useMemo(() => renderPageButtons(), [currentPage])
 
@@ -195,11 +207,21 @@ const Glyphs = ({ config }: GlyphProps): JSX.Element => {
           key={glyph.index}
           onClick={onSelectGlyph}
           font={font}
-          config={config}
+          config={props.config}
         />
       )),
     [displayedGlyphs]
   )
+
+  if (glyphDataCache.length === 0) {
+    return (
+      <div className="glyphs">
+        <div className="header-container">
+          <FontNameHeader />
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="glyphs">

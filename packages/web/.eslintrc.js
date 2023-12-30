@@ -42,6 +42,7 @@ module.exports = {
     ...baseConfig.rules,
     'no-param-reassign': 'off',
     'no-alert': 'error',
+    'no-shadow': 'off',
     'no-confusing-arrow': 'off', // Off because it conflicts with prettier
     indent: 'off', // Off because it conflicts with prettier
     'function-paren-newline': 'off', // Off because it conflicts with prettier

@@ -18,6 +18,7 @@ type TabViewProps = {
   className?: string
   panelClassName?: string
   defaultTabId: PreviewTab | null
+  onChangeTab?: (tab: PreviewTab) => void
 }
 
 /**
@@ -25,31 +26,28 @@ type TabViewProps = {
  * cleaner. This allows the TabView to also access the props of each
  * of its tabs
  */
-const Tab = ({ children }: TabProps): JSX.Element => <>{children}</>
+const Tab = (props: TabProps): JSX.Element => <>{props.children}</>
 
-const TabView = ({
-  children,
-  className = '',
-  defaultTabId = null,
-  panelClassName = ''
-}: TabViewProps): JSX.Element | null => {
+const TabView = (props: TabViewProps): JSX.Element | null => {
   const vscode = useContext(VscodeContext)
+  const { className = '', defaultTabId = null, panelClassName = '' } = props
 
   if (defaultTabId === null) {
     return null
   }
 
-  const tabs = children.filter(tab => !!tab && (tab.props.visible ?? true))
+  const tabs = props.children.filter(tab => !!tab && (tab.props.visible ?? true))
   const tabIndex = tabs.findIndex(tab => tab.props.id === defaultTabId)
 
   const onChangeTab = (index: number, lastIndex: number): boolean => {
+    const tab = tabs[index].props.title as PreviewTab
+    const previousTab = tabs[lastIndex].props.title as PreviewTab
     vscode.postMessage({
       type: 'PREVIEW_TAB_CHANGE',
-      payload: {
-        tab: tabs[index].props.title as PreviewTab,
-        previousTab: tabs[lastIndex].props.title as PreviewTab
-      }
+      payload: { tab, previousTab }
     })
+
+    props.onChangeTab?.(tab)
     return true
   }
 

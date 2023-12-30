@@ -38,7 +38,41 @@ const App = (): JSX.Element | null => {
   const vscode = useContext(VscodeContext)
   const logger = useLogger()
 
-  const loadFont = async (payload: FontLoadEvent['payload']) => {
+  const loadGlyphDataCache = (font: Font) => {
+    if (glyphDataCache.length > 0) {
+      return
+    }
+
+    const allGlyphs: Glyph[] = []
+    const dataCache: GlyphDataCache[] = []
+
+    for (let i = 0; i < font.glyphs.length; i++) {
+      const glyph = font.glyphs.get(i)
+
+      // Need to call glyph.getPath() before accessing the contours array, otherwise
+      // it will always return an empty array because the points property will be undefined
+      // https://github.com/opentypejs/opentype.js/blob/9225ad6a88927394805d1be04ced66221c899840/src/glyphset.js#L134
+      // https://github.com/opentypejs/opentype.js/blob/9225ad6a88927394805d1be04ced66221c899840/src/tables/glyf.js#L106
+      // https://github.com/opentypejs/opentype.js/blob/9225ad6a88927394805d1be04ced66221c899840/src/glyph.js#L203
+      const path = glyph.getPath()
+
+      allGlyphs.push(glyph)
+      dataCache.push({
+        index: i,
+        contours: glyph.getContours().flat(),
+        metrics: glyph.getMetrics(),
+        numPoints: calculateNumPoints(path),
+        path
+      })
+    }
+
+    setGlyphDataCache(dataCache)
+    setGlyphs(allGlyphs)
+  }
+
+  const loadFont = async (event: FontLoadEvent) => {
+    const { payload } = event
+
     try {
       const fontLoader = new FontLoader(logger, {
         ...payload,
@@ -66,38 +100,11 @@ const App = (): JSX.Element | null => {
       setFontFeatures(features)
       setFileName(payload.fileName)
 
-      if (fontData) {
-        const allGlyphs: Glyph[] = []
-        const dataCache: GlyphDataCache[] = []
-
-        for (let i = 0; i < fontData.glyphs.length; i++) {
-          const glyph = fontData.glyphs.get(i)
-
-          // Need to call glyph.getPath() before accessing the contours array, otherwise
-          // it will always return an empty array because the points property will be undefined
-          // https://github.com/opentypejs/opentype.js/blob/9225ad6a88927394805d1be04ced66221c899840/src/glyphset.js#L134
-          // https://github.com/opentypejs/opentype.js/blob/9225ad6a88927394805d1be04ced66221c899840/src/tables/glyf.js#L106
-          // https://github.com/opentypejs/opentype.js/blob/9225ad6a88927394805d1be04ced66221c899840/src/glyph.js#L203
-          const path = glyph.getPath()
-
-          allGlyphs.push(glyph)
-          dataCache.push({
-            index: i,
-            contours: glyph.getContours().flat(),
-            metrics: glyph.getMetrics(),
-            numPoints: calculateNumPoints(path),
-            path
-          })
-        }
-
-        setGlyphDataCache(dataCache)
-        setGlyphs(allGlyphs)
-
-        const elapsed = logger.endTimer('fontLoad')
-        logger.info(`Font loaded in ${elapsed.toFixed(2)} ms`, LOG_TAG)
-      }
+      const elapsed = logger.endTimer('fontLoad')
+      logger.info(`Font loaded in ${elapsed.toFixed(2)} ms`, LOG_TAG)
 
       setFont(fontData)
+      setConfig(payload.config)
     } catch (err: unknown) {
       logger.error('Failed to load font', LOG_TAG, err)
       vscode.postMessage({ type: 'TOGGLE_PROGRESS', payload: true })
@@ -110,7 +117,7 @@ const App = (): JSX.Element | null => {
 
     switch (message.data.type) {
       case 'FONT_LOADED': {
-        loadFont(message.data.payload)
+        loadFont(message.data)
         break
       }
       case 'CONFIG_LOADED': {
@@ -152,9 +159,7 @@ const App = (): JSX.Element | null => {
   useEffect(() => {
     logger.debug('Webview initialized', LOG_TAG)
     window.addEventListener('message', onMessage)
-
     vscode.postMessage({ type: 'GET_FONT' })
-    vscode.postMessage({ type: 'GET_CONFIG' })
     vscode.postMessage({ type: 'GET_SAMPLE_TEXT' })
 
     return () => {
@@ -192,7 +197,7 @@ const App = (): JSX.Element | null => {
           <Features />
         </Tab>
         <Tab title="Glyphs" id="Glyphs" visible={isFontSupported}>
-          <Glyphs config={config} />
+          <Glyphs config={config} onRequestGlyphs={() => loadGlyphDataCache(font)} />
         </Tab>
         <Tab title="Waterfall" id="Waterfall" forceRender>
           <Waterfall />
