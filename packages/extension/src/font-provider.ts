@@ -106,11 +106,6 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
       fileContent = Array.from((await document.decompress()) || [])
     }
 
-    // Skip showing the progress notification since the font is too large to be parsed
-    if (fileSize <= MAX_WEB_FONT_SIZE) {
-      this.showProgressNotification(panel)
-    }
-
     panel.webview.postMessage({
       type: 'FONT_LOADED',
       payload: {
@@ -147,8 +142,8 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
         })
         break
       case 'TOGGLE_PROGRESS':
-        if (message.payload) {
-          this.showProgressNotification(panel)
+        if (message.payload.show) {
+          this.showProgressNotification(panel, message.payload.title)
         } else {
           this.shouldShowProgressNotification = false
         }
@@ -218,13 +213,13 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
     return template(html, { reactAppUri })
   }
 
-  private showProgressNotification(panel: TypedWebviewPanel): void {
+  private showProgressNotification(panel: TypedWebviewPanel, title: string): void {
     this.shouldShowProgressNotification = true
 
     vscode.window.withProgress(
       {
-        location: vscode.ProgressLocation.Window,
-        title: 'Rendering font'
+        title,
+        location: vscode.ProgressLocation.Window
       },
       async () => {
         // Need to check if the panel is still visible so the notification

@@ -178,31 +178,36 @@ export const drawPoints = (
 
 export const calculateNumPoints = (path: Path): number => {
   let count = 0
-  const seenOnLine = new Set<string>()
-  const seenOffLine = new Set<string>()
+  const seen = new Set<string>()
 
   path.commands.forEach(cmd => {
     if (cmd.type !== 'Z') {
-      const hash = `${cmd.x}:${-cmd.y}`
-      if (!seenOnLine.has(hash)) {
+      const hash = `Z_${cmd.x}:${-cmd.y}`
+      if (!seen.has(hash)) {
         count += 1
-        seenOnLine.add(hash)
+        seen.add(hash)
       }
     }
 
-    if (cmd.type === 'C' || cmd.type === 'Q') {
-      const hash = `${cmd.x1}:${-cmd.y1}`
-      if (!seenOffLine.has(hash)) {
+    if (cmd.type === 'Q') {
+      const hash = `Q_${cmd.x1}:${-cmd.y1}`
+      if (!seen.has(hash)) {
         count += 1
-        seenOffLine.add(hash)
+        seen.add(hash)
       }
     }
 
     if (cmd.type === 'C') {
-      const hash = `${cmd.x2}:${-cmd.y2}`
-      if (!seenOffLine.has(hash)) {
+      let hash = `C1_${cmd.x1}:${-cmd.y1}`
+      if (!seen.has(hash)) {
         count += 1
-        seenOffLine.add(hash)
+        seen.add(hash)
+      }
+
+      hash = `C2_${cmd.x2}:${-cmd.y2}`
+      if (!seen.has(hash)) {
+        count += 1
+        seen.add(hash)
       }
     }
   })

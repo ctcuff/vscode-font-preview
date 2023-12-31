@@ -78,6 +78,7 @@ export type FontLoadEvent = {
     fileSize: number
     fileExtension: FontExtension
     fileName: string
+    config: WorkspaceConfig
     /**
      * The URL of the file to be parsed. This should be in the form:
      * https://file+.vscode-resource.vscode-cdn.net/path/to/font.ttf
@@ -93,7 +94,6 @@ export type FontLoadEvent = {
      * will just be an empty array
      */
     fileContent: number[]
-    config: WorkspaceConfig
   }
 }
 
@@ -139,10 +139,14 @@ export type ToggleProgressNotificationEvent = {
    * in VS Code's status bar
    */
   type: 'TOGGLE_PROGRESS'
-  /**
-   * True to show the loading indicator, false to hide it
-   */
-  payload: boolean
+  payload:
+    | {
+        show: true
+        title: string
+      }
+    | {
+        show: false
+      }
 }
 
 export type SampleTextRequestEvent = {

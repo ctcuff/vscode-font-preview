@@ -6,7 +6,6 @@ import FontLoadError from './font-load-error'
 import { base64ArrayBuffer, getCSSVar } from './util'
 import Logger from './util/logger'
 
-// TODO: Make this its own type
 type FontLoaderOptions = FontLoadEvent['payload'] & {
   /**
    * Dispatched when the <style> element was successfully added to the DOM

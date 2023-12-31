@@ -43,6 +43,16 @@ const App = (): JSX.Element | null => {
       return
     }
 
+    vscode.postMessage({
+      type: 'TOGGLE_PROGRESS',
+      payload: {
+        show: true,
+        title: 'Loading glyphs'
+      }
+    })
+
+    logger.startTimer('glyphs')
+
     const allGlyphs: Glyph[] = []
     const dataCache: GlyphDataCache[] = []
 
@@ -68,6 +78,18 @@ const App = (): JSX.Element | null => {
 
     setGlyphDataCache(dataCache)
     setGlyphs(allGlyphs)
+
+    logger.info(
+      `Loaded ${allGlyphs.length} glyphs in ${logger.endTimer('glyphs').toFixed(2)} ms`,
+      LOG_TAG
+    )
+
+    vscode.postMessage({
+      type: 'TOGGLE_PROGRESS',
+      payload: {
+        show: false
+      }
+    })
   }
 
   const loadFont = async (event: FontLoadEvent) => {
@@ -76,12 +98,30 @@ const App = (): JSX.Element | null => {
     try {
       const fontLoader = new FontLoader(logger, {
         ...payload,
-        onBeforeCreateStyle: () =>
-          vscode.postMessage({ type: 'TOGGLE_PROGRESS', payload: true }),
-        onStyleCreated: () =>
-          vscode.postMessage({ type: 'TOGGLE_PROGRESS', payload: false }),
+        onBeforeCreateStyle: () => {
+          vscode.postMessage({
+            type: 'TOGGLE_PROGRESS',
+            payload: {
+              show: true,
+              title: 'Rendering font'
+            }
+          })
+        },
+        onStyleCreated: () => {
+          vscode.postMessage({
+            type: 'TOGGLE_PROGRESS',
+            payload: {
+              show: false
+            }
+          })
+        },
         onLoadError: () => {
-          vscode.postMessage({ type: 'TOGGLE_PROGRESS', payload: false })
+          vscode.postMessage({
+            type: 'TOGGLE_PROGRESS',
+            payload: {
+              show: false
+            }
+          })
           vscode.postMessage({
             type: 'SHOW_MESSAGE',
             payload: {
@@ -107,7 +147,12 @@ const App = (): JSX.Element | null => {
       setConfig(payload.config)
     } catch (err: unknown) {
       logger.error('Failed to load font', LOG_TAG, err)
-      vscode.postMessage({ type: 'TOGGLE_PROGRESS', payload: true })
+      vscode.postMessage({
+        type: 'TOGGLE_PROGRESS',
+        payload: {
+          show: false
+        }
+      })
       setError(`An error occurred while parsing this font: ${(err as Error).message}`)
     }
   }

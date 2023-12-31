@@ -119,14 +119,6 @@ const Glyphs = (props: GlyphProps): JSX.Element => {
       case 'yMin':
       case 'yMax':
       case 'leftSideBearing':
-      case 'advanceWidth':
-      case 'unicode':
-        allGlyphs.sort((a, b) =>
-          isAscending
-            ? (a[sortByProperty] ?? Infinity) - (b[sortByProperty] ?? Infinity)
-            : (b[sortByProperty] ?? -Infinity) - (a[sortByProperty] ?? -Infinity)
-        )
-        break
       case 'rightSideBearing':
         allGlyphs.sort((a, b) => {
           const aMetrics = glyphDataCache[a.index].metrics
@@ -134,9 +126,17 @@ const Glyphs = (props: GlyphProps): JSX.Element => {
 
           // prettier-ignore
           return isAscending
-            ? (aMetrics.rightSideBearing ?? Infinity) - (bMetrics.rightSideBearing ?? Infinity)
-            : (bMetrics.rightSideBearing ?? -Infinity) - (aMetrics.rightSideBearing ?? -Infinity)
+            ? (aMetrics[sortByProperty] ?? Infinity) - (bMetrics[sortByProperty] ?? Infinity)
+            : (bMetrics[sortByProperty] ?? -Infinity) - (aMetrics[sortByProperty] ?? -Infinity)
         })
+        break
+      case 'advanceWidth':
+      case 'unicode':
+        allGlyphs.sort((a, b) =>
+          isAscending
+            ? (a[sortByProperty] ?? Infinity) - (b[sortByProperty] ?? Infinity)
+            : (b[sortByProperty] ?? -Infinity) - (a[sortByProperty] ?? -Infinity)
+        )
         break
       case 'index':
         if (!isAscending) {
