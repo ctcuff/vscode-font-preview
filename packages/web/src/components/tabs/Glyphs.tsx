@@ -27,7 +27,7 @@ const Glyphs = (props: GlyphProps): JSX.Element => {
   const [selectedGlyph, setSelectedGlyph] = useState<Glyph | null>(null)
   const [currentPage, setCurrentPage] = useState(0)
   // TODO: Combine the two properties into one sort object?
-  const [sortByProperty, setSortByProperty] = useState<SortProperty | null>(null)
+  const [sortByProperty, setSortByProperty] = useState<SortProperty | null>('index')
   const [isAscending, setIsAscending] = useState(true)
   const glyphInspectorModal = useModal()
   const glyphSortFilterModal = useModal()
@@ -139,9 +139,7 @@ const Glyphs = (props: GlyphProps): JSX.Element => {
         )
         break
       case 'index':
-        if (!isAscending) {
-          allGlyphs.sort((a, b) => b.index - a.index)
-        }
+        allGlyphs.sort((a, b) => (isAscending ? a.index - b.index : b.index - a.index))
         break
       case 'name':
         allGlyphs.sort((a, b) =>

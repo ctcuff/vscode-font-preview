@@ -30,21 +30,21 @@ export type SortProperty = (typeof properties)[number]
 const defaultSort: SortProperty = 'index'
 
 const GlyphSortFilterModal = (props: GlyphSortFilterModalProps): JSX.Element => {
-  const [ascending, setAscending] = useState(true)
+  const [isAscending, setIsAscending] = useState(true)
   const [selectedProperty, setSelectedProperty] = useState<SortProperty>(defaultSort)
-  const [appliedAscending, setAppliedAscending] = useState(true)
+  // const [appliedAscending, setAppliedAscending] = useState(true)
   const [appliedProperty, setAppliedProperty] = useState<SortProperty>(defaultSort)
 
   const closeAndReset = () => {
-    setAscending(appliedAscending)
+    // setIsAscending(appliedAscending)
     setSelectedProperty(appliedProperty)
     props.onClose()
   }
 
   const closeAndResetToDefault = () => {
-    setAscending(true)
+    setIsAscending(true)
     setSelectedProperty(defaultSort)
-    setAppliedAscending(true)
+    // setAppliedAscending(true)
     setAppliedProperty(defaultSort)
     props.onSortApplied(null, true)
     props.onClose()
@@ -52,8 +52,8 @@ const GlyphSortFilterModal = (props: GlyphSortFilterModalProps): JSX.Element => 
 
   const applyAndClose = () => {
     setAppliedProperty(selectedProperty)
-    setAppliedAscending(ascending)
-    props.onSortApplied(selectedProperty, ascending)
+    // setAppliedAscending(isAscending)
+    props.onSortApplied(selectedProperty, isAscending)
     props.onClose()
   }
 
@@ -93,13 +93,13 @@ const GlyphSortFilterModal = (props: GlyphSortFilterModalProps): JSX.Element => 
         <div className="chip-container">
           <Chip
             title="ascending"
-            selected={ascending}
-            onClick={() => setAscending(true)}
+            selected={isAscending}
+            onClick={() => setIsAscending(true)}
           />
           <Chip
             title="descending"
-            selected={!ascending}
-            onClick={() => setAscending(false)}
+            selected={!isAscending}
+            onClick={() => setIsAscending(false)}
           />
         </div>
         <div className="controls">
