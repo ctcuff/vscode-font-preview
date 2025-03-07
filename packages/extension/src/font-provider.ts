@@ -54,7 +54,7 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
       ]
     }
 
-    panel.webview.html = this.getWebviewContent()
+    panel.webview.html = this.getWebviewContent(panel)
 
     const colorChangeListener = vscode.window.onDidChangeActiveColorTheme(event => {
       panel.webview.postMessage({
@@ -210,12 +210,12 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
     }
   }
 
-  private getWebviewContent(): string {
+  private getWebviewContent(panel: TypedWebviewPanel): string {
     const webDistPath = vscode.Uri.file(
       path.join(this.context.extensionPath, 'dist', 'web-view.js')
     )
 
-    const reactAppUri = webDistPath.with({ scheme: 'vscode-resource' }).toString()
+    const reactAppUri = panel.webview.asWebviewUri(webDistPath).toString()
 
     return template(html, { reactAppUri })
   }

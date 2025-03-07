@@ -9,9 +9,10 @@
       content="
         default-src * vscode-webview: vscode-resource: https://*.vscode-cdn.net data:;
         img-src https:; 
-        script-src 'unsafe-eval' 'unsafe-inline' 'self' vscode-resource: data: blob:;
+        script-src 'unsafe-eval' 'unsafe-inline' 'self' vscode-resource: https://*.vscode-cdn.net data: blob:;
         style-src vscode-resource: 'unsafe-inline';
         font-src 'self' data: vscode-resource: octect-stream:;
+        worker-src 'self' blob: vscode-resource: https://*.vscode-cdn.net;
       "
     />
     <script>
