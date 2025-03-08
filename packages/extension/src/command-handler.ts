@@ -5,7 +5,7 @@ import LoggingService from './logging-service'
 
 const LOG_TAG = 'CommandHandler'
 
-type CommandReturnValue = (...args: any[]) => any
+type CommandFunction = (...args: any[]) => Promise<any>
 
 export default class CommandHandler {
   public constructor(
@@ -16,7 +16,7 @@ export default class CommandHandler {
   ) {}
 
   public registerAllCommands(): void {
-    const commandMap: Record<string, CommandReturnValue> = {
+    const commandMap: Record<string, CommandFunction> = {
       'font-preview.createSampleYAMLFile': async () => this.openTextEditorWithSampleYML(),
       'font-preview.debug.resetGlobalState': async () => await this.resetGlobalState(),
       'font-preview.openSampleYAMLFile': async () => this.showSampleFileQuickPick()
@@ -61,20 +61,26 @@ paragraphs:
 
   public async showSampleFileQuickPick(): Promise<void> {
     const sampleFiles = this.workspaceConfig.get('sampleTextPaths')
-    const filePath = await vscode.window.showQuickPick(sampleFiles, {
-      placeHolder: 'Path to sample YAML file'
-    })
-
-    if (!filePath) {
-      return
-    }
 
     try {
+      const filePath = await vscode.window.showQuickPick(sampleFiles, {
+        placeHolder: 'Path to sample YAML file'
+      })
+
+      if (!filePath) {
+        this.logger.error(
+          `Undefined file path for ${JSON.stringify({ sampleFiles })}`,
+          LOG_TAG
+        )
+        return
+      }
+
       await vscode.window.showTextDocument(vscode.Uri.file(filePath), {
         preview: false
       })
     } catch (err) {
-      this.logger.error('Error opening file', LOG_TAG, err)
+      this.logger.error('Error in showSampleFileQuickPick', LOG_TAG, err)
+      return
     }
   }
 }

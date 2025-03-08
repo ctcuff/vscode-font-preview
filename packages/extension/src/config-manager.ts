@@ -13,26 +13,28 @@ interface TypedWorkspaceConfiguration extends WorkspaceConfiguration {
  * A small wrapper around vscode's workspace config
  */
 class ConfigManager {
-  constructor(private readonly logger: LoggingService) {}
+  private config: TypedWorkspaceConfiguration
 
-  public all(): WorkspaceConfig {
-    const config = workspace.getConfiguration(EXTENSION_ID) as TypedWorkspaceConfiguration
+  constructor(private readonly logger: LoggingService) {
+    this.config = workspace.getConfiguration(EXTENSION_ID) as TypedWorkspaceConfiguration
+  }
 
+  public getAll(): WorkspaceConfig {
     return {
-      defaultTab: config.get('defaultTab')!,
-      useWorker: config.get('useWorker')!,
-      showGlyphWidth: config.get('showGlyphWidth')!,
-      showGlyphIndex: config.get('showGlyphIndex')!,
-      sampleTextPaths: config.get('sampleTextPaths')!,
-      defaultLogLevel: config.get('defaultLogLevel')!,
-      defaultSampleTextId: config.get('defaultSampleTextId')!,
-      showSampleTextErrors: config.get('showSampleTextErrors')!,
-      retainTabPosition: config.get('retainTabPosition')!
+      defaultTab: this.config.get('defaultTab')!,
+      useWorker: this.config.get('useWorker')!,
+      showGlyphWidth: this.config.get('showGlyphWidth')!,
+      showGlyphIndex: this.config.get('showGlyphIndex')!,
+      sampleTextPaths: this.config.get('sampleTextPaths')!,
+      defaultLogLevel: this.config.get('defaultLogLevel')!,
+      defaultSampleTextId: this.config.get('defaultSampleTextId')!,
+      showSampleTextErrors: this.config.get('showSampleTextErrors')!,
+      retainTabPosition: this.config.get('retainTabPosition')!
     }
   }
 
   public get<T extends keyof WorkspaceConfig>(key: T): WorkspaceConfig[T] {
-    return this.all()[key]
+    return this.config.get(key)!
   }
 
   public async set<T extends keyof WorkspaceConfig>(
@@ -40,8 +42,7 @@ class ConfigManager {
     value: WorkspaceConfig[T]
   ): Promise<void> {
     try {
-      const config = workspace.getConfiguration(EXTENSION_ID)
-      await config.update(key, value)
+      await this.config.update(key, value)
     } catch (err) {
       this.logger.error(
         `Error updating setting ${JSON.stringify({ [key]: value })}`,

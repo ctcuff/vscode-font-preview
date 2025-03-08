@@ -10,12 +10,14 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   const version = context.extension.packageJSON.version
   const id = context.extension.id
   const logger = new LoggingService()
+
+  logger.startTimer('activate')
+
   const configManager = new ConfigManager(logger)
   const globalState = new GlobalStateManager(context, logger)
   const commandHandler = new CommandHandler(context, logger, globalState, configManager)
   const fontProvider = new FontProvider(context, logger, globalState, configManager)
 
-  logger.startTimer('activate')
   logger.setOutputLevel(configManager.get('defaultLogLevel'))
 
   context.subscriptions.push(

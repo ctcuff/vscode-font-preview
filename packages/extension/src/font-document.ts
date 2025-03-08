@@ -62,6 +62,7 @@ class FontDocument implements vscode.CustomDocument {
     try {
       content = await vscode.workspace.fs.readFile(this.uri)
     } catch (err: unknown) {
+      this.logger.endTimer(LOG_TAG)
       this.logger.error("Couldn't read file", LOG_TAG, err)
       vscode.window.showErrorMessage("Couldn't read file")
       return null

@@ -62,10 +62,10 @@ export type WorkspaceConfig = {
 }
 
 // TODO: See if we can load the font before the webview requests it
-/**
- * Dispatched from the webview in order to load the font
- */
 export type RequestFontEvent = {
+  /**
+   * Dispatched from the webview in order to load the font
+   */
   type: 'GET_FONT'
 }
 

@@ -3,6 +3,9 @@ import { ExtensionContext } from 'vscode'
 import LoggingService from './logging-service'
 
 type State = {
+  /**
+   * Keeps track of the current tab
+   */
   previewTab: PreviewTab
 }
 
