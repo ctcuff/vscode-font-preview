@@ -1,4 +1,4 @@
-import { LogLevel } from './types'
+import { LogLevel } from './types';
 
 /**
  * A logger shared between the extension and the webview. The extension's implementation
@@ -6,9 +6,9 @@ import { LogLevel } from './types'
  * implementation handles sending messages via `vscode.postMessage`
  */
 export abstract class BaseLogger {
-  private timers: Record<string, number> = {}
+  private timers: Record<string, number> = {};
 
-  protected abstract log(level: LogLevel, message: string, tag?: string): void
+  protected abstract log(level: LogLevel, message: string, tag?: string): void;
 
   /**
    * Starts a timer using the `performance` module.
@@ -17,9 +17,9 @@ export abstract class BaseLogger {
    */
   public startTimer(id: string): void {
     if (this.timers[id]) {
-      this.warn(`Timer with ID ${id} was already set`)
+      this.warn(`Timer with ID ${id} was already set`);
     }
-    this.timers[id] = performance.now()
+    this.timers[id] = performance.now();
   }
 
   /**
@@ -30,44 +30,44 @@ export abstract class BaseLogger {
    */
   public endTimer(id: string): number {
     if (!this.timers[id]) {
-      this.warn(`No timer with ID ${id} was found`)
-      return 0
+      this.warn(`No timer with ID ${id} was found`);
+      return 0;
     }
 
     if (this.timers[id] === 0) {
-      this.warn('Did you forget to call logger.startTimer()?')
-      return 0
+      this.warn('Did you forget to call logger.startTimer()?');
+      return 0;
     }
 
-    const totalTime = performance.now() - this.timers[id]
-    delete this.timers[id]
+    const totalTime = performance.now() - this.timers[id];
+    delete this.timers[id];
 
-    return totalTime
+    return totalTime;
   }
 
   public debug(message: string, tag?: string): void {
-    this.log(LogLevel.DEBUG, message, tag)
+    this.log(LogLevel.DEBUG, message, tag);
   }
 
   public info(message: string, tag?: string): void {
-    this.log(LogLevel.INFO, message, tag)
+    this.log(LogLevel.INFO, message, tag);
   }
 
   public warn(message: string, tag?: string): void {
-    this.log(LogLevel.WARN, message, tag)
+    this.log(LogLevel.WARN, message, tag);
   }
 
   public error(message: string, tag?: string, error?: unknown): void {
     if (error instanceof Error) {
       if (error?.message) {
-        this.log(LogLevel.ERROR, `${message} ${error.message}`, tag)
+        this.log(LogLevel.ERROR, `${message} ${error.message}`, tag);
       } else if (error?.stack) {
-        this.log(LogLevel.ERROR, error.stack, tag)
+        this.log(LogLevel.ERROR, error.stack, tag);
       }
     } else if (error) {
-      this.log(LogLevel.ERROR, `${message} ${error}`, tag)
+      this.log(LogLevel.ERROR, `${message} ${error}`, tag);
     } else {
-      this.log(LogLevel.ERROR, message, tag)
+      this.log(LogLevel.ERROR, message, tag);
     }
   }
 }

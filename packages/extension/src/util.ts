@@ -1,4 +1,4 @@
-export const EXTENSION_ID = 'font-preview'
+export const EXTENSION_ID = 'font-preview';
 
 /**
  * Takes an HTML file as a string and replaces all occurrences of
@@ -9,11 +9,11 @@ export const EXTENSION_ID = 'font-preview'
  * @returns The HTML file with all variables replaced
  */
 export const template = (content: string, data: Record<string, string>): string => {
-  let html = content
+  let html = content;
 
   Object.entries(data).forEach(([key, value]) => {
-    html = html.replace(new RegExp(`{{ ${key} }}`, 'g'), `${value}`)
-  })
+    html = html.replace(new RegExp(`{{ ${key} }}`, 'g'), `${value}`);
+  });
 
-  return html
-}
+  return html;
+};

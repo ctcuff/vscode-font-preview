@@ -1,95 +1,95 @@
-import '../../scss/typing-preview.scss'
-import React, { useState, useContext, useRef } from 'react'
-import FontNameHeader from '../FontNameHeader'
-import FeatureToggles from '../FeatureToggles'
-import Slider from '../Slider'
-import VariableAxes from '../VariableAxes'
-import FontContext from '../../contexts/FontContext'
-import { isTableEmpty } from '../../util'
-import Chip from '../Chip'
-import useRefWithCallback from '../../hooks/ref-with-callback'
+import '../../scss/typing-preview.scss';
+import React, { useState, useContext, useRef } from 'react';
+import FontNameHeader from '../FontNameHeader';
+import FeatureToggles from '../FeatureToggles';
+import Slider from '../Slider';
+import VariableAxes from '../VariableAxes';
+import FontContext from '../../contexts/FontContext';
+import { isTableEmpty } from '../../util';
+import Chip from '../Chip';
+import useRefWithCallback from '../../hooks/ref-with-callback';
 
-type PinnedSection = 'features' | 'axes' | 'properties'
+type PinnedSection = 'features' | 'axes' | 'properties';
 
 /**
  * Allows plain text to be pasted into a contentEditable element
  * without formatting/styling being applied to it
  */
 const onPaste = (event: React.ClipboardEvent<HTMLParagraphElement>): void => {
-  event.preventDefault()
+  event.preventDefault();
 
-  const range = document.getSelection()?.getRangeAt(0)
-  const clipboardText = event.clipboardData.getData('text/plain')
+  const range = document.getSelection()?.getRangeAt(0);
+  const clipboardText = event.clipboardData.getData('text/plain');
 
   if (!range) {
-    return
+    return;
   }
 
-  range.deleteContents()
+  range.deleteContents();
 
-  const textNode = document.createTextNode(clipboardText)
+  const textNode = document.createTextNode(clipboardText);
 
-  range.insertNode(textNode)
-  range.selectNodeContents(textNode)
-  range.collapse(false)
+  range.insertNode(textNode);
+  range.selectNodeContents(textNode);
+  range.collapse(false);
 
-  const selection = window.getSelection()
+  const selection = window.getSelection();
 
-  selection?.removeAllRanges()
-  selection?.addRange(range)
-}
+  selection?.removeAllRanges();
+  selection?.addRange(range);
+};
 
-const starterText = 'Type your text here...'
+const starterText = 'Type your text here...';
 
 const TypingPreview = (): JSX.Element => {
-  const [fontSize, setFontSize] = useState(16)
-  const [lineHeight, setLineHeight] = useState(1.2)
-  const [letterSpacing, setLetterSpacing] = useState(0)
-  const [fontFeatureSettingsCSS, setFontFeatureSettingsCSS] = useState('normal')
-  const [pageMarginTop, setPageMarginTop] = useState(0)
-  const [variationCSS, setVariationCSS] = useState('')
-  const { fontFeatures, font } = useContext(FontContext)
-  const [pinnedSection, setPinnedSection] = useState<PinnedSection | null>(null)
+  const [fontSize, setFontSize] = useState(16);
+  const [lineHeight, setLineHeight] = useState(1.2);
+  const [letterSpacing, setLetterSpacing] = useState(0);
+  const [fontFeatureSettingsCSS, setFontFeatureSettingsCSS] = useState('normal');
+  const [pageMarginTop, setPageMarginTop] = useState(0);
+  const [variationCSS, setVariationCSS] = useState('');
+  const { fontFeatures, font } = useContext(FontContext);
+  const [pinnedSection, setPinnedSection] = useState<PinnedSection | null>(null);
 
   const refs: { [key in PinnedSection]: React.RefObject<HTMLElement> } = {
     features: useRef<HTMLElement>(null),
     axes: useRef<HTMLElement>(null),
     properties: useRef<HTMLElement>(null)
-  }
+  };
 
   // When the paragraph element gets mounted, focus it and
   // move the user's caret to the end of the sentence
   const paragraphRef = useRefWithCallback<HTMLDivElement>(paragraphNode => {
-    paragraphNode.focus({ preventScroll: true })
+    paragraphNode.focus({ preventScroll: true });
 
-    const range = document.createRange()
-    const selection = window.getSelection()
-    const childNodes = paragraphNode.childNodes
+    const range = document.createRange();
+    const selection = window.getSelection();
+    const childNodes = paragraphNode.childNodes;
 
-    range.setStart(childNodes[childNodes.length - 1], starterText.length)
-    range.collapse(true)
+    range.setStart(childNodes[childNodes.length - 1], starterText.length);
+    range.collapse(true);
 
-    selection?.removeAllRanges()
-    selection?.addRange(range)
-  }, [])
+    selection?.removeAllRanges();
+    selection?.addRange(range);
+  }, []);
 
   const togglePinnedSection = (sectionName: PinnedSection): void => {
-    const currentSectionRef = refs[sectionName].current
+    const currentSectionRef = refs[sectionName].current;
 
-    setPinnedSection(pinnedSection === sectionName ? null : sectionName)
+    setPinnedSection(pinnedSection === sectionName ? null : sectionName);
 
     // In this case, the section is unpinned, remove the margin
     if (pinnedSection === sectionName) {
-      setPageMarginTop(0)
+      setPageMarginTop(0);
     } else if (currentSectionRef) {
       setTimeout(() => {
         // Because the pinned element has a max-height, we need to
         // wrap this in a setTimeout so that the element has time
         // to calculate its size
-        setPageMarginTop(currentSectionRef.offsetHeight + 52)
-      }, 50)
+        setPageMarginTop(currentSectionRef.offsetHeight + 52);
+      }, 50);
     }
-  }
+  };
 
   return (
     <div className="typing-preview" style={{ marginTop: pageMarginTop }}>
@@ -180,7 +180,7 @@ const TypingPreview = (): JSX.Element => {
         {starterText}
       </p>
     </div>
-  )
-}
+  );
+};
 
-export default TypingPreview
+export default TypingPreview;

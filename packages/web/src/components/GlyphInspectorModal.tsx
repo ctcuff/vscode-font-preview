@@ -1,50 +1,50 @@
-import '../scss/glyph-inspector-modal.scss'
-import React, { useContext, useMemo, useState } from 'react'
-import Modal from 'react-modal'
-import { Glyph, Path } from 'opentype.js'
-import { toast, cssTransition } from 'react-toastify'
-import { VscClose } from 'react-icons/vsc'
-import GlyphCanvas, { RenderField } from './GlyphCanvas'
-import FontContext from '../contexts/FontContext'
-import Chip from './Chip'
-import Switch from './Switch'
-import useLogger from '../hooks/use-logger'
+import '../scss/glyph-inspector-modal.scss';
+import React, { useContext, useMemo, useState } from 'react';
+import Modal from 'react-modal';
+import { Glyph, Path } from 'opentype.js';
+import { toast, cssTransition } from 'react-toastify';
+import { VscClose } from 'react-icons/vsc';
+import GlyphCanvas, { RenderField } from './GlyphCanvas';
+import FontContext from '../contexts/FontContext';
+import Chip from './Chip';
+import Switch from './Switch';
+import useLogger from '../hooks/use-logger';
 
 type GlyphInspectorModalProps = {
-  isOpen: boolean
-  onClose: () => void
-  onAfterOpen: Modal.OnAfterOpenCallback
-  glyph: Glyph
-  onAfterClose?: () => void
-}
+  isOpen: boolean;
+  onClose: () => void;
+  onAfterOpen: Modal.OnAfterOpenCallback;
+  glyph: Glyph;
+  onAfterClose?: () => void;
+};
 
-const GLYPH_CANVAS_SIZE = 500
-const CANVAS_PADDING = 16
-const LOG_TAG = 'GlyphInspectorModal'
+const GLYPH_CANVAS_SIZE = 500;
+const CANVAS_PADDING = 16;
+const LOG_TAG = 'GlyphInspectorModal';
 
 const formatUnicode = (unicode: number | undefined): string => {
   if (unicode === undefined) {
-    return '(null)'
+    return '(null)';
   }
 
-  const unicodeHex = unicode.toString(16)
+  const unicodeHex = unicode.toString(16);
 
   return unicodeHex.length > 4
     ? `000000${unicodeHex.toUpperCase()}`.slice(-6)
-    : `0000${unicodeHex.toUpperCase()}`.slice(-4)
-}
+    : `0000${unicodeHex.toUpperCase()}`.slice(-4);
+};
 
 const pathToSVG = (path: Path): string => {
-  const { x1, y1, x2, y2 } = path.getBoundingBox()
+  const { x1, y1, x2, y2 } = path.getBoundingBox();
 
   // Need to offset the svg a bit so it doesn't clip out of the view box
-  const offset = 2
-  const w = (x2 - x1 + offset).toFixed(0)
-  const h = (y2 - y1 + offset).toFixed(0)
+  const offset = 2;
+  const w = (x2 - x1 + offset).toFixed(0);
+  const h = (y2 - y1 + offset).toFixed(0);
 
   // Centers the path withing the SVG
-  const viewBoxX = (x1 - offset / 2).toFixed(0)
-  const viewBoxY = (y1 - offset / 2).toFixed(0)
+  const viewBoxX = (x1 - offset / 2).toFixed(0);
+  const viewBoxY = (y1 - offset / 2).toFixed(0);
 
   // prettier-ignore
   return (
@@ -58,24 +58,24 @@ const pathToSVG = (path: Path): string => {
     '>' +
       `${path.toSVG(4)}` +
     '</svg>'
-  )
-}
+  );
+};
 
 function renderTableRow<T>(
   object: T,
   property: keyof T,
   numberPrecision = 2
 ): JSX.Element | null {
-  const objectProperty = object[property]
+  const objectProperty = object[property];
 
   if (!objectProperty) {
-    return null
+    return null;
   }
 
-  let displayProperty: T[keyof T] | string = objectProperty
+  let displayProperty: T[keyof T] | string = objectProperty;
 
   if (typeof displayProperty === 'number') {
-    displayProperty = displayProperty.toFixed(numberPrecision)
+    displayProperty = displayProperty.toFixed(numberPrecision);
   }
 
   return (
@@ -83,10 +83,10 @@ function renderTableRow<T>(
       <td>{property as string}</td>
       <td>{(displayProperty as string) ?? '(null)'}</td>
     </tr>
-  )
+  );
 }
 
-const entityTextArea = document.createElement('textarea')
+const entityTextArea = document.createElement('textarea');
 
 const allRenderFields: RenderField[] = [
   'ascender',
@@ -102,7 +102,7 @@ const allRenderFields: RenderField[] = [
   'yMax',
   'yMin',
   'width'
-]
+];
 
 const GlyphInspectorModal = ({
   isOpen,
@@ -111,39 +111,39 @@ const GlyphInspectorModal = ({
   onAfterOpen,
   onAfterClose
 }: GlyphInspectorModalProps): JSX.Element => {
-  const glyphMetrics = useMemo(() => glyph.getMetrics(), [glyph])
-  const glyphPath = useMemo(() => glyph.getPath(), [glyph])
-  const logger = useLogger()
+  const glyphMetrics = useMemo(() => glyph.getMetrics(), [glyph]);
+  const glyphPath = useMemo(() => glyph.getPath(), [glyph]);
+  const logger = useLogger();
 
   const numPoints = useMemo(() => {
-    const contours = glyph.getContours().flat()
+    const contours = glyph.getContours().flat();
 
     return contours.length > 0
       ? contours.length
-      : glyphPath.commands.filter(({ type }) => type.toLowerCase() !== 'z').length
-  }, [glyph])
+      : glyphPath.commands.filter(({ type }) => type.toLowerCase() !== 'z').length;
+  }, [glyph]);
 
-  const { font } = useContext(FontContext)
+  const { font } = useContext(FontContext);
   const [renderFields, setRenderFields] = useState<RenderField[]>([
     'width',
     'ascender',
     'baseline',
     'descender',
     'fill'
-  ])
+  ]);
 
   const toggleTableField = (field: RenderField, enabled: boolean) => {
     if (enabled) {
-      setRenderFields(fields => fields.concat(field))
+      setRenderFields(fields => fields.concat(field));
     } else {
-      setRenderFields(fields => fields.filter(value => value !== field))
+      setRenderFields(fields => fields.filter(value => value !== field));
     }
-  }
+  };
 
   const copyGlyphToClipboard = (asSvg: boolean): void => {
     // The glyph will be encoded (for example F => &#70;) so we need
     // to put the glyph in a text area in order to copy the decoded version
-    entityTextArea.innerHTML = asSvg ? pathToSVG(glyphPath) : `&#${glyph.unicode};`
+    entityTextArea.innerHTML = asSvg ? pathToSVG(glyphPath) : `&#${glyph.unicode};`;
 
     navigator.clipboard
       .writeText(entityTextArea.value)
@@ -162,10 +162,10 @@ const GlyphInspectorModal = ({
             enter: 'react-toast__enter',
             exit: 'react-toast__exit'
           })
-        })
+        });
       })
-      .catch(err => logger.error("Couldn't copy to clipboard", LOG_TAG, err))
-  }
+      .catch(err => logger.error("Couldn't copy to clipboard", LOG_TAG, err));
+  };
 
   const renderSwitch = (field: RenderField) => {
     switch (field) {
@@ -176,19 +176,19 @@ const GlyphInspectorModal = ({
       case 'sCapHeight':
       case 'sxHeight':
         if (!font.tables.os2[field]) {
-          return null
+          return null;
         }
-        break
+        break;
       default:
-        break
+        break;
     }
 
-    let switchTitle: string = field
+    let switchTitle: string = field;
 
     if (field === 'sTypoAscender') {
-      switchTitle = 'sTypoAsc'
+      switchTitle = 'sTypoAsc';
     } else if (field === 'sTypoDescender') {
-      switchTitle = 'sTypoDesc'
+      switchTitle = 'sTypoDesc';
     }
 
     return (
@@ -200,8 +200,8 @@ const GlyphInspectorModal = ({
         className="feature-toggle"
         onChange={checked => toggleTableField(field, checked)}
       />
-    )
-  }
+    );
+  };
 
   return (
     <Modal
@@ -282,7 +282,7 @@ const GlyphInspectorModal = ({
         </div>
       </div>
     </Modal>
-  )
-}
+  );
+};
 
-export default GlyphInspectorModal
+export default GlyphInspectorModal;

@@ -1,39 +1,39 @@
-import '../scss/app.scss'
-import React, { useContext, useEffect, useState } from 'react'
-import { Font } from 'opentype.js'
-import { ToastContainer } from 'react-toastify'
+import '../scss/app.scss';
+import React, { useContext, useEffect, useState } from 'react';
+import { Font } from 'opentype.js';
+import { ToastContainer } from 'react-toastify';
 import {
   WorkspaceConfig,
   FontLoadEvent,
   WebviewMessage,
   PreviewSample
-} from '@font-preview/shared/'
-import TabView, { Tab } from './TabView'
-import FontPreview from './tabs/FontPreview'
-import Glyphs from './tabs/Glyphs'
-import FontContext from '../contexts/FontContext'
-import VscodeContext from '../contexts/VscodeContext'
-import Features from './tabs/Features'
-import Waterfall from './tabs/Waterfall'
-import License from './tabs/License'
-import TypingPreview from './tabs/TypingPreview'
-import { isTableEmpty } from '../util'
-import FontLoader from '../font-loader'
-import useLogger from '../hooks/use-logger'
-import ErrorOverlay from './ErrorOverlay'
+} from '@font-preview/shared/';
+import TabView, { Tab } from './TabView';
+import FontPreview from './tabs/FontPreview';
+import Glyphs from './tabs/Glyphs';
+import FontContext from '../contexts/FontContext';
+import VscodeContext from '../contexts/VscodeContext';
+import Features from './tabs/Features';
+import Waterfall from './tabs/Waterfall';
+import License from './tabs/License';
+import TypingPreview from './tabs/TypingPreview';
+import { isTableEmpty } from '../util';
+import FontLoader from '../font-loader';
+import useLogger from '../hooks/use-logger';
+import ErrorOverlay from './ErrorOverlay';
 
-const LOG_TAG = 'App'
+const LOG_TAG = 'App';
 
 const App = (): JSX.Element | null => {
-  const [font, setFont] = useState<Font | null>(null)
-  const [fileName, setFileName] = useState('')
-  const [isFontSupported, setIsFontSupported] = useState(false)
-  const [fontFeatures, setFontFeatures] = useState<string[]>([])
-  const [error, setError] = useState<string | null>(null)
-  const [config, setConfig] = useState<WorkspaceConfig | null>(null)
-  const [sampleTexts, setSampleTexts] = useState<PreviewSample[]>([])
-  const vscode = useContext(VscodeContext)
-  const logger = useLogger()
+  const [font, setFont] = useState<Font | null>(null);
+  const [fileName, setFileName] = useState('');
+  const [isFontSupported, setIsFontSupported] = useState(false);
+  const [fontFeatures, setFontFeatures] = useState<string[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [config, setConfig] = useState<WorkspaceConfig | null>(null);
+  const [sampleTexts, setSampleTexts] = useState<PreviewSample[]>([]);
+  const vscode = useContext(VscodeContext);
+  const logger = useLogger();
 
   const loadFont = async (payload: FontLoadEvent['payload']) => {
     try {
@@ -44,7 +44,7 @@ const App = (): JSX.Element | null => {
         onStyleCreated: () =>
           vscode.postMessage({ type: 'TOGGLE_PROGRESS', payload: false }),
         onLoadError: () => {
-          vscode.postMessage({ type: 'TOGGLE_PROGRESS', payload: false })
+          vscode.postMessage({ type: 'TOGGLE_PROGRESS', payload: false });
           vscode.postMessage({
             type: 'SHOW_MESSAGE',
             payload: {
@@ -52,86 +52,86 @@ const App = (): JSX.Element | null => {
                 "Couldn't render font preview. Some font information may still be available.",
               messageType: 'ERROR'
             }
-          })
+          });
         }
-      })
+      });
 
-      const { font: fontData, features } = await fontLoader.loadFont()
+      const { font: fontData, features } = await fontLoader.loadFont();
 
-      setIsFontSupported(fontLoader.isSupported)
-      setFont(fontData)
-      setFontFeatures(features)
-      setFileName(payload.fileName)
+      setIsFontSupported(fontLoader.isSupported);
+      setFont(fontData);
+      setFontFeatures(features);
+      setFileName(payload.fileName);
     } catch (err: unknown) {
-      logger.error('Failed to load font', LOG_TAG, err)
-      vscode.postMessage({ type: 'TOGGLE_PROGRESS', payload: true })
-      setError(`An error occurred while parsing this font: ${(err as Error).message}`)
+      logger.error('Failed to load font', LOG_TAG, err);
+      vscode.postMessage({ type: 'TOGGLE_PROGRESS', payload: true });
+      setError(`An error occurred while parsing this font: ${(err as Error).message}`);
     }
-  }
+  };
 
   const onMessage = (message: MessageEvent<WebviewMessage>): void => {
-    logger.debug(`Received message from extension: ${message.data.type}`, LOG_TAG)
+    logger.debug(`Received message from extension: ${message.data.type}`, LOG_TAG);
 
     switch (message.data.type) {
       case 'FONT_LOADED': {
-        loadFont(message.data.payload)
-        break
+        loadFont(message.data.payload);
+        break;
       }
       case 'CONFIG_LOADED': {
-        setConfig(message.data.payload)
-        break
+        setConfig(message.data.payload);
+        break;
       }
       case 'SAMPLE_TEXT_LOADED':
-        setSampleTexts(message.data.payload)
-        break
+        setSampleTexts(message.data.payload);
+        break;
       default:
-        break
+        break;
     }
-  }
+  };
 
   const shouldShowFeatureTab = (): boolean => {
     if (!font || !font.tables) {
-      return false
+      return false;
     }
 
-    const { gpos, gsub, fvar } = font.tables
+    const { gpos, gsub, fvar } = font.tables;
 
     if (!isFontSupported) {
-      return false
+      return false;
     }
 
     if (!gpos && !gsub && !fvar) {
-      return false
+      return false;
     }
 
     // In this case the font might have gpos, gsub, or fvar tables, but
     // all of them might be empty. No point in showing the tab
     if (isTableEmpty(gpos) && isTableEmpty(gsub) && isTableEmpty(fvar)) {
-      return false
+      return false;
     }
 
-    return true
-  }
+    return true;
+  };
 
   useEffect(() => {
-    logger.debug('Webview initialized', LOG_TAG)
-    window.addEventListener('message', onMessage)
+    logger.debug('Webview initialized', LOG_TAG);
+    window.addEventListener('message', onMessage);
 
-    vscode.postMessage({ type: 'GET_FONT' })
-    vscode.postMessage({ type: 'GET_CONFIG' })
-    vscode.postMessage({ type: 'GET_SAMPLE_TEXT' })
+    vscode.postMessage({ type: 'GET_FONT' });
+    vscode.postMessage({ type: 'GET_CONFIG' });
+    vscode.postMessage({ type: 'GET_SAMPLE_TEXT' });
 
     return () => {
-      window.removeEventListener('message', onMessage)
-    }
-  }, [])
+      window.removeEventListener('message', onMessage);
+    };
+  }, []);
 
   if (error) {
-    return <ErrorOverlay errorMessage={error} />
+    return <ErrorOverlay errorMessage={error} />;
   }
 
   if (!font || !config) {
-    return null
+    return null;
   }
 
   return (
@@ -167,7 +167,7 @@ const App = (): JSX.Element | null => {
         </Tab>
       </TabView>
     </FontContext.Provider>
-  )
-}
+  );
+};
 
-export default App
+export default App;

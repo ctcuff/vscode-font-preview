@@ -1,11 +1,11 @@
-import { useContext, useRef } from 'react'
-import Logger from '../util/logger'
-import VscodeContext from '../contexts/VscodeContext'
+import { useContext, useRef } from 'react';
+import Logger from '../util/logger';
+import VscodeContext from '../contexts/VscodeContext';
 
 const useLogger = (): Logger => {
-  const vscode = useContext(VscodeContext)
-  const logger = useRef(Logger.getInstance(vscode))
-  return logger.current
-}
+  const vscode = useContext(VscodeContext);
+  const logger = useRef(Logger.getInstance(vscode));
+  return logger.current;
+};
 
-export default useLogger
+export default useLogger;

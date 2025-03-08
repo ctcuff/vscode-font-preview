@@ -3,20 +3,20 @@ declare module '*sample.yml' {
     /**
      * The name of the sample
      */
-    id: string
+    id: string;
     /**
      * Where the sample came from
      */
-    source?: string
+    source?: string;
     /**
      * An array of strings to display. Each item will be displayed as a paragraph element
      */
-    paragraphs: string[]
+    paragraphs: string[];
     /**
      * (Optional) `true` if this is sample is written right-to-left
      */
-    rtl?: boolean
-  }
+    rtl?: boolean;
+  };
 
-  export default content
+  export default content;
 }

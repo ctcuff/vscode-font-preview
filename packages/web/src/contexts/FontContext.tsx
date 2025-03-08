@@ -1,18 +1,18 @@
-import { createContext } from 'react'
-import type { Font } from 'opentype.js'
+import { createContext } from 'react';
+import type { Font } from 'opentype.js';
 
 type FontContextProps = {
-  font: Font
+  font: Font;
   /**
    * Holds a reference to the filename of the font (without the extension)
    * in case the name of the font can be accessed through opentype
    */
-  fileName: string
+  fileName: string;
   /**
    * A list of features for this font from the `gpos` and `gsub` tables
    */
-  fontFeatures: string[]
-}
+  fontFeatures: string[];
+};
 
 const FontContext = createContext<FontContextProps>({
   // A dummy object is provided here because the App component makes sure
@@ -21,6 +21,6 @@ const FontContext = createContext<FontContextProps>({
   font: {} as Font,
   fileName: '',
   fontFeatures: []
-})
+});
 
-export default FontContext
+export default FontContext;

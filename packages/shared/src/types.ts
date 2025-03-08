@@ -1,9 +1,9 @@
-import type { ColorThemeKind } from 'vscode'
+import type { ColorThemeKind } from 'vscode';
 
 /**
  * Font types that can be rendered by this extension.
  */
-export type FontExtension = 'otf' | 'ttc' | 'ttf' | 'woff' | 'woff2'
+export type FontExtension = 'otf' | 'ttc' | 'ttf' | 'woff' | 'woff2';
 
 /**
  * Represents the different tabs of the webview
@@ -14,7 +14,7 @@ export type PreviewTab =
   | 'Glyphs'
   | 'Waterfall'
   | 'Type Yourself'
-  | 'License'
+  | 'License';
 
 /**
  * Represents settings taken from `Configuration` object in
@@ -25,67 +25,67 @@ export type WorkspaceConfig = {
   /**
    * Controls the starting tab of the preview.
    */
-  defaultTab: PreviewTab
+  defaultTab: PreviewTab;
   /**
    * If enabled, VS Code will try to use a worker when loading the font.
    */
-  useWorker: boolean
+  useWorker: boolean;
   /**
    * Show the glyph's width in the cell.
    */
-  showGlyphWidth: boolean
+  showGlyphWidth: boolean;
   /**
    * Show the index of the glyph in the left corner of the cell.
    */
-  showGlyphIndex: boolean
+  showGlyphIndex: boolean;
   /**
    * A list of paths to custom example text files. Each file **must** be yaml file.
    */
-  sampleTextPaths: string[]
+  sampleTextPaths: string[];
   /**
    * The default logging level for the output window
    */
-  defaultLogLevel: 'Debug' | 'Info' | 'Warn' | 'Error'
+  defaultLogLevel: 'Debug' | 'Info' | 'Warn' | 'Error';
   /**
    * The ID of the sample text to load by default
    */
-  defaultSampleTextId: string
+  defaultSampleTextId: string;
   /**
    * If true, an error notification will be shown when a sample text file fails validation
    */
-  showSampleTextErrors: boolean
+  showSampleTextErrors: boolean;
   /**
    * If true, the newly opened font file will start on the same tab in
    * the webview as the previous active tab
    */
-  retainTabPosition: boolean
-}
+  retainTabPosition: boolean;
+};
 
 // TODO: See if we can load the font before the webview requests it
 export type RequestFontEvent = {
   /**
    * Dispatched from the webview in order to load the font
    */
-  type: 'GET_FONT'
-}
+  type: 'GET_FONT';
+};
 
 export type FontLoadEvent = {
   /**
    * Dispatched from the extension when the font has loaded
    */
-  type: 'FONT_LOADED'
+  type: 'FONT_LOADED';
   payload: {
     // config: WorkspaceConfig
-    fileSize: number
-    fileExtension: FontExtension
-    fileName: string
+    fileSize: number;
+    fileExtension: FontExtension;
+    fileName: string;
     /**
      * The URL of the file to be parsed. This should be in the form:
      * https://file+.vscode-resource.vscode-cdn.net/path/to/font.ttf
      * This allows the webview to make a request to retrieve the file
      * contents using `fetch`
      */
-    fileUrl: string
+    fileUrl: string;
     /**
      * VS Code can't post a UIntArray or ArrayBuffer so the file content needs to
      * be transferred as an array of numbers. This field will *only* be populated
@@ -93,98 +93,98 @@ export type FontLoadEvent = {
      * on the extension side rather than the webview side. In all other cases, this
      * will just be an empty array
      */
-    fileContent: number[]
+    fileContent: number[];
     /**
      * Whether to use a worker when loading the font. This values comes from the user's settings
      */
-    useWorker: boolean
-  }
-}
+    useWorker: boolean;
+  };
+};
 
 export type ConfigRequestEvent = {
   /**
    * Dispatched from the webview to get the user settings for this extension
    */
-  type: 'GET_CONFIG'
-}
+  type: 'GET_CONFIG';
+};
 
 export type ConfigLoadEvent = {
   /**
    * Dispatched by the extension to the webview. Contains the current
    * extension settings as a {@link WorkspaceConfig} object
    */
-  type: 'CONFIG_LOADED'
-  payload: WorkspaceConfig
-}
+  type: 'CONFIG_LOADED';
+  payload: WorkspaceConfig;
+};
 
 export type ColorThemeChangeEvent = {
   /**
    * Dispatched by the extension to the webview when the user changes
    * the color scheme of the editor
    */
-  type: 'COLOR_THEME_CHANGE'
-  payload: ColorThemeKind
-}
+  type: 'COLOR_THEME_CHANGE';
+  payload: ColorThemeKind;
+};
 
 export type ShowMessageEvent = {
   /**
    * Dispatched from the webview to show a message in vscode
    */
-  type: 'SHOW_MESSAGE'
+  type: 'SHOW_MESSAGE';
   payload: {
-    messageType: 'ERROR' | 'WARNING' | 'INFO'
-    message: string
-  }
-}
+    messageType: 'ERROR' | 'WARNING' | 'INFO';
+    message: string;
+  };
+};
 
 export type ToggleProgressNotificationEvent = {
   /**
    * Dispatched from the webview to show or dismiss the loading notification that appears
    * in VS Code's status bar
    */
-  type: 'TOGGLE_PROGRESS'
-  payload: boolean
-}
+  type: 'TOGGLE_PROGRESS';
+  payload: boolean;
+};
 
 export type SampleTextRequestEvent = {
   /**
    * Sent from the webview to the extension to request the user-defined sample text.
    * The sample text was loaded once during extension activation
    */
-  type: 'GET_SAMPLE_TEXT'
-}
+  type: 'GET_SAMPLE_TEXT';
+};
 
 export type SampleTextLoadEvent = {
   /**
    * Sent from the extension to the webview so the webview can display the sample texts
    * that were loaded from the extension side
    */
-  type: 'SAMPLE_TEXT_LOADED'
-  payload: PreviewSample[]
-}
+  type: 'SAMPLE_TEXT_LOADED';
+  payload: PreviewSample[];
+};
 
 export type LogEvent = {
   /**
    * Dispatched from the webview in order to log events to VS Code's output channel
    */
-  type: 'LOG'
+  type: 'LOG';
   payload: {
-    level: LogLevel
-    message: string
-    tag?: string
-  }
-}
+    level: LogLevel;
+    message: string;
+    tag?: string;
+  };
+};
 
 export type PreviewTabChangeEvent = {
   /**
    * Dispatched from the webview when the current tab changes
    */
-  type: 'PREVIEW_TAB_CHANGE'
+  type: 'PREVIEW_TAB_CHANGE';
   payload: {
-    tab: PreviewTab
-    previousTab: PreviewTab
-  }
-}
+    tab: PreviewTab;
+    previousTab: PreviewTab;
+  };
+};
 
 /**
  * Represents an event that's either dispatched from the webview to the extension,
@@ -201,7 +201,7 @@ export type WebviewMessage =
   | SampleTextRequestEvent
   | SampleTextLoadEvent
   | ShowMessageEvent
-  | PreviewTabChangeEvent
+  | PreviewTabChangeEvent;
 
 export enum LogLevel {
   DEBUG = 0,
@@ -217,17 +217,17 @@ export type PreviewSample = {
   /**
    * The name of the sample
    */
-  id: string
+  id: string;
   /**
    * An array of strings to display. Each item will be displayed as a paragraph element
    */
-  paragraphs: string[]
+  paragraphs: string[];
   /**
    * Where the sample text came from
    */
-  source?: string
+  source?: string;
   /**
    * (Optional) `true` if this is sample is written right-to-left
    */
-  rtl?: boolean
-}
+  rtl?: boolean;
+};

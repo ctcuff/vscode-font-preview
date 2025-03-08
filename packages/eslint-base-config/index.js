@@ -6,7 +6,7 @@ module.exports = {
   rules: {
     'arrow-parens': ['error', 'as-needed'],
     'arrow-body-style': 'off',
-    semi: ['error', 'never'],
+    semi: ['error', 'always'],
     'semi-style': 'off',
     'no-continue': 'off',
     'no-console': 'error',

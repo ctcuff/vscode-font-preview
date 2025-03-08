@@ -1,73 +1,73 @@
-import '../../scss/features.scss'
-import React, { useContext, useState } from 'react'
-import FontContext from '../../contexts/FontContext'
-import FeatureToggles from '../FeatureToggles'
-import FontNameHeader from '../FontNameHeader'
-import Chip from '../Chip'
-import FeatureTable from '../FeatureTable'
-import VariableAxes from '../VariableAxes'
-import { createVariationCSS, isTableEmpty } from '../../util'
+import '../../scss/features.scss';
+import React, { useContext, useState } from 'react';
+import FontContext from '../../contexts/FontContext';
+import FeatureToggles from '../FeatureToggles';
+import FontNameHeader from '../FontNameHeader';
+import Chip from '../Chip';
+import FeatureTable from '../FeatureTable';
+import VariableAxes from '../VariableAxes';
+import { createVariationCSS, isTableEmpty } from '../../util';
 
 type FontVariableAxisInstance = {
-  coordinates: { [key: string]: number }
-  name: { [key: string]: string }
-}
+  coordinates: { [key: string]: number };
+  name: { [key: string]: string };
+};
 
 type FontVariation = {
-  [key: string]: number
-}
+  [key: string]: number;
+};
 
 const numbers = Array(101)
   .fill(0)
   .map((_, index) => index)
-  .join(', ')
+  .join(', ');
 
 const characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
   .split('')
-  .join(', ')
+  .join(', ');
 
 const Features = (): JSX.Element => {
-  const [activeFeatures, setActiveFeatures] = useState<string[]>([])
-  const [fontVariationSettings, setFontVariationSettings] = useState<FontVariation>({})
-  const [variationCSS, setVariationCSS] = useState('')
-  const [fontFeatureSettingsCSS, setFontFeatureSettingsCSS] = useState('normal')
-  const [selectedSetting, setSelectedSetting] = useState('')
-  const { font } = useContext(FontContext)
+  const [activeFeatures, setActiveFeatures] = useState<string[]>([]);
+  const [fontVariationSettings, setFontVariationSettings] = useState<FontVariation>({});
+  const [variationCSS, setVariationCSS] = useState('');
+  const [fontFeatureSettingsCSS, setFontFeatureSettingsCSS] = useState('normal');
+  const [selectedSetting, setSelectedSetting] = useState('');
+  const { font } = useContext(FontContext);
 
   const onToggleFeature = (css: string, currentActiveFeatures: string[]): void => {
-    setActiveFeatures(currentActiveFeatures)
-    setFontFeatureSettingsCSS(css)
-  }
+    setActiveFeatures(currentActiveFeatures);
+    setFontFeatureSettingsCSS(css);
+  };
 
   const onInstanceClick = (instance: FontVariableAxisInstance): void => {
-    const coordinates = instance.coordinates
-    const settingName = instance.name.en?.trim() || 'Unknown'
+    const coordinates = instance.coordinates;
+    const settingName = instance.name.en?.trim() || 'Unknown';
 
     Object.entries(coordinates).forEach(([key, value]) => {
-      coordinates[key] = Math.trunc(value)
-    })
+      coordinates[key] = Math.trunc(value);
+    });
 
-    const css = createVariationCSS(coordinates)
+    const css = createVariationCSS(coordinates);
 
-    setSelectedSetting(settingName)
-    setFontVariationSettings(coordinates)
-    setVariationCSS(css)
-  }
+    setSelectedSetting(settingName);
+    setFontVariationSettings(coordinates);
+    setVariationCSS(css);
+  };
 
   const renderFontInstances = (): JSX.Element | null => {
-    const fvar = font.tables.fvar
+    const fvar = font.tables.fvar;
 
     if (!fvar) {
-      return null
+      return null;
     }
 
-    const instances: FontVariableAxisInstance[] = fvar.instances
+    const instances: FontVariableAxisInstance[] = fvar.instances;
 
     return (
       <div className="font-instances">
         <h2>Predefined Settings</h2>
         {instances.map((instance, index) => {
-          const settingName = instance.name.en?.trim() || 'Unknown'
+          const settingName = instance.name.en?.trim() || 'Unknown';
 
           return (
             <Chip
@@ -76,11 +76,11 @@ const Features = (): JSX.Element => {
               selected={settingName === selectedSetting}
               onClick={() => onInstanceClick(instance)}
             />
-          )
+          );
         })}
       </div>
-    )
-  }
+    );
+  };
 
   return (
     <div className="features">
@@ -151,7 +151,7 @@ const Features = (): JSX.Element => {
         <FeatureTable activeFeatures={activeFeatures} />
       </section>
     </div>
-  )
-}
+  );
+};
 
-export default Features
+export default Features;

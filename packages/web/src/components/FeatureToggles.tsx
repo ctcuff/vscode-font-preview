@@ -1,60 +1,60 @@
-import '../scss/feature-toggles.scss'
-import React, { useState, useContext } from 'react'
-import FontContext from '../contexts/FontContext'
-import Switch from './Switch'
+import '../scss/feature-toggles.scss';
+import React, { useState, useContext } from 'react';
+import FontContext from '../contexts/FontContext';
+import Switch from './Switch';
 
 type FeatureTogglesProps = {
-  onToggleFeature?: (css: string, activeFeatures: string[]) => void
-}
+  onToggleFeature?: (css: string, activeFeatures: string[]) => void;
+};
 
 /**
  * Matches cv00 - cv99
  */
-const characterVariantRegex = /^[cv]{2}\d{2}/
+const characterVariantRegex = /^[cv]{2}\d{2}/;
 /**
  * Matches sv00 - sv99
  */
-const stylisticVariantRegex = /^[s]{2}\d{2}/
+const stylisticVariantRegex = /^[s]{2}\d{2}/;
 
 const FeatureToggles = ({ onToggleFeature }: FeatureTogglesProps): JSX.Element => {
-  const [activeFeatures, setActiveFeatures] = useState<string[]>([])
-  const { fontFeatures } = useContext(FontContext)
+  const [activeFeatures, setActiveFeatures] = useState<string[]>([]);
+  const { fontFeatures } = useContext(FontContext);
 
   const toggleFeature = (feature: string, enabled: boolean): void => {
-    const features: string[] = [...activeFeatures]
+    const features: string[] = [...activeFeatures];
 
     if (enabled) {
-      features.push(feature)
+      features.push(feature);
     } else {
-      const index = activeFeatures.indexOf(feature)
+      const index = activeFeatures.indexOf(feature);
       if (index !== -1) {
-        features.splice(index, 1)
+        features.splice(index, 1);
       }
     }
 
-    const css = features.length === 0 ? 'normal' : `"${features.join('", "')}"`
+    const css = features.length === 0 ? 'normal' : `"${features.join('", "')}"`;
 
-    setActiveFeatures(features)
-    onToggleFeature?.(css, features)
-  }
+    setActiveFeatures(features);
+    onToggleFeature?.(css, features);
+  };
 
   const renderSwitchTitle = (feature: string): JSX.Element => {
-    let id = `#${feature}`
+    let id = `#${feature}`;
 
     if (characterVariantRegex.test(feature)) {
-      id = '#cv01-cv99'
+      id = '#cv01-cv99';
     }
 
     if (stylisticVariantRegex.test(feature)) {
-      id = '#ss01-ss20'
+      id = '#ss01-ss20';
     }
 
     return (
       <a className="switch-title" href={id}>
         {feature}
       </a>
-    )
-  }
+    );
+  };
 
   return (
     <div className="feature-toggles">
@@ -67,7 +67,7 @@ const FeatureToggles = ({ onToggleFeature }: FeatureTogglesProps): JSX.Element =
         />
       ))}
     </div>
-  )
-}
+  );
+};
 
-export default FeatureToggles
+export default FeatureToggles;

@@ -1,19 +1,19 @@
-import { PreviewSample } from '@font-preview/shared'
-import * as fs from 'fs'
-import * as yaml from 'js-yaml'
-import LoggingService from './logging-service'
-import { z, ZodError } from 'zod'
-import YAMLValidationError from './yaml-validation-error'
-import ConfigManager from './config-manager'
+import { PreviewSample } from '@font-preview/shared';
+import * as fs from 'fs';
+import * as yaml from 'js-yaml';
+import LoggingService from './logging-service';
+import { z, ZodError } from 'zod';
+import YAMLValidationError from './yaml-validation-error';
+import ConfigManager from './config-manager';
 
-const LOG_TAG = 'YAMLLoader'
+const LOG_TAG = 'YAMLLoader';
 
 const schema = z.object({
   id: z.string(),
   paragraphs: z.string().array(),
   source: z.string().trim().optional(),
   rtl: z.boolean().optional()
-})
+});
 
 class YAMLLoader {
   constructor(
@@ -24,31 +24,34 @@ class YAMLLoader {
   public async loadSampleTextsFromConfig(): Promise<SampleTextLoadResult> {
     const sampleTextFilePaths = Array.from(
       new Set(this.workspaceConfig.get('sampleTextPaths'))
-    )
+    );
 
-    this.logger.info(`Found ${sampleTextFilePaths.length} example files to load`, LOG_TAG)
+    this.logger.info(
+      `Found ${sampleTextFilePaths.length} example files to load`,
+      LOG_TAG
+    );
 
     const promises = await Promise.allSettled(
       sampleTextFilePaths.map(filePath => this.loadYamlFile(filePath))
-    )
+    );
 
     const sampleTexts = promises
       .filter(promise => promise.status === 'fulfilled' && promise.value)
-      .map(promise => (promise as PromiseFulfilledResult<PreviewSample>).value)
+      .map(promise => (promise as PromiseFulfilledResult<PreviewSample>).value);
 
     const errors = promises.filter(
       promise => promise.status === 'rejected'
-    ) as PromiseRejectedResult[]
+    ) as PromiseRejectedResult[];
 
-    return { sampleTexts, errors }
+    return { sampleTexts, errors };
   }
 
   private async loadYamlFile(path: string): Promise<PreviewSample | null> {
     try {
-      const content = await fs.promises.readFile(path, { encoding: 'utf8' })
-      const sample = yaml.load(content) as PreviewSample
-      schema.parse(sample)
-      return sample
+      const content = await fs.promises.readFile(path, { encoding: 'utf8' });
+      const sample = yaml.load(content) as PreviewSample;
+      schema.parse(sample);
+      return sample;
     } catch (e) {
       // The errors in the catch statement are still thrown so that they can
       // propagate upwards and be handled by the calling function
@@ -66,21 +69,21 @@ class YAMLLoader {
               null,
               4
             )
-          )
-        })
-        throw new YAMLValidationError(`Invalid YAML file: ${path}`, path)
+          );
+        });
+        throw new YAMLValidationError(`Invalid YAML file: ${path}`, path);
       }
 
-      this.logger.error('Error reading YML file', LOG_TAG, e)
+      this.logger.error('Error reading YML file', LOG_TAG, e);
 
-      throw e
+      throw e;
     }
   }
 }
 
 type SampleTextLoadResult = {
-  sampleTexts: PreviewSample[]
-  errors: PromiseRejectedResult[]
-}
+  sampleTexts: PreviewSample[];
+  errors: PromiseRejectedResult[];
+};
 
-export default YAMLLoader
+export default YAMLLoader;

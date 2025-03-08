@@ -1,6 +1,6 @@
-const path = require('path')
-const WorkerPlugin = require('worker-plugin')
-const ESLintPlugin = require('eslint-webpack-plugin')
+const path = require('path');
+const WorkerPlugin = require('worker-plugin');
+const ESLintPlugin = require('eslint-webpack-plugin');
 
 /**@type {import('webpack').Configuration}*/
 module.exports = {
@@ -46,4 +46,4 @@ module.exports = {
       }
     ]
   }
-}
+};

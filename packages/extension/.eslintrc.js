@@ -1,4 +1,4 @@
-const baseConfig = require('@font-preview/eslint-base-config')
+const baseConfig = require('@font-preview/eslint-base-config');
 
 /**
  * @type {import('eslint').Linter.Config}
@@ -16,4 +16,4 @@ module.exports = {
   },
   ignorePatterns: ['out', 'dist', '**/*.d.ts', 'web-dist', 'web/**/*'],
   overrides: [...baseConfig.overrides]
-}
+};

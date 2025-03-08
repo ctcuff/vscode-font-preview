@@ -1,2 +1,2 @@
-export * from './src/base-logger'
-export * from './src/types'
+export * from './src/base-logger';
+export * from './src/types';

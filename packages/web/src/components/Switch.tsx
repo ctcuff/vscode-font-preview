@@ -1,23 +1,23 @@
-import '../scss/switch.scss'
-import React, { useState } from 'react'
+import '../scss/switch.scss';
+import React, { useState } from 'react';
 
 type SwitchProps = {
-  className?: string
-  title?: string | JSX.Element
-  htmlTitle?: string
-  onChange?: (checked: boolean) => void
-  defaultChecked?: boolean
-}
+  className?: string;
+  title?: string | JSX.Element;
+  htmlTitle?: string;
+  onChange?: (checked: boolean) => void;
+  defaultChecked?: boolean;
+};
 
-const rand = () => Math.floor(Math.random() * 1_000_000)
-const generateId = () => `input-${rand()}-${rand()}-${rand()}`
+const rand = () => Math.floor(Math.random() * 1_000_000);
+const generateId = () => `input-${rand()}-${rand()}-${rand()}`;
 
 const renderTitle = (
   title: string | JSX.Element,
   htmlTitle: string
 ): JSX.Element | null => {
   if (!title) {
-    return null
+    return null;
   }
 
   if (typeof title === 'string') {
@@ -25,11 +25,11 @@ const renderTitle = (
       <p className="title" title={htmlTitle}>
         {title}
       </p>
-    )
+    );
   }
 
-  return title
-}
+  return title;
+};
 
 const Switch = ({
   className = '',
@@ -38,7 +38,7 @@ const Switch = ({
   defaultChecked = false,
   onChange = () => {}
 }: SwitchProps): JSX.Element => {
-  const [id] = useState(generateId())
+  const [id] = useState(generateId());
 
   return (
     <div className={`${className} switch`}>
@@ -54,7 +54,7 @@ const Switch = ({
         <div className="background" />
       </label>
     </div>
-  )
-}
+  );
+};
 
-export default Switch
+export default Switch;

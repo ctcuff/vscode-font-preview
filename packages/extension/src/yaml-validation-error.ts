@@ -1,9 +1,9 @@
 class YAMLValidationError extends Error {
-  public readonly name = 'YAMLValidationError'
+  public readonly name = 'YAMLValidationError';
 
   constructor(message: string, public readonly filePath: string) {
-    super(message)
+    super(message);
   }
 }
 
-export default YAMLValidationError
+export default YAMLValidationError;

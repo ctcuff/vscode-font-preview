@@ -1,6 +1,6 @@
-const path = require('path')
-const { DefinePlugin } = require('webpack')
-const ESLintPlugin = require('eslint-webpack-plugin')
+const path = require('path');
+const { DefinePlugin } = require('webpack');
+const ESLintPlugin = require('eslint-webpack-plugin');
 
 /**
  * @param {Record<string, string>} env
@@ -52,6 +52,6 @@ const config = env => ({
       }
     ]
   }
-})
+});
 
-module.exports = config
+module.exports = config;

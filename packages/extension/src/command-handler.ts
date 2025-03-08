@@ -1,11 +1,11 @@
-import * as vscode from 'vscode'
-import ConfigManager from './config-manager'
-import GlobalStateManager from './global-state-manager'
-import LoggingService from './logging-service'
+import * as vscode from 'vscode';
+import ConfigManager from './config-manager';
+import GlobalStateManager from './global-state-manager';
+import LoggingService from './logging-service';
 
-const LOG_TAG = 'CommandHandler'
+const LOG_TAG = 'CommandHandler';
 
-type CommandFunction = (...args: any[]) => Promise<any>
+type CommandFunction = (...args: any[]) => Promise<any>;
 
 export default class CommandHandler {
   public constructor(
@@ -20,12 +20,12 @@ export default class CommandHandler {
       'font-preview.createSampleYAMLFile': async () => this.openTextEditorWithSampleYML(),
       'font-preview.debug.resetGlobalState': async () => await this.resetGlobalState(),
       'font-preview.openSampleYAMLFile': async () => this.showSampleFileQuickPick()
-    }
+    };
 
     for (const command in commandMap) {
       this.context.subscriptions.push(
         vscode.commands.registerCommand(command, commandMap[command])
-      )
+      );
     }
   }
 
@@ -36,51 +36,51 @@ source: Example Source
 rtl: false
 paragraphs:
   - Hello, World!
-`.trim()
+`.trim();
 
     try {
       const document = await vscode.workspace.openTextDocument({
         language: 'yaml',
         content: sampleYML
-      })
+      });
 
       await vscode.window.showTextDocument(document, {
         // Highlights the the text after "id:"
         selection: new vscode.Range(0, 4, 0, 10),
         preview: true
-      })
+      });
     } catch (err) {
-      vscode.window.showErrorMessage("Couldn't open text document")
-      this.logger.error('Error opening YAML file ', LOG_TAG, err)
+      vscode.window.showErrorMessage("Couldn't open text document");
+      this.logger.error('Error opening YAML file ', LOG_TAG, err);
     }
   }
 
   public async resetGlobalState(): Promise<void> {
-    await this.globalState.removeAll()
+    await this.globalState.removeAll();
   }
 
   public async showSampleFileQuickPick(): Promise<void> {
-    const sampleFiles = this.workspaceConfig.get('sampleTextPaths')
+    const sampleFiles = this.workspaceConfig.get('sampleTextPaths');
 
     try {
       const filePath = await vscode.window.showQuickPick(sampleFiles, {
         placeHolder: 'Path to sample YAML file'
-      })
+      });
 
       if (!filePath) {
         this.logger.error(
           `Undefined file path for ${JSON.stringify({ sampleFiles })}`,
           LOG_TAG
-        )
-        return
+        );
+        return;
       }
 
       await vscode.window.showTextDocument(vscode.Uri.file(filePath), {
         preview: false
-      })
+      });
     } catch (err) {
-      this.logger.error('Error in showSampleFileQuickPick', LOG_TAG, err)
-      return
+      this.logger.error('Error in showSampleFileQuickPick', LOG_TAG, err);
+      return;
     }
   }
 }

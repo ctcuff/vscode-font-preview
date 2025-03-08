@@ -1,12 +1,12 @@
-import '../scss/chip.scss'
-import React from 'react'
+import '../scss/chip.scss';
+import React from 'react';
 
 type ChipProps = {
-  title: string
-  onClick?: () => void
-  className?: string
-  selected?: boolean
-}
+  title: string;
+  onClick?: () => void;
+  className?: string;
+  selected?: boolean;
+};
 
 const Chip = ({
   title,
@@ -21,6 +21,6 @@ const Chip = ({
   >
     {title}
   </button>
-)
+);
 
-export default Chip
+export default Chip;

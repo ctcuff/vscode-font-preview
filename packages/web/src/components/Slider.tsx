@@ -1,17 +1,17 @@
-import '../scss/slider.scss'
-import React, { useEffect, useState } from 'react'
+import '../scss/slider.scss';
+import React, { useEffect, useState } from 'react';
 
 type SliderProps = {
-  min: number
-  max: number
-  step?: number
-  title?: string | JSX.Element
-  value?: number
-  unit?: string
-  className?: string
-  onChange?: (value: number) => void
-  onFinishChange?: (value: number) => void
-}
+  min: number;
+  max: number;
+  step?: number;
+  title?: string | JSX.Element;
+  value?: number;
+  unit?: string;
+  className?: string;
+  onChange?: (value: number) => void;
+  onFinishChange?: (value: number) => void;
+};
 
 const Slider = ({
   min,
@@ -24,17 +24,17 @@ const Slider = ({
   onChange = () => {},
   onFinishChange = () => {}
 }: SliderProps): JSX.Element => {
-  const [sliderValue, setSliderValue] = useState(value)
+  const [sliderValue, setSliderValue] = useState(value);
 
   const onInputChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
-    const val = parseFloat(event.target.value)
-    setSliderValue(val)
-    onChange(val)
-  }
+    const val = parseFloat(event.target.value);
+    setSliderValue(val);
+    onChange(val);
+  };
 
   const renderTitle = (): JSX.Element | string | null => {
     if (!title) {
-      return null
+      return null;
     }
 
     if (typeof title === 'string') {
@@ -43,15 +43,15 @@ const Slider = ({
           {title}: {sliderValue}
           {unit}
         </span>
-      )
+      );
     }
 
-    return title
-  }
+    return title;
+  };
 
   useEffect(() => {
-    setSliderValue(value)
-  }, [value])
+    setSliderValue(value);
+  }, [value]);
 
   return (
     <div className={`slider ${className}`}>
@@ -70,7 +70,7 @@ const Slider = ({
         <span className="label-max">{max}</span>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Slider
+export default Slider;
