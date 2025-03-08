@@ -59,6 +59,10 @@ export type WorkspaceConfig = {
    * the webview as the previous active tab
    */
   retainTabPosition: boolean
+  /**
+   * Whether logs should be output to the output tab
+   */
+  enableLogging: boolean
 }
 
 // TODO: See if we can load the font before the webview requests it

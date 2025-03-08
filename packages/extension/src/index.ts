@@ -5,6 +5,9 @@ import FontProvider from './font-provider'
 import GlobalStateManager from './global-state-manager'
 import LoggingService from './logging-service'
 import { EXTENSION_ID } from './util'
+import { WorkspaceConfig } from '@font-preview/shared'
+
+const getConfigName = (name: keyof WorkspaceConfig): string => `${EXTENSION_ID}.${name}`
 
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
   const version = context.extension.packageJSON.version
@@ -17,14 +20,19 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 
   logger.startTimer('activate')
   logger.setOutputLevel(configManager.get('defaultLogLevel'))
+  logger.setEnabled(configManager.get('enableLogging'))
 
   context.subscriptions.push(
     vscode.workspace.onDidChangeConfiguration(event => {
-      if (event.affectsConfiguration(`${EXTENSION_ID}.defaultLogLevel`)) {
+      if (event.affectsConfiguration(getConfigName('defaultLogLevel'))) {
         logger.setOutputLevel(configManager.get('defaultLogLevel'))
       }
 
-      if (event.affectsConfiguration(`${EXTENSION_ID}.retainTabPosition`)) {
+      if (event.affectsConfiguration(getConfigName('enableLogging'))) {
+        logger.setEnabled(configManager.get('enableLogging'))
+      }
+
+      if (event.affectsConfiguration(getConfigName('retainTabPosition'))) {
         globalState.update('previewTab', undefined)
       }
     })

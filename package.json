@@ -166,6 +166,11 @@
           "markdownDescription": "If enabled, newly opened font files will start on the tab of the last font file. Note that this setting will override the default tab setting `#font-preview.defaultTab#`.",
           "type": "boolean",
           "default": false
+        },
+        "font-preview.enableLogging": {
+          "markdownDescription": "Whether logs should be output to the output tab.",
+          "type": "boolean",
+          "default": false
         }
       }
     }

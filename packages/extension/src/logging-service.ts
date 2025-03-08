@@ -4,9 +4,14 @@ import { LogLevel, BaseLogger, WorkspaceConfig } from '@font-preview/shared'
 class LoggingService extends BaseLogger {
   public readonly outputChannel = window.createOutputChannel('Font Preview')
   private logLevel: LogLevel = LogLevel.INFO
+  private enabled: boolean = false
 
   public setOutputLevel(level: WorkspaceConfig['defaultLogLevel']): void {
     this.logLevel = this.configLevelToEnum(level)
+  }
+
+  public setEnabled(enabled: boolean): void {
+    this.enabled = enabled
   }
 
   private configLevelToEnum(level: WorkspaceConfig['defaultLogLevel']): LogLevel {
@@ -25,7 +30,7 @@ class LoggingService extends BaseLogger {
   }
 
   protected log(level: LogLevel, message: string, tag?: string): void {
-    if (level < this.logLevel) {
+    if (!this.enabled || level < this.logLevel) {
       return
     }
 
