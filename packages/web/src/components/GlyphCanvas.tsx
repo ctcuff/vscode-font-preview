@@ -1,9 +1,9 @@
-import React, { useContext } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import type { Glyph, Font, Path } from 'opentype.js';
 import FontContext from '../contexts/FontContext';
-import useRefWithCallback from '../hooks/ref-with-callback';
 import { enableHighDPICanvas } from '../util/glyph-util';
 import { getCSSVar } from '../util';
+import useThemeChange from '../hooks/use-theme-change';
 
 export type RenderField =
   | 'ascender'
@@ -217,23 +217,45 @@ const GlyphCanvas = ({
   renderFields
 }: GlyphCanvasProps): JSX.Element => {
   const { font } = useContext(FontContext);
-
   // Displays baseline, ascender, and descender info
-  const setCanvasBgRef = useRefWithCallback<HTMLCanvasElement>(canvas => {
-    enableHighDPICanvas(canvas, width, height);
-    renderTableInfo(canvas, font, renderFields);
-  });
-
+  const [backgroundCanvas, setBackgroundCanvas] = useState<HTMLCanvasElement | null>(
+    null
+  );
   // Renders the glyph
-  const setCanvasGlyphRef = useRefWithCallback<HTMLCanvasElement>(canvas => {
-    enableHighDPICanvas(canvas, width, height);
-    renderGlyph(canvas, font, glyph, renderFields);
+  const [glyphRendererCanvas, setGlyphRendererCanvas] =
+    useState<HTMLCanvasElement | null>(null);
+
+  const setupBackgroundCanvas = useCallback(() => {
+    if (backgroundCanvas) {
+      enableHighDPICanvas(backgroundCanvas, width, height);
+      renderTableInfo(backgroundCanvas, font, renderFields);
+    }
+  }, [backgroundCanvas, font, height, renderFields, width]);
+
+  const setupGlyphRendererCanvas = useCallback(() => {
+    if (glyphRendererCanvas) {
+      enableHighDPICanvas(glyphRendererCanvas, width, height);
+      renderGlyph(glyphRendererCanvas, font, glyph, renderFields);
+    }
+  }, [glyphRendererCanvas, font, height, renderFields, width, glyph]);
+
+  useEffect(() => {
+    setupBackgroundCanvas();
+  }, [backgroundCanvas, setupBackgroundCanvas]);
+
+  useEffect(() => {
+    setupGlyphRendererCanvas();
+  }, [glyphRendererCanvas, setupGlyphRendererCanvas]);
+
+  useThemeChange(() => {
+    setupBackgroundCanvas();
+    setupGlyphRendererCanvas();
   });
 
   return (
     <>
-      <canvas width={width} height={height} ref={setCanvasBgRef} />
-      <canvas width={width} height={height} ref={setCanvasGlyphRef} />
+      <canvas width={width} height={height} ref={setBackgroundCanvas} />
+      <canvas width={width} height={height} ref={setGlyphRendererCanvas} />
     </>
   );
 };

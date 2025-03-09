@@ -1,5 +1,5 @@
 import '../../scss/typing-preview.scss';
-import React, { useState, useContext, useRef } from 'react';
+import React, { useState, useContext, useRef, useCallback } from 'react';
 import FontNameHeader from '../FontNameHeader';
 import FeatureToggles from '../FeatureToggles';
 import Slider from '../Slider';
@@ -7,7 +7,6 @@ import VariableAxes from '../VariableAxes';
 import FontContext from '../../contexts/FontContext';
 import { isTableEmpty } from '../../util';
 import Chip from '../Chip';
-import useRefWithCallback from '../../hooks/ref-with-callback';
 
 type PinnedSection = 'features' | 'axes' | 'properties';
 
@@ -59,12 +58,16 @@ const TypingPreview = (): JSX.Element => {
 
   // When the paragraph element gets mounted, focus it and
   // move the user's caret to the end of the sentence
-  const paragraphRef = useRefWithCallback<HTMLDivElement>(paragraphNode => {
-    paragraphNode.focus({ preventScroll: true });
+  const setParagraphElement = useCallback((paragraphElement: HTMLDivElement) => {
+    if (!paragraphElement) {
+      return;
+    }
+
+    paragraphElement.focus({ preventScroll: true });
 
     const range = document.createRange();
     const selection = window.getSelection();
-    const childNodes = paragraphNode.childNodes;
+    const childNodes = paragraphElement.childNodes;
 
     range.setStart(childNodes[childNodes.length - 1], starterText.length);
     range.collapse(true);
@@ -167,7 +170,7 @@ const TypingPreview = (): JSX.Element => {
       <p
         contentEditable
         onPaste={onPaste}
-        ref={paragraphRef}
+        ref={setParagraphElement}
         className="text-preview"
         style={{
           fontSize,

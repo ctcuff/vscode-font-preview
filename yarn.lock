@@ -1570,6 +1570,7 @@ __metadata:
     autoprefixer: ^10.4.7
     babel-loader: ^8.2.5
     css-loader: ^6.7.1
+    eslint: ^7.19.0
     eslint-config-airbnb: 18.2.1
     eslint-plugin-import: ^2.26.0
     eslint-plugin-jsx-a11y: ^6.6.0
@@ -1593,7 +1594,6 @@ __metadata:
     "@types/vscode-webview": "*"
     "@typescript-eslint/eslint-plugin": "*"
     "@typescript-eslint/parser": "*"
-    eslint: "*"
     eslint-webpack-plugin: "*"
     prettier: "*"
     typescript: "*"

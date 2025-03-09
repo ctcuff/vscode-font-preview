@@ -1,3 +1,4 @@
+// eslint-disable-next-line import/no-extraneous-dependencies, @typescript-eslint/no-var-requires
 const baseConfig = require('@font-preview/eslint-base-config');
 
 /**
@@ -42,7 +43,7 @@ module.exports = {
     ...baseConfig.rules,
     'no-alert': 'error',
     'import/extensions': ['error', 'never'],
-    'react-hooks/exhaustive-deps': 'off',
+    'react-hooks/exhaustive-deps': 'warn',
     'react/no-array-index-key': 'off',
     'react/jsx-props-no-spreading': 'off',
     'react/destructuring-assignment': 'off',

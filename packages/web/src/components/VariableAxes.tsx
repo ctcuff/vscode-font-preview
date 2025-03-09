@@ -86,7 +86,7 @@ const VariableAxes = ({
 
       setFontVariationSettings(fontVariations);
     }
-  }, []);
+  }, [font.tables]);
 
   useEffect(() => {
     if (variationSettings && Object.keys(variationSettings).length > 0) {

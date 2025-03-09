@@ -1,14 +1,14 @@
 import '../../scss/glyphs.scss';
 import 'react-toastify/dist/ReactToastify.css';
-import React, { useContext, useEffect, useMemo, useState } from 'react';
-import { WorkspaceConfig, WebviewMessage } from '@font-preview/shared';
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { WorkspaceConfig } from '@font-preview/shared';
 import { Glyph } from 'opentype.js';
 import FontContext from '../../contexts/FontContext';
 import FontNameHeader from '../FontNameHeader';
 import GlyphInspectorModal from '../GlyphInspectorModal';
 import Chip from '../Chip';
 import GlyphItem from '../GlyphItem';
-import useRefWithCallback from '../../hooks/ref-with-callback';
+import useThemeChange from '../../hooks/use-theme-change';
 
 type GlyphProps = {
   config: WorkspaceConfig;
@@ -23,16 +23,18 @@ const Glyphs = ({ config }: GlyphProps): JSX.Element => {
   const [selectedGlyph, setSelectedGlyph] = useState<Glyph | null>(null);
   const [currentPage, setCurrentPage] = useState(0);
 
-  const buttonRowRef = useRefWithCallback<HTMLDivElement>(element => {
-    element.onwheel = event => {
-      event.preventDefault();
-      element.scrollLeft += event.deltaY;
-    };
+  const setButtonRow = useCallback((element: HTMLDivElement | null) => {
+    if (element) {
+      element.onwheel = event => {
+        event.preventDefault();
+        element.scrollLeft += event.deltaY;
+      };
+    }
   }, []);
 
   const numPages = Math.ceil(font.glyphs.length / GLYPHS_PER_PAGE);
 
-  const renderPageButtons = (): JSX.Element[] => {
+  const renderPageButtons = useCallback((): JSX.Element[] => {
     const elements: JSX.Element[] = [];
 
     for (let i = 0; i < numPages; i++) {
@@ -58,14 +60,14 @@ const Glyphs = ({ config }: GlyphProps): JSX.Element => {
     }
 
     return elements;
-  };
+  }, [currentPage, setCurrentPage, font.glyphs.length, numPages]);
 
   const onSelectGlyph = (glyph: Glyph) => {
     setSelectedGlyph(glyph);
     setModalOpen(true);
   };
 
-  const loadGlyphs = () => {
+  const loadGlyphs = useCallback(() => {
     const glyphList: Glyph[] = [];
 
     for (let i = 0; i < GLYPHS_PER_PAGE; i++) {
@@ -79,29 +81,9 @@ const Glyphs = ({ config }: GlyphProps): JSX.Element => {
     }
 
     setGlyphs(glyphList);
-  };
+  }, [currentPage, font.glyphs]);
 
-  const onMessage = (message: MessageEvent<WebviewMessage>) => {
-    // Because the canvas doesn't update its color when VSCode's theme
-    // changes, we need to re-render the glyphs
-    if (message.data.type === 'COLOR_THEME_CHANGE') {
-      loadGlyphs();
-    }
-  };
-
-  useEffect(() => {
-    loadGlyphs();
-
-    // The window event listener needs to depend on current page so that
-    // the value of 'currentPage' is up to date when it changes
-    window.addEventListener('message', onMessage);
-
-    return () => {
-      window.removeEventListener('message', onMessage);
-    };
-  }, [currentPage]);
-
-  const buttonRow = useMemo(() => renderPageButtons(), [currentPage]);
+  const pageButtons = useMemo(() => renderPageButtons(), [renderPageButtons]);
 
   // Ensures that the glyphs only re-render when either the color theme changes
   // or the current page changes
@@ -116,14 +98,19 @@ const Glyphs = ({ config }: GlyphProps): JSX.Element => {
           config={config}
         />
       )),
-    [glyphs]
+    [glyphs, config, font]
   );
+
+  useEffect(() => {
+    loadGlyphs();
+  }, [loadGlyphs]);
+
+  useThemeChange(loadGlyphs);
 
   return (
     <div className="glyphs">
       {selectedGlyph && (
         <GlyphInspectorModal
-          // Needed because the 'preventScroll' prop doesn't work
           onAfterOpen={() => {
             document.body.style.overflowY = 'hidden';
           }}
@@ -138,8 +125,8 @@ const Glyphs = ({ config }: GlyphProps): JSX.Element => {
       <FontNameHeader />
       {glyphs.length > 0 && numPages > 1 && (
         <div className="page-button-wrapper">
-          <div className="page-button-row" ref={buttonRowRef}>
-            {buttonRow}
+          <div className="page-button-row" ref={setButtonRow}>
+            {pageButtons}
             <div className="row-spacer" />
           </div>
         </div>

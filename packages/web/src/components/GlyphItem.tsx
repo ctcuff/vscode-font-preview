@@ -1,10 +1,10 @@
 import '../scss/glyph-item.scss';
-import React from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import type { Font, Glyph } from 'opentype.js';
 import type { WorkspaceConfig } from '@font-preview/shared';
-import useRefWithCallback from '../hooks/ref-with-callback';
 import { enableHighDPICanvas } from '../util/glyph-util';
 import { getCSSVar } from '../util';
+import useThemeChange from '../hooks/use-theme-change';
 
 const CELL_WIDTH = 120;
 const CELL_HEIGHT = 120;
@@ -69,10 +69,20 @@ const renderGlyph = (
 };
 
 const GlyphItem = ({ glyph, onClick, font, config }: GlyphItemProps): JSX.Element => {
-  const setCanvasRef = useRefWithCallback<HTMLCanvasElement>(canvas => {
-    enableHighDPICanvas(canvas, CELL_WIDTH, CELL_HEIGHT);
-    renderGlyph(canvas, font, glyph.index, config);
-  });
+  const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
+
+  const setupCanvas = useCallback(() => {
+    if (canvas) {
+      enableHighDPICanvas(canvas, CELL_WIDTH, CELL_HEIGHT);
+      renderGlyph(canvas, font, glyph.index, config);
+    }
+  }, [canvas, config, font, glyph.index]);
+
+  useEffect(() => {
+    setupCanvas();
+  }, [canvas, setupCanvas]);
+
+  useThemeChange(setupCanvas);
 
   return (
     <div
@@ -85,7 +95,7 @@ const GlyphItem = ({ glyph, onClick, font, config }: GlyphItemProps): JSX.Elemen
       onClick={() => onClick(glyph)}
       data-glyph-index={glyph.index}
     >
-      <canvas width={CELL_WIDTH} height={CELL_HEIGHT} ref={setCanvasRef} />
+      <canvas width={CELL_WIDTH} height={CELL_HEIGHT} ref={setCanvas} />
       <div className="glyph-detail">{glyph.name || '(null)'}</div>
     </div>
   );

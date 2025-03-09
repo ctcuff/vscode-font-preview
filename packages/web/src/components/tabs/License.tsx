@@ -60,7 +60,7 @@ const License = (): JSX.Element => {
     }
 
     setNamingTable(table);
-  }, []);
+  }, [font.tables]);
 
   return (
     <div className="license">

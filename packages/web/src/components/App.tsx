@@ -1,5 +1,5 @@
 import '../scss/app.scss';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Font } from 'opentype.js';
 import { ToastContainer } from 'react-toastify';
 import {
@@ -35,67 +35,73 @@ const App = (): JSX.Element | null => {
   const vscode = useContext(VscodeContext);
   const logger = useLogger();
 
-  const loadFont = async (payload: FontLoadEvent['payload']) => {
-    try {
-      const fontLoader = new FontLoader(logger, {
-        ...payload,
-        onBeforeCreateStyle: () =>
-          vscode.postMessage({ type: 'TOGGLE_PROGRESS', payload: true }),
-        onStyleCreated: () =>
-          vscode.postMessage({ type: 'TOGGLE_PROGRESS', payload: false }),
-        onLoadError: () => {
-          vscode.postMessage({ type: 'TOGGLE_PROGRESS', payload: false });
-          vscode.postMessage({
-            type: 'SHOW_MESSAGE',
-            payload: {
-              message:
-                "Couldn't render font preview. Some font information may still be available.",
-              messageType: 'ERROR'
-            }
-          });
+  const loadFont = useCallback(
+    async (payload: FontLoadEvent['payload']) => {
+      try {
+        const fontLoader = new FontLoader(logger, {
+          ...payload,
+          onBeforeCreateStyle: () =>
+            vscode.postMessage({ type: 'TOGGLE_PROGRESS', payload: true }),
+          onStyleCreated: () =>
+            vscode.postMessage({ type: 'TOGGLE_PROGRESS', payload: false }),
+          onLoadError: () => {
+            vscode.postMessage({ type: 'TOGGLE_PROGRESS', payload: false });
+            vscode.postMessage({
+              type: 'SHOW_MESSAGE',
+              payload: {
+                message:
+                  "Couldn't render font preview. Some font information may still be available.",
+                messageType: 'ERROR'
+              }
+            });
+          }
+        });
+
+        const { font: fontData, features } = await fontLoader.loadFont();
+
+        setIsFontSupported(fontLoader.isSupported);
+        setFont(fontData);
+        setFontFeatures(features);
+        setFileName(payload.fileName);
+      } catch (err: unknown) {
+        logger.error({
+          message: 'Failed to load font',
+          tag: LOG_TAG,
+          error: err
+        });
+
+        vscode.postMessage({ type: 'TOGGLE_PROGRESS', payload: true });
+        setError(`An error occurred while parsing this font: ${(err as Error).message}`);
+      }
+    },
+    [logger, vscode]
+  );
+
+  const onMessage = useCallback(
+    (message: MessageEvent<WebviewMessage>): void => {
+      logger.debug({
+        message: `Received message from extension: ${message.data.type}`,
+        tag: LOG_TAG
+      });
+
+      switch (message.data.type) {
+        case 'FONT_LOADED': {
+          loadFont(message.data.payload);
+          break;
         }
-      });
-
-      const { font: fontData, features } = await fontLoader.loadFont();
-
-      setIsFontSupported(fontLoader.isSupported);
-      setFont(fontData);
-      setFontFeatures(features);
-      setFileName(payload.fileName);
-    } catch (err: unknown) {
-      logger.error({
-        message: 'Failed to load font',
-        tag: LOG_TAG,
-        error: err
-      });
-
-      vscode.postMessage({ type: 'TOGGLE_PROGRESS', payload: true });
-      setError(`An error occurred while parsing this font: ${(err as Error).message}`);
-    }
-  };
-
-  const onMessage = (message: MessageEvent<WebviewMessage>): void => {
-    logger.debug({
-      message: `Received message from extension: ${message.data.type}`,
-      tag: LOG_TAG
-    });
-
-    switch (message.data.type) {
-      case 'FONT_LOADED': {
-        loadFont(message.data.payload);
-        break;
+        case 'CONFIG_LOADED': {
+          setConfig(message.data.payload);
+          break;
+        }
+        case 'SAMPLE_TEXT_LOADED':
+          setSampleTexts(message.data.payload);
+          break;
+        default:
+          break;
       }
-      case 'CONFIG_LOADED': {
-        setConfig(message.data.payload);
-        break;
-      }
-      case 'SAMPLE_TEXT_LOADED':
-        setSampleTexts(message.data.payload);
-        break;
-      default:
-        break;
-    }
-  };
+    },
+    [loadFont, logger]
+  );
 
   const shouldShowFeatureTab = (): boolean => {
     if (!font || !font.tables) {
@@ -126,17 +132,23 @@ const App = (): JSX.Element | null => {
       message: 'Webview initialized',
       tag: LOG_TAG
     });
+  }, [logger]);
 
-    window.addEventListener('message', onMessage);
-
+  useEffect(() => {
     vscode.postMessage({ type: 'GET_FONT' });
     vscode.postMessage({ type: 'GET_CONFIG' });
     vscode.postMessage({ type: 'GET_SAMPLE_TEXT' });
+    // Only want to run this once on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener('message', onMessage);
 
     return () => {
       window.removeEventListener('message', onMessage);
     };
-  }, []);
+  }, [onMessage]);
 
   if (error) {
     return <ErrorOverlay errorMessage={error} />;

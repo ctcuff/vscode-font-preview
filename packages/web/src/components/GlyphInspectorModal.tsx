@@ -121,7 +121,7 @@ const GlyphInspectorModal = ({
     return contours.length > 0
       ? contours.length
       : glyphPath.commands.filter(({ type }) => type.toLowerCase() !== 'z').length;
-  }, [glyph]);
+  }, [glyph, glyphPath.commands]);
 
   const { font } = useContext(FontContext);
   const [renderFields, setRenderFields] = useState<RenderField[]>([
