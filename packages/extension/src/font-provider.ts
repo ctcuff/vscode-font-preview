@@ -3,9 +3,14 @@ import * as path from 'path';
 import html from './index.html';
 import { template } from './util';
 import FontDocument from './font-document';
-import { WebviewMessage, LogLevel, ShowMessageEvent } from '@font-preview/shared';
+import {
+  WebviewMessage,
+  LogLevel,
+  ShowMessageEvent,
+  LogOptions
+} from '@font-preview/shared';
 import { TypedWebviewPanel } from './types/overrides';
-import LoggingService from './logging-service';
+import Logger from './logger';
 import YAMLLoader from './yaml-loader';
 import YAMLValidationError from './yaml-validation-error';
 import GlobalStateManager from './global-state-manager';
@@ -24,7 +29,7 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
 
   constructor(
     private readonly context: vscode.ExtensionContext,
-    private readonly logger: LoggingService,
+    private readonly logger: Logger,
     private readonly globalState: GlobalStateManager,
     private readonly workspaceConfig: ConfigManager
   ) {
@@ -83,8 +88,6 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
     const fileUri = panel.webview.asWebviewUri(document.uri);
     const fileSize = await document.size();
 
-    this.logger.info(`Loading font of size ${(fileSize / 1024).toFixed(2)} kb`, LOG_TAG);
-
     let fileContent: number[] = [];
 
     if (fileSize > MAX_WEB_FONT_SIZE) {
@@ -126,7 +129,11 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
     message: WebviewMessage,
     document: FontDocument
   ): Promise<void> {
-    this.logger.debug(`Received message from webview: ${message.type}`, LOG_TAG);
+    this.logger.debug({
+      message: `Received message from webview: ${message.type}`,
+      tag: LOG_TAG,
+      data: message
+    });
 
     switch (message.type) {
       case 'SHOW_MESSAGE':
@@ -155,11 +162,7 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
         }
         break;
       case 'LOG': {
-        this.logMessageFromWebview(
-          message.payload.level,
-          message.payload.message,
-          message.payload.tag
-        );
+        this.logMessageFromWebview(message.payload);
         break;
       }
       case 'GET_SAMPLE_TEXT':
@@ -186,26 +189,34 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
         vscode.window.showInformationMessage(message);
         break;
       default:
-        this.logger.error(`Invalid message type in [showMessage]: ${message}`);
+        this.logger.error({
+          message: 'Invalid message type in showMessage',
+          data: { message },
+          tag: LOG_TAG
+        });
     }
   }
 
-  private logMessageFromWebview(level: LogLevel, message: string, tag?: string) {
-    switch (level) {
+  private logMessageFromWebview(opts: LogOptions) {
+    switch (opts.level) {
       case LogLevel.DEBUG:
-        this.logger.debug(message, tag);
+        this.logger.debug(opts);
         break;
       case LogLevel.INFO:
-        this.logger.info(message, tag);
+        this.logger.info(opts);
         break;
       case LogLevel.WARN:
-        this.logger.warn(message, tag);
+        this.logger.warn(opts);
         break;
       case LogLevel.ERROR:
-        this.logger.error(message, tag);
+        this.logger.error(opts);
         break;
       default:
-        this.logger.error(`Invalid log level received from tag [${tag}]`, LOG_TAG);
+        this.logger.error({
+          message: `Invalid log level received from tag [${opts.tag}]`,
+          data: { level: opts.level },
+          tag: LOG_TAG
+        });
     }
   }
 
@@ -285,8 +296,12 @@ class FontProvider implements vscode.CustomReadonlyEditorProvider {
     try {
       const document = await vscode.workspace.openTextDocument(filePath);
       await vscode.window.showTextDocument(document, { preview: false });
-    } catch (err) {
-      this.logger.error('Error opening document', LOG_TAG, err);
+    } catch (error) {
+      this.logger.error({
+        error,
+        message: 'Error opening document',
+        tag: LOG_TAG
+      });
     }
   }
 }

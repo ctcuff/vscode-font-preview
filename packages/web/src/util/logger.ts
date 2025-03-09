@@ -1,4 +1,4 @@
-import { BaseLogger, LogLevel } from '@font-preview/shared';
+import { BaseLogger, LogOptions } from '@font-preview/shared';
 import { TypedWebviewApi } from '../types';
 
 class Logger extends BaseLogger {
@@ -18,13 +18,12 @@ class Logger extends BaseLogger {
     return this.instance;
   }
 
-  protected log(level: LogLevel, message: string, tag?: string): void {
+  protected log(opts: LogOptions): void {
     this.vscode.postMessage({
       type: 'LOG',
       payload: {
-        level,
-        message,
-        tag
+        ...opts,
+        error: this.serializeError(opts.error)
       }
     });
   }

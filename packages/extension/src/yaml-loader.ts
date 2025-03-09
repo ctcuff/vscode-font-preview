@@ -1,7 +1,7 @@
 import { PreviewSample } from '@font-preview/shared';
 import * as fs from 'fs';
 import * as yaml from 'js-yaml';
-import LoggingService from './logging-service';
+import Logger from './logger';
 import { z, ZodError } from 'zod';
 import YAMLValidationError from './yaml-validation-error';
 import ConfigManager from './config-manager';
@@ -17,18 +17,13 @@ const schema = z.object({
 
 class YAMLLoader {
   constructor(
-    private readonly logger: LoggingService,
+    private readonly logger: Logger,
     private readonly workspaceConfig: ConfigManager
   ) {}
 
   public async loadSampleTextsFromConfig(): Promise<SampleTextLoadResult> {
     const sampleTextFilePaths = Array.from(
       new Set(this.workspaceConfig.get('sampleTextPaths'))
-    );
-
-    this.logger.info(
-      `Found ${sampleTextFilePaths.length} example files to load`,
-      LOG_TAG
     );
 
     const promises = await Promise.allSettled(
@@ -52,31 +47,31 @@ class YAMLLoader {
       const sample = yaml.load(content) as PreviewSample;
       schema.parse(sample);
       return sample;
-    } catch (e) {
+    } catch (error) {
       // The errors in the catch statement are still thrown so that they can
       // propagate upwards and be handled by the calling function
-      if (e instanceof ZodError) {
-        e.errors.forEach(error => {
-          this.logger.error(
-            'Error during YAML validation',
-            LOG_TAG,
-            JSON.stringify(
-              {
-                parameter: error.path[0],
-                message: error.message,
-                file: path
-              },
-              null,
-              4
-            )
-          );
+      if (error instanceof ZodError) {
+        error.errors.forEach(error => {
+          this.logger.error({
+            message: 'Error during YAML validation',
+            tag: LOG_TAG,
+            data: {
+              parameter: error.path[0],
+              message: error.message,
+              file: path
+            }
+          });
         });
         throw new YAMLValidationError(`Invalid YAML file: ${path}`, path);
       }
 
-      this.logger.error('Error reading YML file', LOG_TAG, e);
+      this.logger.error({
+        message: 'Error reading YML file',
+        tag: LOG_TAG,
+        error
+      });
 
-      throw e;
+      throw error;
     }
   }
 }

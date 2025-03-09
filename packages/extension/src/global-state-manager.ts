@@ -1,6 +1,6 @@
 import { PreviewTab } from '@font-preview/shared';
 import { ExtensionContext } from 'vscode';
-import LoggingService from './logging-service';
+import Logger from './logger';
 
 type State = {
   /**
@@ -17,7 +17,7 @@ const LOG_TAG = 'GlobalState';
 class GlobalStateManager {
   constructor(
     private readonly context: ExtensionContext,
-    private readonly logger: LoggingService
+    private readonly logger: Logger
   ) {}
 
   public async update<T extends keyof State>(
@@ -26,8 +26,12 @@ class GlobalStateManager {
   ): Promise<void> {
     try {
       await this.context.globalState.update(key, value);
-    } catch (err) {
-      this.logger.error('Error updating state', LOG_TAG, err);
+    } catch (error) {
+      this.logger.error({
+        error,
+        message: 'Error updating state',
+        tag: LOG_TAG
+      });
     }
   }
 
@@ -43,8 +47,12 @@ class GlobalStateManager {
     for await (const key of this.keys()) {
       try {
         await this.update(key, undefined);
-      } catch (err) {
-        this.logger.error('Error resetting state', LOG_TAG, err);
+      } catch (error) {
+        this.logger.error({
+          error,
+          message: 'Error resetting state',
+          tag: LOG_TAG
+        });
       }
     }
   }

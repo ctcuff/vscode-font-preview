@@ -63,14 +63,22 @@ const App = (): JSX.Element | null => {
       setFontFeatures(features);
       setFileName(payload.fileName);
     } catch (err: unknown) {
-      logger.error('Failed to load font', LOG_TAG, err);
+      logger.error({
+        message: 'Failed to load font',
+        tag: LOG_TAG,
+        error: err
+      });
+
       vscode.postMessage({ type: 'TOGGLE_PROGRESS', payload: true });
       setError(`An error occurred while parsing this font: ${(err as Error).message}`);
     }
   };
 
   const onMessage = (message: MessageEvent<WebviewMessage>): void => {
-    logger.debug(`Received message from extension: ${message.data.type}`, LOG_TAG);
+    logger.debug({
+      message: `Received message from extension: ${message.data.type}`,
+      tag: LOG_TAG
+    });
 
     switch (message.data.type) {
       case 'FONT_LOADED': {
@@ -114,7 +122,11 @@ const App = (): JSX.Element | null => {
   };
 
   useEffect(() => {
-    logger.debug('Webview initialized', LOG_TAG);
+    logger.debug({
+      message: 'Webview initialized',
+      tag: LOG_TAG
+    });
+
     window.addEventListener('message', onMessage);
 
     vscode.postMessage({ type: 'GET_FONT' });

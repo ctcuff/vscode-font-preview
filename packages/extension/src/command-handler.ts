@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import ConfigManager from './config-manager';
 import GlobalStateManager from './global-state-manager';
-import LoggingService from './logging-service';
+import Logger from './logger';
 
 const LOG_TAG = 'CommandHandler';
 
@@ -10,7 +10,7 @@ type CommandFunction = (...args: any[]) => Promise<any>;
 export default class CommandHandler {
   public constructor(
     private readonly context: vscode.ExtensionContext,
-    private readonly logger: LoggingService,
+    private readonly logger: Logger,
     private readonly globalState: GlobalStateManager,
     private readonly workspaceConfig: ConfigManager
   ) {}
@@ -49,9 +49,13 @@ paragraphs:
         selection: new vscode.Range(0, 4, 0, 10),
         preview: true
       });
-    } catch (err) {
+    } catch (error) {
       vscode.window.showErrorMessage("Couldn't open text document");
-      this.logger.error('Error opening YAML file ', LOG_TAG, err);
+      this.logger.error({
+        error,
+        message: 'Error opening YAML file',
+        tag: LOG_TAG
+      });
     }
   }
 
@@ -68,18 +72,23 @@ paragraphs:
       });
 
       if (!filePath) {
-        this.logger.error(
-          `Undefined file path for ${JSON.stringify({ sampleFiles })}`,
-          LOG_TAG
-        );
+        this.logger.error({
+          message: 'Undefined file path',
+          data: { sampleFiles },
+          tag: LOG_TAG
+        });
         return;
       }
 
       await vscode.window.showTextDocument(vscode.Uri.file(filePath), {
         preview: false
       });
-    } catch (err) {
-      this.logger.error('Error in showSampleFileQuickPick', LOG_TAG, err);
+    } catch (error) {
+      this.logger.error({
+        error,
+        message: 'Error in showSampleFileQuickPick',
+        tag: LOG_TAG
+      });
       return;
     }
   }

@@ -1,7 +1,7 @@
 import { window } from 'vscode';
-import { LogLevel, BaseLogger, WorkspaceConfig } from '@font-preview/shared';
+import { LogLevel, BaseLogger, WorkspaceConfig, LogOptions } from '@font-preview/shared';
 
-class LoggingService extends BaseLogger {
+class Logger extends BaseLogger {
   public readonly outputChannel = window.createOutputChannel('Font Preview');
   private logLevel: LogLevel = LogLevel.INFO;
 
@@ -24,19 +24,22 @@ class LoggingService extends BaseLogger {
     }
   }
 
-  protected log(level: LogLevel, message: string, tag?: string): void {
+  protected log({ level, tag, message, data }: LogOptions): void {
     if (level < this.logLevel) {
       return;
     }
 
     const time = new Date().toLocaleTimeString();
-    // Will format messages as: [LEVEL - 12:00:00 AM] [Optional Tag] message
-    this.outputChannel.appendLine(
-      tag?.trim()
-        ? `[${LogLevel[level]} - ${time}] [${tag.trim()}] ${message.trim()}`
-        : `[${LogLevel[level]} - ${time}] ${message.trim()}`
-    );
+
+    // Will format messages as: [LEVEL - 12:00:00 AM] [TAG] message
+    let logMessage = `[${LogLevel[level]} - ${time}] [${tag.trim()}] ${message.trim()}`;
+
+    if (data && Object.keys(data).length > 0) {
+      logMessage += ` ${JSON.stringify(data)}`;
+    }
+
+    this.outputChannel.appendLine(logMessage);
   }
 }
 
-export default LoggingService;
+export default Logger;

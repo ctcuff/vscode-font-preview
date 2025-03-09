@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as wawoff2 from 'wawoff2';
 import { FontExtension } from '@font-preview/shared';
-import LoggingService from './logging-service';
+import Logger from './logger';
 
 const LOG_TAG = 'FontDocument';
 
@@ -17,7 +17,7 @@ class FontDocument implements vscode.CustomDocument {
   public readonly fullFileName: string;
   public readonly extension: FontExtension;
 
-  constructor(public readonly uri: vscode.Uri, private readonly logger: LoggingService) {
+  constructor(public readonly uri: vscode.Uri, private readonly logger: Logger) {
     const { name, ext } = path.parse(uri.fsPath);
 
     this.fileName = name;
@@ -34,8 +34,12 @@ class FontDocument implements vscode.CustomDocument {
     try {
       const { size } = await vscode.workspace.fs.stat(this.uri);
       return size;
-    } catch (err: unknown) {
-      this.logger.error('Failed to retrieve file size', LOG_TAG, err);
+    } catch (error: unknown) {
+      this.logger.error({
+        message: 'Failed to retrieve file size',
+        tag: LOG_TAG,
+        error
+      });
       return -1;
     }
   }
@@ -48,10 +52,10 @@ class FontDocument implements vscode.CustomDocument {
    */
   public async decompress(): Promise<Uint8Array | null> {
     if (this.extension !== 'woff2') {
-      this.logger.warn(
-        "decompress called on a font with extension that isn't WOFF2",
-        LOG_TAG
-      );
+      this.logger.warn({
+        message: "decompress called on a font with extension that isn't WOFF2",
+        tag: LOG_TAG
+      });
       return null;
     }
 
@@ -61,9 +65,13 @@ class FontDocument implements vscode.CustomDocument {
 
     try {
       content = await vscode.workspace.fs.readFile(this.uri);
-    } catch (err: unknown) {
+    } catch (error: unknown) {
       this.logger.endTimer(LOG_TAG);
-      this.logger.error("Couldn't read file", LOG_TAG, err);
+      this.logger.error({
+        error,
+        message: "Couldn't read file",
+        tag: LOG_TAG
+      });
       vscode.window.showErrorMessage("Couldn't read file");
       return null;
     }
@@ -71,12 +79,19 @@ class FontDocument implements vscode.CustomDocument {
     try {
       content = await wawoff2.decompress(content);
 
-      this.logger.info(
-        `Font decompressed in ${this.logger.endTimer(LOG_TAG).toFixed(2)} ms`,
-        LOG_TAG
-      );
-    } catch (err: unknown) {
-      this.logger.error("Couldn't decompress file content", LOG_TAG, err);
+      const decompressTime = this.logger.endTimer(LOG_TAG).toFixed(2);
+
+      this.logger.info({
+        message: `Font decompressed in ${decompressTime} ms`,
+        tag: LOG_TAG
+      });
+    } catch (error: unknown) {
+      this.logger.endTimer(LOG_TAG);
+      this.logger.error({
+        error,
+        message: "Couldn't decompress file content",
+        tag: LOG_TAG
+      });
     }
 
     return content;

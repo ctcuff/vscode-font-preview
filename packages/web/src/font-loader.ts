@@ -66,13 +66,21 @@ class FontLoader {
 
     document.fonts.onloadingdone = () => {
       const elapsed = this.logger.endTimer(LOG_TAG);
-      logger.info(`Font loaded in ${elapsed.toFixed(2)} ms`, LOG_TAG);
+      const size = (this.opts.fileSize / 1024).toFixed(2);
+
+      logger.info({
+        message: `Font of size ${size} kb loaded in ${elapsed.toFixed(2)} ms`,
+        tag: LOG_TAG
+      });
       this.opts.onStyleCreated();
     };
 
     document.fonts.onloadingerror = () => {
       this.opts.onLoadError();
-      logger.error('Error in document.fonts', LOG_TAG);
+      logger.error({
+        message: 'Error in document.fonts',
+        tag: LOG_TAG
+      });
     };
   }
 
@@ -89,7 +97,10 @@ class FontLoader {
       case 'woff2':
         return 'woff';
       default:
-        this.logger.warn(`Unsupported extension: ${fileExtension}`, LOG_TAG);
+        this.logger.warn({
+          message: `Unsupported extension: ${fileExtension}`,
+          tag: LOG_TAG
+        });
         return '';
     }
   }
@@ -188,8 +199,12 @@ class FontLoader {
       const worker = new Worker(blobUrl, { type: 'module' });
 
       return worker;
-    } catch (err: unknown) {
-      this.logger.error('Failed to initialize worker', LOG_TAG, err);
+    } catch (error: unknown) {
+      this.logger.error({
+        error,
+        message: 'Failed to initialize worker',
+        tag: LOG_TAG
+      });
       return null;
     }
   }

@@ -1,7 +1,7 @@
 import { workspace, WorkspaceConfiguration } from 'vscode';
 import { WorkspaceConfig } from '@font-preview/shared';
 import { EXTENSION_ID } from './util';
-import LoggingService from './logging-service';
+import Logger from './logger';
 
 const LOG_TAG = 'ConfigManager';
 
@@ -13,28 +13,29 @@ interface TypedWorkspaceConfiguration extends WorkspaceConfiguration {
  * A small wrapper around vscode's workspace config
  */
 class ConfigManager {
-  private config: TypedWorkspaceConfiguration;
-
-  constructor(private readonly logger: LoggingService) {
-    this.config = workspace.getConfiguration(EXTENSION_ID) as TypedWorkspaceConfiguration;
-  }
+  constructor(private logger: Logger) {}
 
   public getAll(): WorkspaceConfig {
     return {
-      defaultTab: this.config.get('defaultTab')!,
-      useWorker: this.config.get('useWorker')!,
-      showGlyphWidth: this.config.get('showGlyphWidth')!,
-      showGlyphIndex: this.config.get('showGlyphIndex')!,
-      sampleTextPaths: this.config.get('sampleTextPaths')!,
-      defaultLogLevel: this.config.get('defaultLogLevel')!,
-      defaultSampleTextId: this.config.get('defaultSampleTextId')!,
-      showSampleTextErrors: this.config.get('showSampleTextErrors')!,
-      retainTabPosition: this.config.get('retainTabPosition')!
+      defaultTab: this.get('defaultTab')!,
+      useWorker: this.get('useWorker')!,
+      showGlyphWidth: this.get('showGlyphWidth')!,
+      showGlyphIndex: this.get('showGlyphIndex')!,
+      sampleTextPaths: this.get('sampleTextPaths')!,
+      defaultLogLevel: this.get('defaultLogLevel')!,
+      defaultSampleTextId: this.get('defaultSampleTextId')!,
+      showSampleTextErrors: this.get('showSampleTextErrors')!,
+      retainTabPosition: this.get('retainTabPosition')!
     };
   }
 
+  public getWorkspaceConfiguration(): TypedWorkspaceConfiguration {
+    return workspace.getConfiguration(EXTENSION_ID) as TypedWorkspaceConfiguration;
+  }
+
   public get<T extends keyof WorkspaceConfig>(key: T): WorkspaceConfig[T] {
-    return this.config.get(key)!;
+    const config = this.getWorkspaceConfiguration();
+    return config.get(key)!;
   }
 
   public async set<T extends keyof WorkspaceConfig>(
@@ -42,13 +43,15 @@ class ConfigManager {
     value: WorkspaceConfig[T]
   ): Promise<void> {
     try {
-      await this.config.update(key, value);
-    } catch (err) {
-      this.logger.error(
-        `Error updating setting ${JSON.stringify({ [key]: value })}`,
-        LOG_TAG,
-        err
-      );
+      const config = this.getWorkspaceConfiguration();
+      await config.update(key, value);
+    } catch (error) {
+      this.logger.error({
+        error,
+        message: 'Error updating setting',
+        data: { [key]: value },
+        tag: LOG_TAG
+      });
     }
   }
 }

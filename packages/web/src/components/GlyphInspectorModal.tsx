@@ -164,7 +164,13 @@ const GlyphInspectorModal = ({
           })
         });
       })
-      .catch(err => logger.error("Couldn't copy to clipboard", LOG_TAG, err));
+      .catch(error => {
+        logger.error({
+          error,
+          message: "Couldn't copy to clipboard",
+          tag: LOG_TAG
+        });
+      });
   };
 
   const renderSwitch = (field: RenderField) => {

@@ -1,4 +1,5 @@
 import type { ColorThemeKind } from 'vscode';
+import { LogOptions } from './base-logger';
 
 /**
  * Font types that can be rendered by this extension.
@@ -168,11 +169,7 @@ export type LogEvent = {
    * Dispatched from the webview in order to log events to VS Code's output channel
    */
   type: 'LOG';
-  payload: {
-    level: LogLevel;
-    message: string;
-    tag?: string;
-  };
+  payload: LogOptions;
 };
 
 export type PreviewTabChangeEvent = {

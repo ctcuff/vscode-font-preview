@@ -1,14 +1,22 @@
 import { LogLevel } from './types';
 
+export type LogOptions = {
+  level: LogLevel;
+  message: string;
+  tag: string;
+  error?: unknown;
+  data?: Record<string, unknown>;
+};
+
 /**
  * A logger shared between the extension and the webview. The extension's implementation
  * handles outputting the logs to the extension's task window, while the webview's
  * implementation handles sending messages via `vscode.postMessage`
  */
 export abstract class BaseLogger {
-  private timers: Record<string, number> = {};
+  private readonly timers: Record<string, number> = {};
 
-  protected abstract log(level: LogLevel, message: string, tag?: string): void;
+  protected abstract log(opts: LogOptions): void;
 
   /**
    * Starts a timer using the `performance` module.
@@ -17,7 +25,10 @@ export abstract class BaseLogger {
    */
   public startTimer(id: string): void {
     if (this.timers[id]) {
-      this.warn(`Timer with ID ${id} was already set`);
+      this.warn({
+        tag: 'startTimer',
+        message: `Timer with ID ${id} was already set`
+      });
     }
     this.timers[id] = performance.now();
   }
@@ -30,12 +41,18 @@ export abstract class BaseLogger {
    */
   public endTimer(id: string): number {
     if (!this.timers[id]) {
-      this.warn(`No timer with ID ${id} was found`);
+      this.warn({
+        tag: 'endTimer',
+        message: `No timer with ID ${id} was found`
+      });
       return 0;
     }
 
     if (this.timers[id] === 0) {
-      this.warn('Did you forget to call logger.startTimer()?');
+      this.warn({
+        tag: 'endTimer',
+        message: 'Did you forget to call startTimer()?'
+      });
       return 0;
     }
 
@@ -45,29 +62,60 @@ export abstract class BaseLogger {
     return totalTime;
   }
 
-  public debug(message: string, tag?: string): void {
-    this.log(LogLevel.DEBUG, message, tag);
+  public debug(opts: Omit<LogOptions, 'level'>): void {
+    this.log({
+      ...opts,
+      level: LogLevel.DEBUG
+    });
   }
 
-  public info(message: string, tag?: string): void {
-    this.log(LogLevel.INFO, message, tag);
+  public info(opts: Omit<LogOptions, 'level'>): void {
+    this.log({
+      ...opts,
+      level: LogLevel.INFO
+    });
   }
 
-  public warn(message: string, tag?: string): void {
-    this.log(LogLevel.WARN, message, tag);
+  public warn(opts: Omit<LogOptions, 'level'>): void {
+    this.log({
+      ...opts,
+      level: LogLevel.WARN
+    });
   }
 
-  public error(message: string, tag?: string, error?: unknown): void {
-    if (error instanceof Error) {
-      if (error?.message) {
-        this.log(LogLevel.ERROR, `${message} ${error.message}`, tag);
-      } else if (error?.stack) {
-        this.log(LogLevel.ERROR, error.stack, tag);
+  public error(opts: Omit<LogOptions, 'level'>): void {
+    const error = this.serializeError(opts.error);
+
+    this.log({
+      ...opts,
+      level: LogLevel.ERROR,
+      data: {
+        ...opts.data,
+        ...(error ? { error } : {})
       }
-    } else if (error) {
-      this.log(LogLevel.ERROR, `${message} ${error}`, tag);
-    } else {
-      this.log(LogLevel.ERROR, message, tag);
+    });
+  }
+
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+  public serializeError(error?: any): string {
+    if (!error) {
+      return '';
+    }
+
+    if (error instanceof Error) {
+      if (error.message) {
+        return error.message;
+      }
+
+      if (error.stack) {
+        return error.stack;
+      }
+    }
+
+    try {
+      return error?.toString() || '';
+    } catch {
+      return `${error}`;
     }
   }
 }

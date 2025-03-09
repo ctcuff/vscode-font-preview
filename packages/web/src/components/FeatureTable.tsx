@@ -30,7 +30,7 @@ const FeatureTable = ({ activeFeatures }: FeatureTableProps): JSX.Element => {
 
   const renderTableBody = (feature: string): JSX.Element | null => {
     let key = feature as keyof typeof featureTable;
-    let tag: string = feature;
+    let tag = feature;
     let isActive = false;
 
     // The features "cv01" to "cv99" (Character Variant) and
@@ -59,12 +59,15 @@ const FeatureTable = ({ activeFeatures }: FeatureTableProps): JSX.Element => {
     }
 
     if (!featureTable[key]) {
-      logger.warn(`Feature: ${key} not found in table`, LOG_TAG);
+      logger.warn({
+        message: `Feature: ${key} not found in table`,
+        tag: LOG_TAG
+      });
       return null;
     }
 
     for (let i = 0; i < activeFeatures.length; i++) {
-      const activeFeature: string = activeFeatures[i];
+      const activeFeature = activeFeatures[i];
 
       // Because cv## and ss## only show up once in the table but multiple times in
       // switch components, we need to check for any occurrence of those features

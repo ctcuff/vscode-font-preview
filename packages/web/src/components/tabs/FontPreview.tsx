@@ -34,10 +34,10 @@ const FontPreview = (props: FontPreviewProps): JSX.Element => {
     const sample = samples.find(s => s.id === defaultSampleTextId);
 
     if (!sample) {
-      logger.warn(
-        `Couldn't find sample with id ${defaultSampleTextId}, defaulting to English`,
-        LOG_TAG
-      );
+      logger.warn({
+        message: `Couldn't find sample with id ${defaultSampleTextId}, defaulting to English`,
+        tag: LOG_TAG
+      });
 
       return sampleEN;
     }

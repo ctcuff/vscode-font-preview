@@ -3,13 +3,13 @@ import CommandHandler from './command-handler';
 import ConfigManager from './config-manager';
 import FontProvider from './font-provider';
 import GlobalStateManager from './global-state-manager';
-import LoggingService from './logging-service';
+import Logger from './logger';
 import { EXTENSION_ID } from './util';
 
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
   const version = context.extension.packageJSON.version;
   const id = context.extension.id;
-  const logger = new LoggingService();
+  const logger = new Logger();
 
   logger.startTimer('activate');
 
@@ -32,9 +32,12 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     })
   );
 
-  logger.info(
-    `Activated ${id} version ${version} in ${logger.endTimer('activate').toFixed(2)} ms`
-  );
+  const activationTime = logger.endTimer('activate').toFixed(2);
+
+  logger.info({
+    tag: `${id}-${version}`,
+    message: `Activated in ${activationTime} ms`
+  });
 
   commandHandler.registerAllCommands();
   fontProvider.register();
