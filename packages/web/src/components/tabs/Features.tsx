@@ -1,5 +1,5 @@
 import '../../scss/features.scss';
-import React, { useContext, useState } from 'react';
+import React, { useCallback, useContext, useState } from 'react';
 import FontContext from '../../contexts/FontContext';
 import FeatureToggles from '../FeatureToggles';
 import FontNameHeader from '../FontNameHeader';
@@ -26,6 +26,23 @@ const characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
   .split('')
   .join(', ');
 
+const sampleText = `
+Apparently motionless to her passengers and crew, the Interplanetary
+liner Hyperion bored serenely onward through space at normal
+acceleration. In the railed-off sanctum in one corner of the control
+room a bell tinkled, a smothered whirr was heard, and Captain Bradley
+frowned as he studied the brief message upon the tape of the recorder--a
+message flashed to his desk from the operator's panel. He beckoned, and
+the second officer, whose watch it now was, read aloud: "Reports of
+scout patrols still negative." "Still negative." The officer scowled in
+thought. "They've already searched beyond the widest possible location
+of the wreckage, too. Two unexplained disappearances inside a
+month--first the Dione, then the Rhea--and not a plate nor a lifeboat
+recovered. Looks bad, sir. One might be an accident; two might possibly
+be a coincidence...." His voice died away. What might that coincidence
+mean?
+`;
+
 const Features = (): JSX.Element => {
   const [activeFeatures, setActiveFeatures] = useState<string[]>([]);
   const [fontVariationSettings, setFontVariationSettings] = useState<FontVariation>({});
@@ -34,12 +51,12 @@ const Features = (): JSX.Element => {
   const [selectedSetting, setSelectedSetting] = useState('');
   const { font } = useContext(FontContext);
 
-  const onToggleFeature = (css: string, currentActiveFeatures: string[]): void => {
+  const onToggleFeature = useCallback((css: string, currentActiveFeatures: string[]) => {
     setActiveFeatures(currentActiveFeatures);
     setFontFeatureSettingsCSS(css);
-  };
+  }, []);
 
-  const onInstanceClick = (instance: FontVariableAxisInstance): void => {
+  const onInstanceClick = useCallback((instance: FontVariableAxisInstance) => {
     const coordinates = instance.coordinates;
     const settingName = instance.name.en?.trim() || 'Unknown';
 
@@ -52,9 +69,9 @@ const Features = (): JSX.Element => {
     setSelectedSetting(settingName);
     setFontVariationSettings(coordinates);
     setVariationCSS(css);
-  };
+  }, []);
 
-  const renderFontInstances = (): JSX.Element | null => {
+  const renderFontInstances = useCallback(() => {
     const fvar = font.tables.fvar;
 
     if (!fvar) {
@@ -80,7 +97,7 @@ const Features = (): JSX.Element => {
         })}
       </div>
     );
-  };
+  }, [font.tables, onInstanceClick, selectedSetting]);
 
   return (
     <div className="features">
@@ -99,10 +116,10 @@ const Features = (): JSX.Element => {
         <section>
           <h2>Axes</h2>
           <VariableAxes
-            onVariationChange={setVariationCSS}
             // Need to pass this component's variation settings down so that
             // the sliders can update when font instances are clicked
             variationSettings={fontVariationSettings}
+            onVariationChange={setVariationCSS}
           />
         </section>
       )}
@@ -128,22 +145,7 @@ const Features = (): JSX.Element => {
             fontVariationSettings: variationCSS
           }}
         >
-          {`
-            Apparently motionless to her passengers and crew, the Interplanetary
-            liner Hyperion bored serenely onward through space at normal
-            acceleration. In the railed-off sanctum in one corner of the control
-            room a bell tinkled, a smothered whirr was heard, and Captain Bradley
-            frowned as he studied the brief message upon the tape of the recorder--a
-            message flashed to his desk from the operator's panel. He beckoned, and
-            the second officer, whose watch it now was, read aloud: "Reports of
-            scout patrols still negative." "Still negative." The officer scowled in
-            thought. "They've already searched beyond the widest possible location
-            of the wreckage, too. Two unexplained disappearances inside a
-            month--first the Dione, then the Rhea--and not a plate nor a lifeboat
-            recovered. Looks bad, sir. One might be an accident; two might possibly
-            be a coincidence...." His voice died away. What might that coincidence
-            mean?
-          `}
+          {sampleText}
         </p>
       </section>
       <section>

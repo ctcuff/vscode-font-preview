@@ -43,7 +43,7 @@ module.exports = {
     ...baseConfig.rules,
     'no-alert': 'error',
     'import/extensions': ['error', 'never'],
-    'react-hooks/exhaustive-deps': 'warn',
+    'react-hooks/exhaustive-deps': 'error',
     'react/no-array-index-key': 'off',
     'react/jsx-props-no-spreading': 'off',
     'react/destructuring-assignment': 'off',

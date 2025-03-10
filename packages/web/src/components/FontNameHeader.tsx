@@ -1,5 +1,6 @@
 import '../scss/font-name-header.scss';
 import React, { useContext } from 'react';
+import classNames from 'classnames';
 import FontContext from '../contexts/FontContext';
 
 type FontNameHeaderProps = {
@@ -7,12 +8,16 @@ type FontNameHeaderProps = {
   className?: string;
 };
 
-const FontNameHeader = ({ style, className = '' }: FontNameHeaderProps): JSX.Element => {
+const FontNameHeader = (props: FontNameHeaderProps): JSX.Element => {
   const { font, fileName } = useContext(FontContext);
   const name = font?.names?.fontFamily?.en || font?.names?.fullName?.en || fileName;
 
   return (
-    <h1 className={`font-name-header ${className}`} style={style} title={name}>
+    <h1
+      className={classNames('font-name-header', props.className)}
+      style={props.style}
+      title={name}
+    >
       {name}
     </h1>
   );

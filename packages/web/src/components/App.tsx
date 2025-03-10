@@ -24,6 +24,30 @@ import ErrorOverlay from './ErrorOverlay';
 
 const LOG_TAG = 'App';
 
+const shouldShowFeatureTab = (font: Font | null, isFontSupported: boolean) => {
+  if (!font || !font.tables) {
+    return false;
+  }
+
+  const { gpos, gsub, fvar } = font.tables;
+
+  if (!isFontSupported) {
+    return false;
+  }
+
+  if (!gpos && !gsub && !fvar) {
+    return false;
+  }
+
+  // In this case the font might have gpos, gsub, or fvar tables, but
+  // all of them might be empty. No point in showing the tab
+  if (isTableEmpty(gpos) && isTableEmpty(gsub) && isTableEmpty(fvar)) {
+    return false;
+  }
+
+  return true;
+};
+
 const App = (): JSX.Element | null => {
   const [font, setFont] = useState<Font | null>(null);
   const [fileName, setFileName] = useState('');
@@ -40,10 +64,12 @@ const App = (): JSX.Element | null => {
       try {
         const fontLoader = new FontLoader(logger, {
           ...payload,
-          onBeforeCreateStyle: () =>
-            vscode.postMessage({ type: 'TOGGLE_PROGRESS', payload: true }),
-          onStyleCreated: () =>
-            vscode.postMessage({ type: 'TOGGLE_PROGRESS', payload: false }),
+          onBeforeCreateStyle: () => {
+            vscode.postMessage({ type: 'TOGGLE_PROGRESS', payload: true });
+          },
+          onStyleCreated: () => {
+            vscode.postMessage({ type: 'TOGGLE_PROGRESS', payload: false });
+          },
           onLoadError: () => {
             vscode.postMessage({ type: 'TOGGLE_PROGRESS', payload: false });
             vscode.postMessage({
@@ -70,8 +96,9 @@ const App = (): JSX.Element | null => {
           error: err
         });
 
-        vscode.postMessage({ type: 'TOGGLE_PROGRESS', payload: true });
         setError(`An error occurred while parsing this font: ${(err as Error).message}`);
+      } finally {
+        vscode.postMessage({ type: 'TOGGLE_PROGRESS', payload: false });
       }
     },
     [logger, vscode]
@@ -102,30 +129,6 @@ const App = (): JSX.Element | null => {
     },
     [loadFont, logger]
   );
-
-  const shouldShowFeatureTab = (): boolean => {
-    if (!font || !font.tables) {
-      return false;
-    }
-
-    const { gpos, gsub, fvar } = font.tables;
-
-    if (!isFontSupported) {
-      return false;
-    }
-
-    if (!gpos && !gsub && !fvar) {
-      return false;
-    }
-
-    // In this case the font might have gpos, gsub, or fvar tables, but
-    // all of them might be empty. No point in showing the tab
-    if (isTableEmpty(gpos) && isTableEmpty(gsub) && isTableEmpty(fvar)) {
-      return false;
-    }
-
-    return true;
-  };
 
   useEffect(() => {
     logger.debug({
@@ -171,7 +174,7 @@ const App = (): JSX.Element | null => {
         <Tab
           // Hide this tab if the current font doesn't have
           // any variable font features or feature tags
-          visible={shouldShowFeatureTab()}
+          visible={shouldShowFeatureTab(font, isFontSupported)}
           title="Features"
           id="Features"
         >

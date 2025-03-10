@@ -15,7 +15,7 @@ type GlyphInspectorModalProps = {
   onClose: () => void;
   onAfterOpen: Modal.OnAfterOpenCallback;
   glyph: Glyph;
-  onAfterClose?: () => void;
+  onAfterClose: () => void;
 };
 
 const GLYPH_CANVAS_SIZE = 500;

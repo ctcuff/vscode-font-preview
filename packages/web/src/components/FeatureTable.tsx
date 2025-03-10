@@ -1,5 +1,5 @@
 import '../scss/feature-table.scss';
-import React, { useContext } from 'react';
+import React, { useCallback, useContext, useRef } from 'react';
 import FontContext from '../contexts/FontContext';
 import featureTable from '../assets/feature-tags.json';
 import useLogger from '../hooks/use-logger';
@@ -25,75 +25,79 @@ const FeatureTable = ({ activeFeatures }: FeatureTableProps): JSX.Element => {
 
   // Keep track of whether we've seen "cv01" to "cv99" or
   // "ss01" to "ss20" so that it's only included once in the table
-  let hasCharacterVariant = false;
-  let hasStylisticSet = false;
+  const hasCharacterVariant = useRef(false);
+  const hasStylisticSet = useRef(false);
 
-  const renderTableBody = (feature: string): JSX.Element | null => {
-    let key = feature as keyof typeof featureTable;
-    let tag = feature;
-    let isActive = false;
+  const renderTableBody = useCallback(
+    (feature: string) => {
+      let key = feature as keyof typeof featureTable;
+      let tag = feature;
+      let isActive = false;
 
-    // The features "cv01" to "cv99" (Character Variant) and
-    // "ss01" to "ss20" (Stylistic Set) need to be checked since
-    // these all have the same friendly name and description
-    if (characterVariantRegex.test(feature)) {
-      if (hasCharacterVariant) {
+      // The features "cv01" to "cv99" (Character Variant) and
+      // "ss01" to "ss20" (Stylistic Set) need to be checked since
+      // these all have the same friendly name and description
+      if (characterVariantRegex.test(feature)) {
+        if (hasCharacterVariant.current) {
+          return null;
+        }
+
+        key = 'cv01 - cv99';
+        hasCharacterVariant.current = true;
+      }
+
+      if (stylisticVariantRegex.test(feature)) {
+        if (hasStylisticSet.current) {
+          return null;
+        }
+
+        key = 'ss01 - ss20';
+        hasStylisticSet.current = true;
+      }
+
+      if (key === 'ss01 - ss20' || key === 'cv01 - cv99') {
+        tag = key;
+      }
+
+      if (!featureTable[key]) {
+        logger.warn({
+          message: `Feature: ${key} not found in table`,
+          tag: LOG_TAG
+        });
         return null;
       }
 
-      key = 'cv01 - cv99';
-      hasCharacterVariant = true;
-    }
+      for (let i = 0; i < activeFeatures.length; i++) {
+        const activeFeature = activeFeatures[i];
 
-    if (stylisticVariantRegex.test(feature)) {
-      if (hasStylisticSet) {
-        return null;
+        // Because cv## and ss## only show up once in the table but multiple times in
+        // switch components, we need to check for any occurrence of those features
+        if (
+          activeFeature === feature ||
+          (stylisticVariantRegex.test(activeFeature) &&
+            stylisticVariantRegex.test(feature)) ||
+          (characterVariantRegex.test(activeFeature) &&
+            characterVariantRegex.test(feature))
+        ) {
+          isActive = true;
+          break;
+        }
       }
 
-      key = 'ss01 - ss20';
-      hasStylisticSet = true;
-    }
-
-    if (key === 'ss01 - ss20' || key === 'cv01 - cv99') {
-      tag = key;
-    }
-
-    if (!featureTable[key]) {
-      logger.warn({
-        message: `Feature: ${key} not found in table`,
-        tag: LOG_TAG
-      });
-      return null;
-    }
-
-    for (let i = 0; i < activeFeatures.length; i++) {
-      const activeFeature = activeFeatures[i];
-
-      // Because cv## and ss## only show up once in the table but multiple times in
-      // switch components, we need to check for any occurrence of those features
-      if (
-        activeFeature === feature ||
-        (stylisticVariantRegex.test(activeFeature) &&
-          stylisticVariantRegex.test(feature)) ||
-        (characterVariantRegex.test(activeFeature) && characterVariantRegex.test(feature))
-      ) {
-        isActive = true;
-        break;
-      }
-    }
-
-    return (
-      <tr key={feature} data-active={isActive} id={key.replaceAll(' ', '')}>
-        <td>
-          <a href={featureTable[key].href} title="Open documentation in browser">
-            {tag}
-          </a>
-        </td>
-        <td>{featureTable[key].friendlyName}</td>
-        <td>{featureTable[key].description}</td>
-      </tr>
-    );
-  };
+      return (
+        <tr key={feature} data-active={isActive} id={key.replaceAll(' ', '')}>
+          <td>
+            <a href={featureTable[key].href} title="Open documentation in browser">
+              {tag}
+            </a>
+          </td>
+          <td>{featureTable[key].friendlyName}</td>
+          <td>{featureTable[key].description}</td>
+        </tr>
+      );
+    },
+    [activeFeatures, logger]
+  );
 
   return (
     <table className="feature-table">

@@ -24,10 +24,10 @@ const hardCodedSamples = [sampleEN, sampleZH, sampleJA, sampleAR, sampleKR].sort
 
 const FontPreview = (props: FontPreviewProps): JSX.Element => {
   const logger = useLogger();
-  const samples = useMemo(() => {
-    props.sampleTexts.sort(sortAscending);
-    return hardCodedSamples.concat(props.sampleTexts);
-  }, [props.sampleTexts]);
+  const samples = useMemo(
+    () => hardCodedSamples.concat(Array.from(props.sampleTexts).sort(sortAscending)),
+    [props.sampleTexts]
+  );
 
   const [preview, setPreview] = useState<PreviewSample>(() => {
     const { defaultSampleTextId } = props;

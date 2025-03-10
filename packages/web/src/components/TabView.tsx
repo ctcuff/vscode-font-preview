@@ -1,7 +1,8 @@
 import '../scss/tab-view.scss';
-import React, { useContext } from 'react';
+import React, { useCallback, useContext, useMemo } from 'react';
 import { Tabs, TabList, TabPanel, Tab as ReactTab } from 'react-tabs';
 import { PreviewTab } from '@font-preview/shared';
+import classNames from 'classnames';
 import VscodeContext from '../contexts/VscodeContext';
 
 // These props are accessed in the TabView component
@@ -17,7 +18,7 @@ type TabViewProps = {
   children: React.ReactElement<TabProps>[];
   className?: string;
   panelClassName?: string;
-  defaultTabId: PreviewTab | null;
+  defaultTabId: PreviewTab;
 };
 
 /**
@@ -28,30 +29,35 @@ type TabViewProps = {
 const Tab = ({ children }: TabProps): JSX.Element => <>{children}</>;
 
 const TabView = ({
+  defaultTabId,
   children,
   className = '',
-  defaultTabId = null,
   panelClassName = ''
 }: TabViewProps): JSX.Element | null => {
   const vscode = useContext(VscodeContext);
+  const tabs = useMemo(
+    () => children.filter(tab => !!tab && (tab.props.visible ?? true)),
+    [children]
+  );
 
-  if (defaultTabId === null) {
-    return null;
-  }
+  const tabIndex = useMemo(
+    () => tabs.findIndex(tab => tab.props.id === defaultTabId),
+    [tabs, defaultTabId]
+  );
 
-  const tabs = children.filter(tab => !!tab && (tab.props.visible ?? true));
-  const tabIndex = tabs.findIndex(tab => tab.props.id === defaultTabId);
-
-  const onChangeTab = (index: number, lastIndex: number): boolean => {
-    vscode.postMessage({
-      type: 'PREVIEW_TAB_CHANGE',
-      payload: {
-        tab: tabs[index].props.title as PreviewTab,
-        previousTab: tabs[lastIndex].props.title as PreviewTab
-      }
-    });
-    return true;
-  };
+  const onChangeTab = useCallback(
+    (index: number, lastIndex: number): boolean => {
+      vscode.postMessage({
+        type: 'PREVIEW_TAB_CHANGE',
+        payload: {
+          tab: tabs[index].props.title as PreviewTab,
+          previousTab: tabs[lastIndex].props.title as PreviewTab
+        }
+      });
+      return true;
+    },
+    [tabs, vscode]
+  );
 
   return (
     <Tabs
@@ -71,7 +77,7 @@ const TabView = ({
       {tabs.map((tab, index) => (
         <TabPanel
           forceRender={tab.props.forceRender}
-          className={`tab-panel ${panelClassName}`}
+          className={classNames('tab-panel', panelClassName)}
           selectedClassName="tab-panel--selected"
           key={index}
         >

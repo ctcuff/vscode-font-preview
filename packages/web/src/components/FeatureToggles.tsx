@@ -1,5 +1,5 @@
 import '../scss/feature-toggles.scss';
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useCallback } from 'react';
 import FontContext from '../contexts/FontContext';
 import Switch from './Switch';
 
@@ -16,45 +16,48 @@ const characterVariantRegex = /^[cv]{2}\d{2}/;
  */
 const stylisticVariantRegex = /^[s]{2}\d{2}/;
 
+const renderSwitchTitle = (feature: string): JSX.Element => {
+  let id = `#${feature}`;
+
+  if (characterVariantRegex.test(feature)) {
+    id = '#cv01-cv99';
+  }
+
+  if (stylisticVariantRegex.test(feature)) {
+    id = '#ss01-ss20';
+  }
+
+  return (
+    <a className="switch-title" href={id}>
+      {feature}
+    </a>
+  );
+};
+
 const FeatureToggles = ({ onToggleFeature }: FeatureTogglesProps): JSX.Element => {
   const [activeFeatures, setActiveFeatures] = useState<string[]>([]);
   const { fontFeatures } = useContext(FontContext);
 
-  const toggleFeature = (feature: string, enabled: boolean): void => {
-    const features: string[] = [...activeFeatures];
+  const toggleFeature = useCallback(
+    (feature: string, enabled: boolean) => {
+      const features: string[] = [...activeFeatures];
 
-    if (enabled) {
-      features.push(feature);
-    } else {
-      const index = activeFeatures.indexOf(feature);
-      if (index !== -1) {
-        features.splice(index, 1);
+      if (enabled) {
+        features.push(feature);
+      } else {
+        const index = activeFeatures.indexOf(feature);
+        if (index !== -1) {
+          features.splice(index, 1);
+        }
       }
-    }
 
-    const css = features.length === 0 ? 'normal' : `"${features.join('", "')}"`;
+      const css = features.length === 0 ? 'normal' : `"${features.join('", "')}"`;
 
-    setActiveFeatures(features);
-    onToggleFeature?.(css, features);
-  };
-
-  const renderSwitchTitle = (feature: string): JSX.Element => {
-    let id = `#${feature}`;
-
-    if (characterVariantRegex.test(feature)) {
-      id = '#cv01-cv99';
-    }
-
-    if (stylisticVariantRegex.test(feature)) {
-      id = '#ss01-ss20';
-    }
-
-    return (
-      <a className="switch-title" href={id}>
-        {feature}
-      </a>
-    );
-  };
+      setActiveFeatures(features);
+      onToggleFeature?.(css, features);
+    },
+    [activeFeatures, onToggleFeature]
+  );
 
   return (
     <div className="feature-toggles">

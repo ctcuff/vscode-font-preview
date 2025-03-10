@@ -1,5 +1,5 @@
 import '../../scss/waterfall.scss';
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import FontNameHeader from '../FontNameHeader';
 import Chip from '../Chip';
 
@@ -23,13 +23,12 @@ for (let i = startingSize; i >= endSize; i -= decrementAmount) {
 const Waterfall = (): JSX.Element => {
   const [displayText, setDisplayText] = useState(defaultDisplayText);
 
-  const onInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setDisplayText(event.target.value);
-  };
+  const onInputChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => setDisplayText(event.target.value),
+    []
+  );
 
-  const resetText = (): void => {
-    setDisplayText(defaultDisplayText);
-  };
+  const resetText = useCallback(() => setDisplayText(defaultDisplayText), []);
 
   return (
     <div className="waterfall">

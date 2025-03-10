@@ -76,23 +76,41 @@ const TypingPreview = (): JSX.Element => {
     selection?.addRange(range);
   }, []);
 
-  const togglePinnedSection = (sectionName: PinnedSection): void => {
-    const currentSectionRef = refs[sectionName].current;
+  const togglePinnedSection = useCallback(
+    (sectionName: PinnedSection): void => {
+      const currentSectionRef = refs[sectionName].current;
 
-    setPinnedSection(pinnedSection === sectionName ? null : sectionName);
+      setPinnedSection(pinnedSection === sectionName ? null : sectionName);
 
-    // In this case, the section is unpinned, remove the margin
-    if (pinnedSection === sectionName) {
-      setPageMarginTop(0);
-    } else if (currentSectionRef) {
-      setTimeout(() => {
-        // Because the pinned element has a max-height, we need to
-        // wrap this in a setTimeout so that the element has time
-        // to calculate its size
-        setPageMarginTop(currentSectionRef.offsetHeight + 52);
-      }, 50);
-    }
-  };
+      // In this case, the section is unpinned, remove the margin
+      if (pinnedSection === sectionName) {
+        setPageMarginTop(0);
+      } else if (currentSectionRef) {
+        setTimeout(() => {
+          // Because the pinned element has a max-height, we need to
+          // wrap this in a setTimeout so that the element has time
+          // to calculate its size
+          setPageMarginTop(currentSectionRef.offsetHeight + 52);
+        }, 50);
+      }
+    },
+    [pinnedSection, refs]
+  );
+
+  const pinFeatureSection = useCallback(
+    () => togglePinnedSection('features'),
+    [togglePinnedSection]
+  );
+
+  const pinAxesSection = useCallback(
+    () => togglePinnedSection('axes'),
+    [togglePinnedSection]
+  );
+
+  const pinPropertiesSection = useCallback(
+    () => togglePinnedSection('properties'),
+    [togglePinnedSection]
+  );
 
   return (
     <div className="typing-preview" style={{ marginTop: pageMarginTop }}>
@@ -106,11 +124,11 @@ const TypingPreview = (): JSX.Element => {
             <h2>Features</h2>
             <Chip
               title={pinnedSection === 'features' ? 'Unpin' : 'Pin'}
-              onClick={() => togglePinnedSection('features')}
+              onClick={pinFeatureSection}
               selected={pinnedSection === 'features'}
             />
           </div>
-          <FeatureToggles onToggleFeature={css => setFontFeatureSettingsCSS(css)} />
+          <FeatureToggles onToggleFeature={setFontFeatureSettingsCSS} />
         </section>
       )}
       {!isTableEmpty(font.tables?.fvar) && (
@@ -119,7 +137,7 @@ const TypingPreview = (): JSX.Element => {
             <h2>Axes</h2>
             <Chip
               title={pinnedSection === 'axes' ? 'Unpin' : 'Pin'}
-              onClick={() => togglePinnedSection('axes')}
+              onClick={pinAxesSection}
               selected={pinnedSection === 'axes'}
             />
           </div>
@@ -134,7 +152,7 @@ const TypingPreview = (): JSX.Element => {
           <h2>Properties</h2>
           <Chip
             title={pinnedSection === 'properties' ? 'Unpin' : 'Pin'}
-            onClick={() => togglePinnedSection('properties')}
+            onClick={pinPropertiesSection}
             selected={pinnedSection === 'properties'}
           />
         </div>
@@ -142,6 +160,7 @@ const TypingPreview = (): JSX.Element => {
           className="attribute-slider"
           min={8}
           max={300}
+          step={1}
           value={fontSize}
           title="Font Size"
           unit="px"

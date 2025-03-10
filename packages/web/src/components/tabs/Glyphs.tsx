@@ -23,6 +23,13 @@ const Glyphs = ({ config }: GlyphProps): JSX.Element => {
   const [selectedGlyph, setSelectedGlyph] = useState<Glyph | null>(null);
   const [currentPage, setCurrentPage] = useState(0);
 
+  const numPages = useMemo(
+    () => Math.ceil(font.glyphs.length / GLYPHS_PER_PAGE),
+    [font.glyphs.length]
+  );
+
+  const closeModal = useCallback(() => setModalOpen(false), []);
+
   const setButtonRow = useCallback((element: HTMLDivElement | null) => {
     if (element) {
       element.onwheel = event => {
@@ -31,8 +38,6 @@ const Glyphs = ({ config }: GlyphProps): JSX.Element => {
       };
     }
   }, []);
-
-  const numPages = Math.ceil(font.glyphs.length / GLYPHS_PER_PAGE);
 
   const renderPageButtons = useCallback((): JSX.Element[] => {
     const elements: JSX.Element[] = [];
@@ -62,10 +67,10 @@ const Glyphs = ({ config }: GlyphProps): JSX.Element => {
     return elements;
   }, [currentPage, setCurrentPage, font.glyphs.length, numPages]);
 
-  const onSelectGlyph = (glyph: Glyph) => {
+  const onSelectGlyph = useCallback((glyph: Glyph) => {
     setSelectedGlyph(glyph);
     setModalOpen(true);
-  };
+  }, []);
 
   const loadGlyphs = useCallback(() => {
     const glyphList: Glyph[] = [];
@@ -85,8 +90,6 @@ const Glyphs = ({ config }: GlyphProps): JSX.Element => {
 
   const pageButtons = useMemo(() => renderPageButtons(), [renderPageButtons]);
 
-  // Ensures that the glyphs only re-render when either the color theme changes
-  // or the current page changes
   const glyphComponent = useMemo(
     () =>
       glyphs.map(glyph => (
@@ -98,7 +101,7 @@ const Glyphs = ({ config }: GlyphProps): JSX.Element => {
           config={config}
         />
       )),
-    [glyphs, config, font]
+    [glyphs, config, font, onSelectGlyph]
   );
 
   useEffect(() => {
@@ -118,7 +121,7 @@ const Glyphs = ({ config }: GlyphProps): JSX.Element => {
             document.body.style.overflowY = 'overlay';
           }}
           isOpen={isModalOpen}
-          onClose={() => setModalOpen(false)}
+          onClose={closeModal}
           glyph={selectedGlyph}
         />
       )}

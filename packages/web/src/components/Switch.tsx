@@ -1,5 +1,5 @@
 import '../scss/switch.scss';
-import React, { useState } from 'react';
+import React, { useMemo, useRef } from 'react';
 
 type SwitchProps = {
   className?: string;
@@ -12,25 +12,6 @@ type SwitchProps = {
 const rand = () => Math.floor(Math.random() * 1_000_000);
 const generateId = () => `input-${rand()}-${rand()}-${rand()}`;
 
-const renderTitle = (
-  title: string | JSX.Element,
-  htmlTitle: string
-): JSX.Element | null => {
-  if (!title) {
-    return null;
-  }
-
-  if (typeof title === 'string') {
-    return (
-      <p className="title" title={htmlTitle}>
-        {title}
-      </p>
-    );
-  }
-
-  return title;
-};
-
 const Switch = ({
   className = '',
   title = '',
@@ -38,11 +19,27 @@ const Switch = ({
   defaultChecked = false,
   onChange = () => {}
 }: SwitchProps): JSX.Element => {
-  const [id] = useState(generateId());
+  const id = useRef(generateId()).current;
+
+  const titleElement = useMemo(() => {
+    if (!title) {
+      return null;
+    }
+
+    if (typeof title === 'string') {
+      return (
+        <p className="title" title={htmlTitle}>
+          {title}
+        </p>
+      );
+    }
+
+    return title;
+  }, [htmlTitle, title]);
 
   return (
     <div className={`${className} switch`}>
-      {renderTitle(title, htmlTitle)}
+      {titleElement}
       {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
       <label className="wrapper" htmlFor={id}>
         <input

@@ -1,5 +1,6 @@
 import '../scss/chip.scss';
 import React from 'react';
+import classNames from 'classnames';
 
 type ChipProps = {
   title: string;
@@ -8,18 +9,13 @@ type ChipProps = {
   selected?: boolean;
 };
 
-const Chip = ({
-  title,
-  onClick = () => {},
-  className = '',
-  selected = false
-}: ChipProps): JSX.Element => (
+const Chip = (props: ChipProps): JSX.Element => (
   <button
     type="button"
-    className={`chip ${selected ? 'chip--selected' : ''} ${className}`}
-    onClick={onClick}
+    className={classNames('chip', { 'chip--selected': props.selected }, props.className)}
+    onClick={props.onClick}
   >
-    {title}
+    {props.title}
   </button>
 );
 

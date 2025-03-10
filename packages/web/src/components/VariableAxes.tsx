@@ -1,5 +1,5 @@
 import '../scss/variable-axes.scss';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import type { Table } from 'opentype.js';
 import FontContext from '../contexts/FontContext';
 import Slider from './Slider';
@@ -18,7 +18,7 @@ type FontVariation = {
 };
 
 type VariableAxesProps = {
-  onVariationChange?: (css: string) => void;
+  onVariationChange: (css: string) => void;
   variationSettings?: FontVariation;
 };
 
@@ -31,20 +31,23 @@ const VariableAxes = ({
     variationSettings || {}
   );
 
-  const onChange = (variant: string, value: number) => {
-    const modifiedVariation = {
-      ...fontVariationSettings,
-      [variant]: Math.trunc(value)
-    };
+  const onChange = useCallback(
+    (variant: string, value: number) => {
+      const modifiedVariation = {
+        ...fontVariationSettings,
+        [variant]: Math.trunc(value)
+      };
 
-    setFontVariationSettings(modifiedVariation);
+      setFontVariationSettings(modifiedVariation);
 
-    const css = createVariationCSS(modifiedVariation);
+      const css = createVariationCSS(modifiedVariation);
 
-    onVariationChange?.(css);
-  };
+      onVariationChange?.(css);
+    },
+    [fontVariationSettings, onVariationChange]
+  );
 
-  const renderVariableSliders = (): JSX.Element | null => {
+  const renderVariableSliders = useCallback((): JSX.Element | null => {
     const fvar: Table = font.tables?.fvar;
 
     if (!fvar) {
@@ -62,13 +65,14 @@ const VariableAxes = ({
             key={axis.tag}
             min={Math.trunc(axis.minValue)}
             max={Math.trunc(axis.maxValue)}
-            value={fontVariationSettings[axis.tag]}
+            value={fontVariationSettings[axis.tag] ?? 0}
             title={axis.name.en}
+            step={1}
           />
         ))}
       </>
     );
-  };
+  }, [font.tables, fontVariationSettings, onChange]);
 
   useEffect(() => {
     // fvar (which is only present on variable fonts) contains info

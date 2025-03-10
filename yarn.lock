@@ -1569,6 +1569,7 @@ __metadata:
     "@types/react-tabs": ^2.3.2
     autoprefixer: ^10.4.7
     babel-loader: ^8.2.5
+    classnames: ^2.5.1
     css-loader: ^6.7.1
     eslint: ^7.19.0
     eslint-config-airbnb: 18.2.1
@@ -2930,6 +2931,13 @@ __metadata:
   version: 1.0.3
   resolution: "chrome-trace-event@npm:1.0.3"
   checksum: cb8b1fc7e881aaef973bd0c4a43cd353c2ad8323fb471a041e64f7c2dd849cde4aad15f8b753331a32dda45c973f032c8a03b8177fc85d60eaa75e91e08bfb97
+  languageName: node
+  linkType: hard
+
+"classnames@npm:^2.5.1":
+  version: 2.5.1
+  resolution: "classnames@npm:2.5.1"
+  checksum: da424a8a6f3a96a2e87d01a432ba19315503294ac7e025f9fece656db6b6a0f7b5003bb1fbb51cbb0d9624d964f1b9bb35a51c73af9b2434c7b292c42231c1e5
   languageName: node
   linkType: hard
 
